@@ -1,0 +1,181 @@
+!!python/object:networkx.classes.digraph.DiGraph
+_adj: &id005
+  '1':
+    '5': &id004
+      arrow-angle: 0.3
+      arrow-length: 20
+      caption: Node
+      curve-angle: 15
+      description: Node
+      distance: 1.0
+      fill-color: black
+      filled: true
+      font-height: 10
+      label: "\u307F\u3084\u306A\u304C->\u306F\u3064\u307F"
+      line-width: 4
+      show-label: true
+      type: type
+      x-vector: 1.0
+      y-vector: 1.0
+  '2': {}
+  '3': {}
+  '4': {}
+  '5':
+    '2': &id001
+      arrow-angle: 0.3
+      arrow-length: 20
+      caption: Node
+      curve-angle: 15
+      description: Node
+      distance: 1.0
+      fill-color: black
+      filled: true
+      font-height: 10
+      label: "\u306F\u3064\u307F->\u3057\u3087\u3046\u3058"
+      line-width: 4
+      show-label: true
+      type: type
+      x-vector: 1.0
+      y-vector: 1.0
+    '3': &id002
+      arrow-angle: 0.3
+      arrow-length: 20
+      caption: Node
+      curve-angle: 15
+      description: Node
+      distance: 1.0
+      fill-color: black
+      filled: true
+      font-height: 10
+      label: "\u306F\u3064\u307F->\u306E\u3076\u307E\u3055"
+      line-width: 4
+      show-label: true
+      type: type
+      x-vector: 1.0
+      y-vector: 1.0
+    '4': &id003
+      arrow-angle: 0.3
+      arrow-length: 20
+      caption: Node
+      curve-angle: 15
+      description: Node
+      distance: 1.0
+      fill-color: black
+      filled: true
+      font-height: 10
+      label: "\u306F\u3064\u307F->\u3048\u3044\u3044\u3061"
+      line-width: 4
+      show-label: true
+      type: type
+      x-vector: 1.0
+      y-vector: 1.0
+_node: &id007
+  '1':
+    caption: Node
+    color: red
+    complexity: 0
+    description: Node
+    fill-color: red
+    filled: true
+    font-height: 10
+    h: 50
+    label: "\u5BAE\u6C38[\u718A\u672C\u770C\u516B\u4EE3\u5E02\u7BC9\u6DFB\u753A]"
+    line-width: 4
+    shape: circle
+    show-label: false
+    type: domain
+    w: 50
+    x: 250
+    y: 199.0
+  '2':
+    caption: Node
+    complexity: 0
+    description: Node
+    fill-color: white
+    filled: true
+    font-height: 10
+    h: 50
+    label: "\u3057\u3087\u3046\u3058"
+    line-width: 4
+    shape: circle
+    show-label: true
+    type: domain
+    w: 50
+    x: 612.0
+    y: 546.0
+  '3':
+    caption: Node
+    complexity: 0
+    description: Node
+    fill-color: white
+    filled: true
+    font-height: 10
+    h: 50
+    label: "\u306E\u3076\u307E\u3055"
+    line-width: 4
+    shape: circle
+    show-label: true
+    type: domain
+    w: 50
+    x: 689.0
+    y: 55.0
+  '4':
+    caption: Node
+    complexity: 0
+    description: Node
+    fill-color: white
+    filled: true
+    font-height: 10
+    h: 50
+    label: "\u3048\u3044\u3044\u3061"
+    line-width: 4
+    shape: circle
+    show-label: true
+    type: domain
+    w: 50
+    x: 293.0
+    y: 424.0
+  '5':
+    caption: Node
+    complexity: 0
+    description: Node
+    fill-color: white
+    filled: true
+    font-height: 10
+    h: 50
+    label: "\u306F\u3064\u307F"
+    line-width: 4
+    shape: circle
+    show-label: true
+    type: domain
+    w: 50
+    x: 430.0
+    y: 120.0
+_pred:
+  '1': {}
+  '2':
+    '5': *id001
+  '3':
+    '5': *id002
+  '4':
+    '5': *id003
+  '5':
+    '1': *id004
+_succ: *id005
+adjlist_inner_dict_factory: &id006 !!python/name:builtins.dict ''
+adjlist_outer_dict_factory: *id006
+edge_attr_dict_factory: *id006
+graph:
+  caption: Graph
+  constraints: {}
+  description: ''
+  h: 510.0
+  label: Graph
+  w: 417.0
+  x: 350.0
+  y: 55.0
+graph_attr_dict_factory: *id006
+node_attr_dict_factory: *id006
+node_dict_factory: *id006
+nodes: !!python/object:networkx.classes.reportviews.NodeView
+  _nodes: *id007

@@ -1,0 +1,1045 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1167</width>
+    <height>860</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <property name="autoFillBackground">
+   <bool>true</bool>
+  </property>
+  <property name="styleSheet">
+   <string notr="true"/>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="styleSheet">
+    <string notr="true"/>
+   </property>
+   <layout class="QGridLayout" name="gridLayout_4">
+    <item row="0" column="0">
+     <widget class="QSplitter" name="splitter_3">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <widget class="GeometrySerializableFrame" name="left_pane">
+       <property name="frameShape">
+        <enum>QFrame::StyledPanel</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Raised</enum>
+       </property>
+       <layout class="QGridLayout" name="gridLayout">
+        <item row="0" column="0">
+         <widget class="QSplitter" name="splitter_2">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Ignored">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <widget class="QFrame" name="frame_3">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="autoFillBackground">
+            <bool>false</bool>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">background-color: #cfcf08</string>
+           </property>
+           <property name="frameShape">
+            <enum>QFrame::StyledPanel</enum>
+           </property>
+           <property name="frameShadow">
+            <enum>QFrame::Raised</enum>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_5">
+            <item row="0" column="0">
+             <widget class="QSplitter" name="splitter">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <widget class="GeometrySerializableFrame" name="left_top_pane">
+               <property name="styleSheet">
+                <string notr="true">background: rgb(255,255,255)</string>
+               </property>
+               <property name="frameShape">
+                <enum>QFrame::StyledPanel</enum>
+               </property>
+               <property name="frameShadow">
+                <enum>QFrame::Raised</enum>
+               </property>
+               <layout class="QVBoxLayout" name="verticalLayout">
+                <item>
+                 <widget class="QLabel" name="label">
+                  <property name="text">
+                   <string>Elements</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QTabWidget" name="editorTabWidget">
+                  <property name="currentIndex">
+                   <number>3</number>
+                  </property>
+                  <widget class="QWidget" name="tab_7">
+                   <attribute name="title">
+                    <string>Property</string>
+                   </attribute>
+                   <layout class="QVBoxLayout" name="verticalLayout_4">
+                    <item>
+                     <widget class="QTableWidget" name="propertyWidget"/>
+                    </item>
+                   </layout>
+                  </widget>
+                  <widget class="QWidget" name="tab">
+                   <attribute name="title">
+                    <string>Nodes</string>
+                   </attribute>
+                   <widget class="QFrame" name="frame_4">
+                    <property name="geometry">
+                     <rect>
+                      <x>11</x>
+                      <y>11</y>
+                      <width>364</width>
+                      <height>52</height>
+                     </rect>
+                    </property>
+                    <property name="frameShape">
+                     <enum>QFrame::StyledPanel</enum>
+                    </property>
+                    <property name="frameShadow">
+                     <enum>QFrame::Raised</enum>
+                    </property>
+                    <layout class="QHBoxLayout" name="horizontalLayout_6">
+                     <item>
+                      <widget class="QPushButton" name="pushButton_2">
+                       <property name="text">
+                        <string>Add</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QPushButton" name="pushButton_3">
+                       <property name="text">
+                        <string>Delete</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QPushButton" name="pushButton_5">
+                       <property name="text">
+                        <string>Update</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <spacer name="horizontalSpacer_2">
+                       <property name="orientation">
+                        <enum>Qt::Horizontal</enum>
+                       </property>
+                       <property name="sizeHint" stdset="0">
+                        <size>
+                         <width>40</width>
+                         <height>20</height>
+                        </size>
+                       </property>
+                      </spacer>
+                     </item>
+                    </layout>
+                   </widget>
+                  </widget>
+                  <widget class="QWidget" name="tab_2">
+                   <attribute name="title">
+                    <string>Edges</string>
+                   </attribute>
+                   <layout class="QHBoxLayout" name="horizontalLayout_8">
+                    <item>
+                     <layout class="QVBoxLayout" name="verticalLayout_6">
+                      <item>
+                       <widget class="QFrame" name="frame_7">
+                        <property name="frameShape">
+                         <enum>QFrame::StyledPanel</enum>
+                        </property>
+                        <property name="frameShadow">
+                         <enum>QFrame::Raised</enum>
+                        </property>
+                        <layout class="QHBoxLayout" name="horizontalLayout_7">
+                         <item>
+                          <widget class="QPushButton" name="pushButton_6">
+                           <property name="text">
+                            <string>Add</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="QPushButton" name="pushButton_7">
+                           <property name="text">
+                            <string>Delete</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="QPushButton" name="pushButton_8">
+                           <property name="text">
+                            <string>Update</string>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <spacer name="horizontalSpacer_3">
+                           <property name="orientation">
+                            <enum>Qt::Horizontal</enum>
+                           </property>
+                           <property name="sizeHint" stdset="0">
+                            <size>
+                             <width>40</width>
+                             <height>20</height>
+                            </size>
+                           </property>
+                          </spacer>
+                         </item>
+                        </layout>
+                       </widget>
+                      </item>
+                      <item>
+                       <widget class="QTableView" name="edgeTableView"/>
+                      </item>
+                     </layout>
+                    </item>
+                   </layout>
+                  </widget>
+                  <widget class="QWidget" name="tab_5">
+                   <attribute name="title">
+                    <string>Constraints</string>
+                   </attribute>
+                   <layout class="QGridLayout" name="gridLayout_6">
+                    <item row="0" column="0">
+                     <widget class="QFrame" name="frame_8">
+                      <property name="frameShape">
+                       <enum>QFrame::StyledPanel</enum>
+                      </property>
+                      <property name="frameShadow">
+                       <enum>QFrame::Raised</enum>
+                      </property>
+                      <layout class="QHBoxLayout" name="horizontalLayout_9">
+                       <item>
+                        <widget class="QPushButton" name="addConstraintButton">
+                         <property name="text">
+                          <string>Add</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QPushButton" name="deleteConstraintButton">
+                         <property name="text">
+                          <string>Delete</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <spacer name="horizontalSpacer_4">
+                         <property name="orientation">
+                          <enum>Qt::Horizontal</enum>
+                         </property>
+                         <property name="sizeHint" stdset="0">
+                          <size>
+                           <width>40</width>
+                           <height>20</height>
+                          </size>
+                         </property>
+                        </spacer>
+                       </item>
+                      </layout>
+                     </widget>
+                    </item>
+                    <item row="1" column="0">
+                     <widget class="QTableWidget" name="constraintWidget"/>
+                    </item>
+                   </layout>
+                  </widget>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+              <widget class="QFrame" name="frame_6">
+               <property name="styleSheet">
+                <string notr="true">background: rgb(255,255,255)</string>
+               </property>
+               <property name="frameShape">
+                <enum>QFrame::StyledPanel</enum>
+               </property>
+               <property name="frameShadow">
+                <enum>QFrame::Raised</enum>
+               </property>
+               <layout class="QVBoxLayout" name="verticalLayout_2">
+                <item>
+                 <widget class="QTabWidget" name="messageTab">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="currentIndex">
+                   <number>0</number>
+                  </property>
+                  <widget class="QWidget" name="tab_3">
+                   <attribute name="title">
+                    <string>Messages</string>
+                   </attribute>
+                   <layout class="QGridLayout" name="gridLayout_3">
+                    <item row="0" column="0">
+                     <widget class="QTextEdit" name="messages">
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </widget>
+                  <widget class="QWidget" name="tab_4">
+                   <attribute name="title">
+                    <string>Errors</string>
+                   </attribute>
+                   <layout class="QGridLayout" name="gridLayout_2">
+                    <item row="0" column="0">
+                     <widget class="QTableWidget" name="errorWidget">
+                      <property name="styleSheet">
+                       <string notr="true"/>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </widget>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QFrame" name="frame_2">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="layoutDirection">
+        <enum>Qt::LeftToRight</enum>
+       </property>
+       <property name="autoFillBackground">
+        <bool>false</bool>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(255, 255, 193);</string>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::StyledPanel</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Raised</enum>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <item>
+         <widget class="QTabWidget" name="tabWidget">
+          <property name="currentIndex">
+           <number>0</number>
+          </property>
+          <widget class="QWidget" name="modelTab1">
+           <attribute name="title">
+            <string>Untitled</string>
+           </attribute>
+          </widget>
+          <widget class="QWidget" name="noneed">
+           <attribute name="title">
+            <string/>
+           </attribute>
+          </widget>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1167</width>
+     <height>26</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="actionNew"/>
+    <addaction name="actionOpen"/>
+    <addaction name="actionClose"/>
+    <addaction name="actionSave"/>
+    <addaction name="actionSaveAs"/>
+    <addaction name="separator"/>
+    <addaction name="actionImport"/>
+    <addaction name="actionExport"/>
+    <addaction name="separator"/>
+    <addaction name="actionQuit"/>
+   </widget>
+   <widget class="QMenu" name="menuVersion">
+    <property name="title">
+     <string>Version</string>
+    </property>
+    <addaction name="actionHelp"/>
+    <addaction name="actionVersion"/>
+   </widget>
+   <widget class="QMenu" name="menuEdit">
+    <property name="title">
+     <string>Edit</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menuView_Scene">
+    <property name="title">
+     <string>View/Scene</string>
+    </property>
+    <addaction name="actionFitToScene"/>
+    <addaction name="actionConsole"/>
+    <addaction name="actionScript_Editor"/>
+   </widget>
+   <widget class="QMenu" name="menuModel">
+    <property name="title">
+     <string>Model</string>
+    </property>
+    <addaction name="actionAddConstraint"/>
+    <addaction name="actionDeleteConstraint"/>
+    <addaction name="separator"/>
+    <addaction name="actionModelCheck"/>
+    <addaction name="actionLayout_Manager"/>
+   </widget>
+   <widget class="QMenu" name="menuLabel">
+    <property name="title">
+     <string>Label</string>
+    </property>
+    <addaction name="actionNode_Id_to_Label"/>
+    <addaction name="actionNode_Complexity_to_Label"/>
+    <addaction name="actionNode_Description_to_Label"/>
+    <addaction name="separator"/>
+    <addaction name="actionEdge_Id_to_Label"/>
+    <addaction name="actionEdge_Distance_to_Label"/>
+    <addaction name="actionEdge_Description_to_Label"/>
+    <addaction name="separator"/>
+    <addaction name="actionNode_Tooltips"/>
+    <addaction name="actionEdge_Tooltips"/>
+   </widget>
+   <widget class="QMenu" name="menuSolver_Simulation">
+    <property name="title">
+     <string>Solver/Simulation</string>
+    </property>
+    <addaction name="actionStart_Solver"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuEdit"/>
+   <addaction name="menuView_Scene"/>
+   <addaction name="menuModel"/>
+   <addaction name="menuSolver_Simulation"/>
+   <addaction name="menuLabel"/>
+   <addaction name="menuVersion"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionOpen">
+   <property name="text">
+    <string>Open</string>
+   </property>
+  </action>
+  <action name="actionClose">
+   <property name="text">
+    <string>Close</string>
+   </property>
+  </action>
+  <action name="actionSave">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Save</string>
+   </property>
+  </action>
+  <action name="actionSaveAs">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>SaveAs</string>
+   </property>
+  </action>
+  <action name="actionImport">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Import</string>
+   </property>
+  </action>
+  <action name="actionExport">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Export</string>
+   </property>
+  </action>
+  <action name="actionQuit">
+   <property name="text">
+    <string>Quit</string>
+   </property>
+  </action>
+  <action name="actionVersion">
+   <property name="text">
+    <string>Version</string>
+   </property>
+  </action>
+  <action name="actionHelp">
+   <property name="text">
+    <string>Help</string>
+   </property>
+  </action>
+  <action name="actionFitToScene">
+   <property name="text">
+    <string>Fit to Scene</string>
+   </property>
+  </action>
+  <action name="actionAddConstraint">
+   <property name="text">
+    <string>Add Constraint</string>
+   </property>
+  </action>
+  <action name="actionDeleteConstraint">
+   <property name="text">
+    <string>Delete Constraint</string>
+   </property>
+  </action>
+  <action name="actionModelCheck">
+   <property name="text">
+    <string>Model Check</string>
+   </property>
+  </action>
+  <action name="actionChangeNodeLabel">
+   <property name="text">
+    <string>Change Node Label</string>
+   </property>
+  </action>
+  <action name="actionNode_Id_to_Label">
+   <property name="text">
+    <string>Node Id to Label</string>
+   </property>
+  </action>
+  <action name="actionNode_Complexity_to_Label">
+   <property name="text">
+    <string>Node Complexity to Label</string>
+   </property>
+  </action>
+  <action name="actionEdge_Id_to_Label">
+   <property name="text">
+    <string>Edge Id to Label</string>
+   </property>
+  </action>
+  <action name="actionEdge_Distance_to_Label">
+   <property name="text">
+    <string>Edge distance to Label</string>
+   </property>
+  </action>
+  <action name="actionEdge_Description_to_Label">
+   <property name="text">
+    <string>Edge Description to Label</string>
+   </property>
+  </action>
+  <action name="actionNode_Description_to_Label">
+   <property name="text">
+    <string>Node Description to Label</string>
+   </property>
+  </action>
+  <action name="actionNode_Tooltips">
+   <property name="text">
+    <string>Node Tooltips</string>
+   </property>
+  </action>
+  <action name="actionEdge_Tooltips">
+   <property name="text">
+    <string>Edge Tooltips</string>
+   </property>
+  </action>
+  <action name="actionLayout_Manager">
+   <property name="text">
+    <string>Layout Manager</string>
+   </property>
+  </action>
+  <action name="actionConsole">
+   <property name="text">
+    <string>Console</string>
+   </property>
+  </action>
+  <action name="actionScript_Editor">
+   <property name="text">
+    <string>Script Editor</string>
+   </property>
+  </action>
+  <action name="actionNew">
+   <property name="text">
+    <string>New</string>
+   </property>
+  </action>
+  <action name="actionStart_Solver">
+   <property name="text">
+    <string>Start Solver</string>
+   </property>
+  </action>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>GeometrySerializableFrame</class>
+   <extends>QFrame</extends>
+   <header>GUI.geomserializable</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>actionOpen</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>command_open()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>510</x>
+     <y>388</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionQuit</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>command_quit()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>510</x>
+     <y>388</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionClose</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>command_close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>510</x>
+     <y>388</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionSave</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>command_save()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>510</x>
+     <y>388</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionSaveAs</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>command_saveAs()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>510</x>
+     <y>388</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionFitToScene</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>command_fit_to_scene()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>555</x>
+     <y>429</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionDeleteConstraint</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>command_delete_constraint()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>555</x>
+     <y>429</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionNode_Id_to_Label</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>command_set_node_id_to_label()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>555</x>
+     <y>429</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionNode_Complexity_to_Label</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>command_set_node_complexity_to_label()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>555</x>
+     <y>429</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionNode_Description_to_Label</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>command_set_node_caption_to_label()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>555</x>
+     <y>429</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionEdge_Id_to_Label</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>command_set_edge_id_to_label()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>555</x>
+     <y>429</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionEdge_Distance_to_Label</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>command_set_edge_distance_to_label()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>555</x>
+     <y>429</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionEdge_Description_to_Label</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>command_set_edge_caption_to_label()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>555</x>
+     <y>429</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionEdge_Tooltips</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>command_change_edge_tooltips()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>555</x>
+     <y>429</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionNode_Tooltips</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>command_change_node_tooltips()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>555</x>
+     <y>429</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionModelCheck</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>command_model_check()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>555</x>
+     <y>429</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionLayout_Manager</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>command_layout_manager()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>555</x>
+     <y>429</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionAddConstraint</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>command_add_constraint()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>555</x>
+     <y>429</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionConsole</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>command_console()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>555</x>
+     <y>429</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionScript_Editor</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>command_script_editor()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>555</x>
+     <y>429</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionNew</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>command_new_model()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>583</x>
+     <y>429</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>tabWidget</sender>
+   <signal>currentChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>command_change_current(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1006</x>
+     <y>430</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>583</x>
+     <y>429</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionStart_Solver</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>command_start_solver()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>583</x>
+     <y>429</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>command_open()</slot>
+  <slot>command_quit()</slot>
+  <slot>command_close()</slot>
+  <slot>command_save()</slot>
+  <slot>command_saveAs()</slot>
+  <slot>command_help()</slot>
+  <slot>command_version()</slot>
+  <slot>command_node_selected()</slot>
+  <slot>command_node_deselected()</slot>
+  <slot>command_node_added()</slot>
+  <slot>command_node_changed()</slot>
+  <slot>command_node_removed()</slot>
+  <slot>command_edge_selected()</slot>
+  <slot>command_edge_deselected()</slot>
+  <slot>command_edge_added()</slot>
+  <slot>command_edge_changed()</slot>
+  <slot>command_edge_removed()</slot>
+  <slot>command_show_context_menu(QPoint)</slot>
+  <slot>command_fit_to_scene()</slot>
+  <slot>command_add_constraint()</slot>
+  <slot>command_delete_constraint()</slot>
+  <slot>command_set_node_id_to_label()</slot>
+  <slot>command_set_node_complexity_to_label()</slot>
+  <slot>command_set_node_caption_to_label()</slot>
+  <slot>command_set_edge_id_to_label()</slot>
+  <slot>command_set_edge_distance_to_label()</slot>
+  <slot>command_set_edge_caption_to_label()</slot>
+  <slot>command_change_node_tooltips()</slot>
+  <slot>command_change_edge_tooltips()</slot>
+  <slot>command_model_check()</slot>
+  <slot>command_layout_manager()</slot>
+  <slot>command_console()</slot>
+  <slot>command_script_editor()</slot>
+  <slot>command_new_model()</slot>
+  <slot>command_change_current(int)</slot>
+  <slot>command_start_solver()</slot>
+ </slots>
+</ui>

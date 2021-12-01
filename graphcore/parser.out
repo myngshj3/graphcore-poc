@@ -1,0 +1,2013 @@
+Created by PLY version 3.11 (http://www.dabeaz.com/ply)
+
+Unused terminals:
+
+    CARD
+    COMMENT
+    DOUBLEQUOTE
+    FUNCDECLARESYMBOL
+    GRAPH
+    LBRACKET
+    NAMEDSYMBOL
+    PERIOD
+    QUOTE
+    RBRACKET
+
+Grammar
+
+Rule 0     S' -> terms
+Rule 1     terms -> <empty>
+Rule 2     terms -> declaration_list
+Rule 3     declaration_list -> declaration
+Rule 4     declaration_list -> declaration_list declaration
+Rule 5     variable_name -> VARIABLENAME
+Rule 6     constant -> NUMBER
+Rule 7     constant -> STRING
+Rule 8     constant -> BOOLSYMBOL
+Rule 9     assignment -> ASSIGNMENT
+Rule 10    declaration -> type_symbol variable_name LPAR type_list RPAR SEMICOLON
+Rule 11    declaration -> type_symbol variable_name LPAR RPAR SEMICOLON
+Rule 12    declaration -> type_symbol variable_name SEMICOLON
+Rule 13    declaration -> boolean_equation SEMICOLON
+Rule 14    boolean_equation -> BOOLSYMBOL
+Rule 15    boolean_equation -> LPAR boolean_equation RPAR
+Rule 16    boolean_equation -> NEGATOR boolean_equation
+Rule 17    boolean_equation -> boolean_equation CONJ boolean_equation
+Rule 18    boolean_equation -> boolean_equation DISJ boolean_equation
+Rule 19    boolean_equation -> boolean_equation EQUALITY boolean_equation
+Rule 20    boolean_equation -> boolean_equation INEQUALITY boolean_equation
+Rule 21    boolean_equation -> boolean_equation IMPLICATOR boolean_equation
+Rule 22    boolean_equation -> variable EQUALITY variable
+Rule 23    boolean_equation -> variable INEQUALITY variable
+Rule 24    boolean_equation -> STRING EQUALITY STRING
+Rule 25    boolean_equation -> STRING INEQUALITY STRING
+Rule 26    boolean_equation -> NUMBER EQUALITY NUMBER
+Rule 27    boolean_equation -> NUMBER INEQUALITY NUMBER
+Rule 28    boolean_equation -> NUMBER LESSTHAN NUMBER
+Rule 29    boolean_equation -> NUMBER LESSOREQUAL NUMBER
+Rule 30    boolean_equation -> attribute EQUALITY attribute
+Rule 31    boolean_equation -> attribute INEQUALITY attribute
+Rule 32    boolean_equation -> attribute LESSTHAN attribute
+Rule 33    boolean_equation -> attribute LESSOREQUAL attribute
+Rule 34    boolean_equation -> attribute EQUALITY STRING
+Rule 35    boolean_equation -> attribute INEQUALITY STRING
+Rule 36    boolean_equation -> attribute EQUALITY NUMBER
+Rule 37    boolean_equation -> attribute INEQUALITY NUMBER
+Rule 38    boolean_equation -> attribute LESSTHAN NUMBER
+Rule 39    boolean_equation -> attribute LESSOREQUAL NUMBER
+Rule 40    boolean_equation -> STRING EQUALITY attribute
+Rule 41    boolean_equation -> STRING INEQUALITY attribute
+Rule 42    boolean_equation -> NUMBER EQUALITY attribute
+Rule 43    boolean_equation -> NUMBER INEQUALITY attribute
+Rule 44    boolean_equation -> NUMBER LESSTHAN attribute
+Rule 45    boolean_equation -> NUMBER LESSOREQUAL attribute
+Rule 46    boolean_equation -> FORALL VARIABLENAME MEMBEROF nodes_or_edges boolean_equation
+Rule 47    boolean_equation -> EXISTS VARIABLENAME MEMBEROF nodes_or_edges boolean_equation
+Rule 48    attribute -> VARIABLENAME CLPAR PROPERTYNAME CRPAR
+Rule 49    variable -> VARIABLENAME
+Rule 50    nodes_or_edges -> NODES
+Rule 51    nodes_or_edges -> EDGES
+Rule 52    type_symbol -> TYPEINT
+Rule 53    type_symbol -> TYPEFLOAT
+Rule 54    type_symbol -> TYPESTR
+Rule 55    type_symbol -> TYPELIST
+Rule 56    type_symbol -> TYPEBOOL
+Rule 57    variable_symbol -> VARIABLENAME
+Rule 58    type_list -> type_symbol
+Rule 59    type_list -> type_list COMMA type_symbol
+
+Terminals, with rules where they appear
+
+ASSIGNMENT           : 9
+BOOLSYMBOL           : 8 14
+CARD                 : 
+CLPAR                : 48
+COMMA                : 59
+COMMENT              : 
+CONJ                 : 17
+CRPAR                : 48
+DISJ                 : 18
+DOUBLEQUOTE          : 
+EDGES                : 51
+EQUALITY             : 19 22 24 26 30 34 36 40 42
+EXISTS               : 47
+FORALL               : 46
+FUNCDECLARESYMBOL    : 
+GRAPH                : 
+IMPLICATOR           : 21
+INEQUALITY           : 20 23 25 27 31 35 37 41 43
+LBRACKET             : 
+LESSOREQUAL          : 29 33 39 45
+LESSTHAN             : 28 32 38 44
+LPAR                 : 10 11 15
+MEMBEROF             : 46 47
+NAMEDSYMBOL          : 
+NEGATOR              : 16
+NODES                : 50
+NUMBER               : 6 26 26 27 27 28 28 29 29 36 37 38 39 42 43 44 45
+PERIOD               : 
+PROPERTYNAME         : 48
+QUOTE                : 
+RBRACKET             : 
+RPAR                 : 10 11 15
+SEMICOLON            : 10 11 12 13
+STRING               : 7 24 24 25 25 34 35 40 41
+TYPEBOOL             : 56
+TYPEFLOAT            : 53
+TYPEINT              : 52
+TYPELIST             : 55
+TYPESTR              : 54
+VARIABLENAME         : 5 46 47 48 49 57
+error                : 
+
+Nonterminals, with rules where they appear
+
+assignment           : 
+attribute            : 30 30 31 31 32 32 33 33 34 35 36 37 38 39 40 41 42 43 44 45
+boolean_equation     : 13 15 16 17 17 18 18 19 19 20 20 21 21 46 47
+constant             : 
+declaration          : 3 4
+declaration_list     : 2 4
+nodes_or_edges       : 46 47
+terms                : 0
+type_list            : 10 59
+type_symbol          : 10 11 12 58 59
+variable             : 22 22 23 23
+variable_name        : 10 11 12
+variable_symbol      : 
+
+Parsing method: LALR
+
+state 0
+
+    (0) S' -> . terms
+    (1) terms -> .
+    (2) terms -> . declaration_list
+    (3) declaration_list -> . declaration
+    (4) declaration_list -> . declaration_list declaration
+    (10) declaration -> . type_symbol variable_name LPAR type_list RPAR SEMICOLON
+    (11) declaration -> . type_symbol variable_name LPAR RPAR SEMICOLON
+    (12) declaration -> . type_symbol variable_name SEMICOLON
+    (13) declaration -> . boolean_equation SEMICOLON
+    (52) type_symbol -> . TYPEINT
+    (53) type_symbol -> . TYPEFLOAT
+    (54) type_symbol -> . TYPESTR
+    (55) type_symbol -> . TYPELIST
+    (56) type_symbol -> . TYPEBOOL
+    (14) boolean_equation -> . BOOLSYMBOL
+    (15) boolean_equation -> . LPAR boolean_equation RPAR
+    (16) boolean_equation -> . NEGATOR boolean_equation
+    (17) boolean_equation -> . boolean_equation CONJ boolean_equation
+    (18) boolean_equation -> . boolean_equation DISJ boolean_equation
+    (19) boolean_equation -> . boolean_equation EQUALITY boolean_equation
+    (20) boolean_equation -> . boolean_equation INEQUALITY boolean_equation
+    (21) boolean_equation -> . boolean_equation IMPLICATOR boolean_equation
+    (22) boolean_equation -> . variable EQUALITY variable
+    (23) boolean_equation -> . variable INEQUALITY variable
+    (24) boolean_equation -> . STRING EQUALITY STRING
+    (25) boolean_equation -> . STRING INEQUALITY STRING
+    (26) boolean_equation -> . NUMBER EQUALITY NUMBER
+    (27) boolean_equation -> . NUMBER INEQUALITY NUMBER
+    (28) boolean_equation -> . NUMBER LESSTHAN NUMBER
+    (29) boolean_equation -> . NUMBER LESSOREQUAL NUMBER
+    (30) boolean_equation -> . attribute EQUALITY attribute
+    (31) boolean_equation -> . attribute INEQUALITY attribute
+    (32) boolean_equation -> . attribute LESSTHAN attribute
+    (33) boolean_equation -> . attribute LESSOREQUAL attribute
+    (34) boolean_equation -> . attribute EQUALITY STRING
+    (35) boolean_equation -> . attribute INEQUALITY STRING
+    (36) boolean_equation -> . attribute EQUALITY NUMBER
+    (37) boolean_equation -> . attribute INEQUALITY NUMBER
+    (38) boolean_equation -> . attribute LESSTHAN NUMBER
+    (39) boolean_equation -> . attribute LESSOREQUAL NUMBER
+    (40) boolean_equation -> . STRING EQUALITY attribute
+    (41) boolean_equation -> . STRING INEQUALITY attribute
+    (42) boolean_equation -> . NUMBER EQUALITY attribute
+    (43) boolean_equation -> . NUMBER INEQUALITY attribute
+    (44) boolean_equation -> . NUMBER LESSTHAN attribute
+    (45) boolean_equation -> . NUMBER LESSOREQUAL attribute
+    (46) boolean_equation -> . FORALL VARIABLENAME MEMBEROF nodes_or_edges boolean_equation
+    (47) boolean_equation -> . EXISTS VARIABLENAME MEMBEROF nodes_or_edges boolean_equation
+    (49) variable -> . VARIABLENAME
+    (48) attribute -> . VARIABLENAME CLPAR PROPERTYNAME CRPAR
+
+    $end            reduce using rule 1 (terms -> .)
+    TYPEINT         shift and go to state 7
+    TYPEFLOAT       shift and go to state 8
+    TYPESTR         shift and go to state 9
+    TYPELIST        shift and go to state 10
+    TYPEBOOL        shift and go to state 11
+    BOOLSYMBOL      shift and go to state 12
+    LPAR            shift and go to state 5
+    NEGATOR         shift and go to state 13
+    STRING          shift and go to state 15
+    NUMBER          shift and go to state 16
+    FORALL          shift and go to state 18
+    EXISTS          shift and go to state 20
+    VARIABLENAME    shift and go to state 19
+
+    terms                          shift and go to state 1
+    declaration_list               shift and go to state 2
+    declaration                    shift and go to state 3
+    type_symbol                    shift and go to state 4
+    boolean_equation               shift and go to state 6
+    variable                       shift and go to state 14
+    attribute                      shift and go to state 17
+
+state 1
+
+    (0) S' -> terms .
+
+
+
+state 2
+
+    (2) terms -> declaration_list .
+    (4) declaration_list -> declaration_list . declaration
+    (10) declaration -> . type_symbol variable_name LPAR type_list RPAR SEMICOLON
+    (11) declaration -> . type_symbol variable_name LPAR RPAR SEMICOLON
+    (12) declaration -> . type_symbol variable_name SEMICOLON
+    (13) declaration -> . boolean_equation SEMICOLON
+    (52) type_symbol -> . TYPEINT
+    (53) type_symbol -> . TYPEFLOAT
+    (54) type_symbol -> . TYPESTR
+    (55) type_symbol -> . TYPELIST
+    (56) type_symbol -> . TYPEBOOL
+    (14) boolean_equation -> . BOOLSYMBOL
+    (15) boolean_equation -> . LPAR boolean_equation RPAR
+    (16) boolean_equation -> . NEGATOR boolean_equation
+    (17) boolean_equation -> . boolean_equation CONJ boolean_equation
+    (18) boolean_equation -> . boolean_equation DISJ boolean_equation
+    (19) boolean_equation -> . boolean_equation EQUALITY boolean_equation
+    (20) boolean_equation -> . boolean_equation INEQUALITY boolean_equation
+    (21) boolean_equation -> . boolean_equation IMPLICATOR boolean_equation
+    (22) boolean_equation -> . variable EQUALITY variable
+    (23) boolean_equation -> . variable INEQUALITY variable
+    (24) boolean_equation -> . STRING EQUALITY STRING
+    (25) boolean_equation -> . STRING INEQUALITY STRING
+    (26) boolean_equation -> . NUMBER EQUALITY NUMBER
+    (27) boolean_equation -> . NUMBER INEQUALITY NUMBER
+    (28) boolean_equation -> . NUMBER LESSTHAN NUMBER
+    (29) boolean_equation -> . NUMBER LESSOREQUAL NUMBER
+    (30) boolean_equation -> . attribute EQUALITY attribute
+    (31) boolean_equation -> . attribute INEQUALITY attribute
+    (32) boolean_equation -> . attribute LESSTHAN attribute
+    (33) boolean_equation -> . attribute LESSOREQUAL attribute
+    (34) boolean_equation -> . attribute EQUALITY STRING
+    (35) boolean_equation -> . attribute INEQUALITY STRING
+    (36) boolean_equation -> . attribute EQUALITY NUMBER
+    (37) boolean_equation -> . attribute INEQUALITY NUMBER
+    (38) boolean_equation -> . attribute LESSTHAN NUMBER
+    (39) boolean_equation -> . attribute LESSOREQUAL NUMBER
+    (40) boolean_equation -> . STRING EQUALITY attribute
+    (41) boolean_equation -> . STRING INEQUALITY attribute
+    (42) boolean_equation -> . NUMBER EQUALITY attribute
+    (43) boolean_equation -> . NUMBER INEQUALITY attribute
+    (44) boolean_equation -> . NUMBER LESSTHAN attribute
+    (45) boolean_equation -> . NUMBER LESSOREQUAL attribute
+    (46) boolean_equation -> . FORALL VARIABLENAME MEMBEROF nodes_or_edges boolean_equation
+    (47) boolean_equation -> . EXISTS VARIABLENAME MEMBEROF nodes_or_edges boolean_equation
+    (49) variable -> . VARIABLENAME
+    (48) attribute -> . VARIABLENAME CLPAR PROPERTYNAME CRPAR
+
+    $end            reduce using rule 2 (terms -> declaration_list .)
+    TYPEINT         shift and go to state 7
+    TYPEFLOAT       shift and go to state 8
+    TYPESTR         shift and go to state 9
+    TYPELIST        shift and go to state 10
+    TYPEBOOL        shift and go to state 11
+    BOOLSYMBOL      shift and go to state 12
+    LPAR            shift and go to state 5
+    NEGATOR         shift and go to state 13
+    STRING          shift and go to state 15
+    NUMBER          shift and go to state 16
+    FORALL          shift and go to state 18
+    EXISTS          shift and go to state 20
+    VARIABLENAME    shift and go to state 19
+
+    declaration                    shift and go to state 21
+    type_symbol                    shift and go to state 4
+    boolean_equation               shift and go to state 6
+    variable                       shift and go to state 14
+    attribute                      shift and go to state 17
+
+state 3
+
+    (3) declaration_list -> declaration .
+
+    TYPEINT         reduce using rule 3 (declaration_list -> declaration .)
+    TYPEFLOAT       reduce using rule 3 (declaration_list -> declaration .)
+    TYPESTR         reduce using rule 3 (declaration_list -> declaration .)
+    TYPELIST        reduce using rule 3 (declaration_list -> declaration .)
+    TYPEBOOL        reduce using rule 3 (declaration_list -> declaration .)
+    BOOLSYMBOL      reduce using rule 3 (declaration_list -> declaration .)
+    LPAR            reduce using rule 3 (declaration_list -> declaration .)
+    NEGATOR         reduce using rule 3 (declaration_list -> declaration .)
+    STRING          reduce using rule 3 (declaration_list -> declaration .)
+    NUMBER          reduce using rule 3 (declaration_list -> declaration .)
+    FORALL          reduce using rule 3 (declaration_list -> declaration .)
+    EXISTS          reduce using rule 3 (declaration_list -> declaration .)
+    VARIABLENAME    reduce using rule 3 (declaration_list -> declaration .)
+    $end            reduce using rule 3 (declaration_list -> declaration .)
+
+
+state 4
+
+    (10) declaration -> type_symbol . variable_name LPAR type_list RPAR SEMICOLON
+    (11) declaration -> type_symbol . variable_name LPAR RPAR SEMICOLON
+    (12) declaration -> type_symbol . variable_name SEMICOLON
+    (5) variable_name -> . VARIABLENAME
+
+    VARIABLENAME    shift and go to state 23
+
+    variable_name                  shift and go to state 22
+
+state 5
+
+    (15) boolean_equation -> LPAR . boolean_equation RPAR
+    (14) boolean_equation -> . BOOLSYMBOL
+    (15) boolean_equation -> . LPAR boolean_equation RPAR
+    (16) boolean_equation -> . NEGATOR boolean_equation
+    (17) boolean_equation -> . boolean_equation CONJ boolean_equation
+    (18) boolean_equation -> . boolean_equation DISJ boolean_equation
+    (19) boolean_equation -> . boolean_equation EQUALITY boolean_equation
+    (20) boolean_equation -> . boolean_equation INEQUALITY boolean_equation
+    (21) boolean_equation -> . boolean_equation IMPLICATOR boolean_equation
+    (22) boolean_equation -> . variable EQUALITY variable
+    (23) boolean_equation -> . variable INEQUALITY variable
+    (24) boolean_equation -> . STRING EQUALITY STRING
+    (25) boolean_equation -> . STRING INEQUALITY STRING
+    (26) boolean_equation -> . NUMBER EQUALITY NUMBER
+    (27) boolean_equation -> . NUMBER INEQUALITY NUMBER
+    (28) boolean_equation -> . NUMBER LESSTHAN NUMBER
+    (29) boolean_equation -> . NUMBER LESSOREQUAL NUMBER
+    (30) boolean_equation -> . attribute EQUALITY attribute
+    (31) boolean_equation -> . attribute INEQUALITY attribute
+    (32) boolean_equation -> . attribute LESSTHAN attribute
+    (33) boolean_equation -> . attribute LESSOREQUAL attribute
+    (34) boolean_equation -> . attribute EQUALITY STRING
+    (35) boolean_equation -> . attribute INEQUALITY STRING
+    (36) boolean_equation -> . attribute EQUALITY NUMBER
+    (37) boolean_equation -> . attribute INEQUALITY NUMBER
+    (38) boolean_equation -> . attribute LESSTHAN NUMBER
+    (39) boolean_equation -> . attribute LESSOREQUAL NUMBER
+    (40) boolean_equation -> . STRING EQUALITY attribute
+    (41) boolean_equation -> . STRING INEQUALITY attribute
+    (42) boolean_equation -> . NUMBER EQUALITY attribute
+    (43) boolean_equation -> . NUMBER INEQUALITY attribute
+    (44) boolean_equation -> . NUMBER LESSTHAN attribute
+    (45) boolean_equation -> . NUMBER LESSOREQUAL attribute
+    (46) boolean_equation -> . FORALL VARIABLENAME MEMBEROF nodes_or_edges boolean_equation
+    (47) boolean_equation -> . EXISTS VARIABLENAME MEMBEROF nodes_or_edges boolean_equation
+    (49) variable -> . VARIABLENAME
+    (48) attribute -> . VARIABLENAME CLPAR PROPERTYNAME CRPAR
+
+    BOOLSYMBOL      shift and go to state 12
+    LPAR            shift and go to state 5
+    NEGATOR         shift and go to state 13
+    STRING          shift and go to state 15
+    NUMBER          shift and go to state 16
+    FORALL          shift and go to state 18
+    EXISTS          shift and go to state 20
+    VARIABLENAME    shift and go to state 19
+
+    boolean_equation               shift and go to state 24
+    variable                       shift and go to state 14
+    attribute                      shift and go to state 17
+
+state 6
+
+    (13) declaration -> boolean_equation . SEMICOLON
+    (17) boolean_equation -> boolean_equation . CONJ boolean_equation
+    (18) boolean_equation -> boolean_equation . DISJ boolean_equation
+    (19) boolean_equation -> boolean_equation . EQUALITY boolean_equation
+    (20) boolean_equation -> boolean_equation . INEQUALITY boolean_equation
+    (21) boolean_equation -> boolean_equation . IMPLICATOR boolean_equation
+
+    SEMICOLON       shift and go to state 25
+    CONJ            shift and go to state 26
+    DISJ            shift and go to state 27
+    EQUALITY        shift and go to state 28
+    INEQUALITY      shift and go to state 29
+    IMPLICATOR      shift and go to state 30
+
+
+state 7
+
+    (52) type_symbol -> TYPEINT .
+
+    VARIABLENAME    reduce using rule 52 (type_symbol -> TYPEINT .)
+    RPAR            reduce using rule 52 (type_symbol -> TYPEINT .)
+    COMMA           reduce using rule 52 (type_symbol -> TYPEINT .)
+
+
+state 8
+
+    (53) type_symbol -> TYPEFLOAT .
+
+    VARIABLENAME    reduce using rule 53 (type_symbol -> TYPEFLOAT .)
+    RPAR            reduce using rule 53 (type_symbol -> TYPEFLOAT .)
+    COMMA           reduce using rule 53 (type_symbol -> TYPEFLOAT .)
+
+
+state 9
+
+    (54) type_symbol -> TYPESTR .
+
+    VARIABLENAME    reduce using rule 54 (type_symbol -> TYPESTR .)
+    RPAR            reduce using rule 54 (type_symbol -> TYPESTR .)
+    COMMA           reduce using rule 54 (type_symbol -> TYPESTR .)
+
+
+state 10
+
+    (55) type_symbol -> TYPELIST .
+
+    VARIABLENAME    reduce using rule 55 (type_symbol -> TYPELIST .)
+    RPAR            reduce using rule 55 (type_symbol -> TYPELIST .)
+    COMMA           reduce using rule 55 (type_symbol -> TYPELIST .)
+
+
+state 11
+
+    (56) type_symbol -> TYPEBOOL .
+
+    VARIABLENAME    reduce using rule 56 (type_symbol -> TYPEBOOL .)
+    RPAR            reduce using rule 56 (type_symbol -> TYPEBOOL .)
+    COMMA           reduce using rule 56 (type_symbol -> TYPEBOOL .)
+
+
+state 12
+
+    (14) boolean_equation -> BOOLSYMBOL .
+
+    SEMICOLON       reduce using rule 14 (boolean_equation -> BOOLSYMBOL .)
+    CONJ            reduce using rule 14 (boolean_equation -> BOOLSYMBOL .)
+    DISJ            reduce using rule 14 (boolean_equation -> BOOLSYMBOL .)
+    EQUALITY        reduce using rule 14 (boolean_equation -> BOOLSYMBOL .)
+    INEQUALITY      reduce using rule 14 (boolean_equation -> BOOLSYMBOL .)
+    IMPLICATOR      reduce using rule 14 (boolean_equation -> BOOLSYMBOL .)
+    RPAR            reduce using rule 14 (boolean_equation -> BOOLSYMBOL .)
+
+
+state 13
+
+    (16) boolean_equation -> NEGATOR . boolean_equation
+    (14) boolean_equation -> . BOOLSYMBOL
+    (15) boolean_equation -> . LPAR boolean_equation RPAR
+    (16) boolean_equation -> . NEGATOR boolean_equation
+    (17) boolean_equation -> . boolean_equation CONJ boolean_equation
+    (18) boolean_equation -> . boolean_equation DISJ boolean_equation
+    (19) boolean_equation -> . boolean_equation EQUALITY boolean_equation
+    (20) boolean_equation -> . boolean_equation INEQUALITY boolean_equation
+    (21) boolean_equation -> . boolean_equation IMPLICATOR boolean_equation
+    (22) boolean_equation -> . variable EQUALITY variable
+    (23) boolean_equation -> . variable INEQUALITY variable
+    (24) boolean_equation -> . STRING EQUALITY STRING
+    (25) boolean_equation -> . STRING INEQUALITY STRING
+    (26) boolean_equation -> . NUMBER EQUALITY NUMBER
+    (27) boolean_equation -> . NUMBER INEQUALITY NUMBER
+    (28) boolean_equation -> . NUMBER LESSTHAN NUMBER
+    (29) boolean_equation -> . NUMBER LESSOREQUAL NUMBER
+    (30) boolean_equation -> . attribute EQUALITY attribute
+    (31) boolean_equation -> . attribute INEQUALITY attribute
+    (32) boolean_equation -> . attribute LESSTHAN attribute
+    (33) boolean_equation -> . attribute LESSOREQUAL attribute
+    (34) boolean_equation -> . attribute EQUALITY STRING
+    (35) boolean_equation -> . attribute INEQUALITY STRING
+    (36) boolean_equation -> . attribute EQUALITY NUMBER
+    (37) boolean_equation -> . attribute INEQUALITY NUMBER
+    (38) boolean_equation -> . attribute LESSTHAN NUMBER
+    (39) boolean_equation -> . attribute LESSOREQUAL NUMBER
+    (40) boolean_equation -> . STRING EQUALITY attribute
+    (41) boolean_equation -> . STRING INEQUALITY attribute
+    (42) boolean_equation -> . NUMBER EQUALITY attribute
+    (43) boolean_equation -> . NUMBER INEQUALITY attribute
+    (44) boolean_equation -> . NUMBER LESSTHAN attribute
+    (45) boolean_equation -> . NUMBER LESSOREQUAL attribute
+    (46) boolean_equation -> . FORALL VARIABLENAME MEMBEROF nodes_or_edges boolean_equation
+    (47) boolean_equation -> . EXISTS VARIABLENAME MEMBEROF nodes_or_edges boolean_equation
+    (49) variable -> . VARIABLENAME
+    (48) attribute -> . VARIABLENAME CLPAR PROPERTYNAME CRPAR
+
+    BOOLSYMBOL      shift and go to state 12
+    LPAR            shift and go to state 5
+    NEGATOR         shift and go to state 13
+    STRING          shift and go to state 15
+    NUMBER          shift and go to state 16
+    FORALL          shift and go to state 18
+    EXISTS          shift and go to state 20
+    VARIABLENAME    shift and go to state 19
+
+    boolean_equation               shift and go to state 31
+    variable                       shift and go to state 14
+    attribute                      shift and go to state 17
+
+state 14
+
+    (22) boolean_equation -> variable . EQUALITY variable
+    (23) boolean_equation -> variable . INEQUALITY variable
+
+    EQUALITY        shift and go to state 32
+    INEQUALITY      shift and go to state 33
+
+
+state 15
+
+    (24) boolean_equation -> STRING . EQUALITY STRING
+    (25) boolean_equation -> STRING . INEQUALITY STRING
+    (40) boolean_equation -> STRING . EQUALITY attribute
+    (41) boolean_equation -> STRING . INEQUALITY attribute
+
+    EQUALITY        shift and go to state 34
+    INEQUALITY      shift and go to state 35
+
+
+state 16
+
+    (26) boolean_equation -> NUMBER . EQUALITY NUMBER
+    (27) boolean_equation -> NUMBER . INEQUALITY NUMBER
+    (28) boolean_equation -> NUMBER . LESSTHAN NUMBER
+    (29) boolean_equation -> NUMBER . LESSOREQUAL NUMBER
+    (42) boolean_equation -> NUMBER . EQUALITY attribute
+    (43) boolean_equation -> NUMBER . INEQUALITY attribute
+    (44) boolean_equation -> NUMBER . LESSTHAN attribute
+    (45) boolean_equation -> NUMBER . LESSOREQUAL attribute
+
+    EQUALITY        shift and go to state 36
+    INEQUALITY      shift and go to state 37
+    LESSTHAN        shift and go to state 38
+    LESSOREQUAL     shift and go to state 39
+
+
+state 17
+
+    (30) boolean_equation -> attribute . EQUALITY attribute
+    (31) boolean_equation -> attribute . INEQUALITY attribute
+    (32) boolean_equation -> attribute . LESSTHAN attribute
+    (33) boolean_equation -> attribute . LESSOREQUAL attribute
+    (34) boolean_equation -> attribute . EQUALITY STRING
+    (35) boolean_equation -> attribute . INEQUALITY STRING
+    (36) boolean_equation -> attribute . EQUALITY NUMBER
+    (37) boolean_equation -> attribute . INEQUALITY NUMBER
+    (38) boolean_equation -> attribute . LESSTHAN NUMBER
+    (39) boolean_equation -> attribute . LESSOREQUAL NUMBER
+
+    EQUALITY        shift and go to state 40
+    INEQUALITY      shift and go to state 41
+    LESSTHAN        shift and go to state 42
+    LESSOREQUAL     shift and go to state 43
+
+
+state 18
+
+    (46) boolean_equation -> FORALL . VARIABLENAME MEMBEROF nodes_or_edges boolean_equation
+
+    VARIABLENAME    shift and go to state 44
+
+
+state 19
+
+    (49) variable -> VARIABLENAME .
+    (48) attribute -> VARIABLENAME . CLPAR PROPERTYNAME CRPAR
+
+    EQUALITY        reduce using rule 49 (variable -> VARIABLENAME .)
+    INEQUALITY      reduce using rule 49 (variable -> VARIABLENAME .)
+    CLPAR           shift and go to state 45
+
+
+state 20
+
+    (47) boolean_equation -> EXISTS . VARIABLENAME MEMBEROF nodes_or_edges boolean_equation
+
+    VARIABLENAME    shift and go to state 46
+
+
+state 21
+
+    (4) declaration_list -> declaration_list declaration .
+
+    TYPEINT         reduce using rule 4 (declaration_list -> declaration_list declaration .)
+    TYPEFLOAT       reduce using rule 4 (declaration_list -> declaration_list declaration .)
+    TYPESTR         reduce using rule 4 (declaration_list -> declaration_list declaration .)
+    TYPELIST        reduce using rule 4 (declaration_list -> declaration_list declaration .)
+    TYPEBOOL        reduce using rule 4 (declaration_list -> declaration_list declaration .)
+    BOOLSYMBOL      reduce using rule 4 (declaration_list -> declaration_list declaration .)
+    LPAR            reduce using rule 4 (declaration_list -> declaration_list declaration .)
+    NEGATOR         reduce using rule 4 (declaration_list -> declaration_list declaration .)
+    STRING          reduce using rule 4 (declaration_list -> declaration_list declaration .)
+    NUMBER          reduce using rule 4 (declaration_list -> declaration_list declaration .)
+    FORALL          reduce using rule 4 (declaration_list -> declaration_list declaration .)
+    EXISTS          reduce using rule 4 (declaration_list -> declaration_list declaration .)
+    VARIABLENAME    reduce using rule 4 (declaration_list -> declaration_list declaration .)
+    $end            reduce using rule 4 (declaration_list -> declaration_list declaration .)
+
+
+state 22
+
+    (10) declaration -> type_symbol variable_name . LPAR type_list RPAR SEMICOLON
+    (11) declaration -> type_symbol variable_name . LPAR RPAR SEMICOLON
+    (12) declaration -> type_symbol variable_name . SEMICOLON
+
+    LPAR            shift and go to state 47
+    SEMICOLON       shift and go to state 48
+
+
+state 23
+
+    (5) variable_name -> VARIABLENAME .
+
+    LPAR            reduce using rule 5 (variable_name -> VARIABLENAME .)
+    SEMICOLON       reduce using rule 5 (variable_name -> VARIABLENAME .)
+
+
+state 24
+
+    (15) boolean_equation -> LPAR boolean_equation . RPAR
+    (17) boolean_equation -> boolean_equation . CONJ boolean_equation
+    (18) boolean_equation -> boolean_equation . DISJ boolean_equation
+    (19) boolean_equation -> boolean_equation . EQUALITY boolean_equation
+    (20) boolean_equation -> boolean_equation . INEQUALITY boolean_equation
+    (21) boolean_equation -> boolean_equation . IMPLICATOR boolean_equation
+
+    RPAR            shift and go to state 49
+    CONJ            shift and go to state 26
+    DISJ            shift and go to state 27
+    EQUALITY        shift and go to state 28
+    INEQUALITY      shift and go to state 29
+    IMPLICATOR      shift and go to state 30
+
+
+state 25
+
+    (13) declaration -> boolean_equation SEMICOLON .
+
+    TYPEINT         reduce using rule 13 (declaration -> boolean_equation SEMICOLON .)
+    TYPEFLOAT       reduce using rule 13 (declaration -> boolean_equation SEMICOLON .)
+    TYPESTR         reduce using rule 13 (declaration -> boolean_equation SEMICOLON .)
+    TYPELIST        reduce using rule 13 (declaration -> boolean_equation SEMICOLON .)
+    TYPEBOOL        reduce using rule 13 (declaration -> boolean_equation SEMICOLON .)
+    BOOLSYMBOL      reduce using rule 13 (declaration -> boolean_equation SEMICOLON .)
+    LPAR            reduce using rule 13 (declaration -> boolean_equation SEMICOLON .)
+    NEGATOR         reduce using rule 13 (declaration -> boolean_equation SEMICOLON .)
+    STRING          reduce using rule 13 (declaration -> boolean_equation SEMICOLON .)
+    NUMBER          reduce using rule 13 (declaration -> boolean_equation SEMICOLON .)
+    FORALL          reduce using rule 13 (declaration -> boolean_equation SEMICOLON .)
+    EXISTS          reduce using rule 13 (declaration -> boolean_equation SEMICOLON .)
+    VARIABLENAME    reduce using rule 13 (declaration -> boolean_equation SEMICOLON .)
+    $end            reduce using rule 13 (declaration -> boolean_equation SEMICOLON .)
+
+
+state 26
+
+    (17) boolean_equation -> boolean_equation CONJ . boolean_equation
+    (14) boolean_equation -> . BOOLSYMBOL
+    (15) boolean_equation -> . LPAR boolean_equation RPAR
+    (16) boolean_equation -> . NEGATOR boolean_equation
+    (17) boolean_equation -> . boolean_equation CONJ boolean_equation
+    (18) boolean_equation -> . boolean_equation DISJ boolean_equation
+    (19) boolean_equation -> . boolean_equation EQUALITY boolean_equation
+    (20) boolean_equation -> . boolean_equation INEQUALITY boolean_equation
+    (21) boolean_equation -> . boolean_equation IMPLICATOR boolean_equation
+    (22) boolean_equation -> . variable EQUALITY variable
+    (23) boolean_equation -> . variable INEQUALITY variable
+    (24) boolean_equation -> . STRING EQUALITY STRING
+    (25) boolean_equation -> . STRING INEQUALITY STRING
+    (26) boolean_equation -> . NUMBER EQUALITY NUMBER
+    (27) boolean_equation -> . NUMBER INEQUALITY NUMBER
+    (28) boolean_equation -> . NUMBER LESSTHAN NUMBER
+    (29) boolean_equation -> . NUMBER LESSOREQUAL NUMBER
+    (30) boolean_equation -> . attribute EQUALITY attribute
+    (31) boolean_equation -> . attribute INEQUALITY attribute
+    (32) boolean_equation -> . attribute LESSTHAN attribute
+    (33) boolean_equation -> . attribute LESSOREQUAL attribute
+    (34) boolean_equation -> . attribute EQUALITY STRING
+    (35) boolean_equation -> . attribute INEQUALITY STRING
+    (36) boolean_equation -> . attribute EQUALITY NUMBER
+    (37) boolean_equation -> . attribute INEQUALITY NUMBER
+    (38) boolean_equation -> . attribute LESSTHAN NUMBER
+    (39) boolean_equation -> . attribute LESSOREQUAL NUMBER
+    (40) boolean_equation -> . STRING EQUALITY attribute
+    (41) boolean_equation -> . STRING INEQUALITY attribute
+    (42) boolean_equation -> . NUMBER EQUALITY attribute
+    (43) boolean_equation -> . NUMBER INEQUALITY attribute
+    (44) boolean_equation -> . NUMBER LESSTHAN attribute
+    (45) boolean_equation -> . NUMBER LESSOREQUAL attribute
+    (46) boolean_equation -> . FORALL VARIABLENAME MEMBEROF nodes_or_edges boolean_equation
+    (47) boolean_equation -> . EXISTS VARIABLENAME MEMBEROF nodes_or_edges boolean_equation
+    (49) variable -> . VARIABLENAME
+    (48) attribute -> . VARIABLENAME CLPAR PROPERTYNAME CRPAR
+
+    BOOLSYMBOL      shift and go to state 12
+    LPAR            shift and go to state 5
+    NEGATOR         shift and go to state 13
+    STRING          shift and go to state 15
+    NUMBER          shift and go to state 16
+    FORALL          shift and go to state 18
+    EXISTS          shift and go to state 20
+    VARIABLENAME    shift and go to state 19
+
+    boolean_equation               shift and go to state 50
+    variable                       shift and go to state 14
+    attribute                      shift and go to state 17
+
+state 27
+
+    (18) boolean_equation -> boolean_equation DISJ . boolean_equation
+    (14) boolean_equation -> . BOOLSYMBOL
+    (15) boolean_equation -> . LPAR boolean_equation RPAR
+    (16) boolean_equation -> . NEGATOR boolean_equation
+    (17) boolean_equation -> . boolean_equation CONJ boolean_equation
+    (18) boolean_equation -> . boolean_equation DISJ boolean_equation
+    (19) boolean_equation -> . boolean_equation EQUALITY boolean_equation
+    (20) boolean_equation -> . boolean_equation INEQUALITY boolean_equation
+    (21) boolean_equation -> . boolean_equation IMPLICATOR boolean_equation
+    (22) boolean_equation -> . variable EQUALITY variable
+    (23) boolean_equation -> . variable INEQUALITY variable
+    (24) boolean_equation -> . STRING EQUALITY STRING
+    (25) boolean_equation -> . STRING INEQUALITY STRING
+    (26) boolean_equation -> . NUMBER EQUALITY NUMBER
+    (27) boolean_equation -> . NUMBER INEQUALITY NUMBER
+    (28) boolean_equation -> . NUMBER LESSTHAN NUMBER
+    (29) boolean_equation -> . NUMBER LESSOREQUAL NUMBER
+    (30) boolean_equation -> . attribute EQUALITY attribute
+    (31) boolean_equation -> . attribute INEQUALITY attribute
+    (32) boolean_equation -> . attribute LESSTHAN attribute
+    (33) boolean_equation -> . attribute LESSOREQUAL attribute
+    (34) boolean_equation -> . attribute EQUALITY STRING
+    (35) boolean_equation -> . attribute INEQUALITY STRING
+    (36) boolean_equation -> . attribute EQUALITY NUMBER
+    (37) boolean_equation -> . attribute INEQUALITY NUMBER
+    (38) boolean_equation -> . attribute LESSTHAN NUMBER
+    (39) boolean_equation -> . attribute LESSOREQUAL NUMBER
+    (40) boolean_equation -> . STRING EQUALITY attribute
+    (41) boolean_equation -> . STRING INEQUALITY attribute
+    (42) boolean_equation -> . NUMBER EQUALITY attribute
+    (43) boolean_equation -> . NUMBER INEQUALITY attribute
+    (44) boolean_equation -> . NUMBER LESSTHAN attribute
+    (45) boolean_equation -> . NUMBER LESSOREQUAL attribute
+    (46) boolean_equation -> . FORALL VARIABLENAME MEMBEROF nodes_or_edges boolean_equation
+    (47) boolean_equation -> . EXISTS VARIABLENAME MEMBEROF nodes_or_edges boolean_equation
+    (49) variable -> . VARIABLENAME
+    (48) attribute -> . VARIABLENAME CLPAR PROPERTYNAME CRPAR
+
+    BOOLSYMBOL      shift and go to state 12
+    LPAR            shift and go to state 5
+    NEGATOR         shift and go to state 13
+    STRING          shift and go to state 15
+    NUMBER          shift and go to state 16
+    FORALL          shift and go to state 18
+    EXISTS          shift and go to state 20
+    VARIABLENAME    shift and go to state 19
+
+    boolean_equation               shift and go to state 51
+    variable                       shift and go to state 14
+    attribute                      shift and go to state 17
+
+state 28
+
+    (19) boolean_equation -> boolean_equation EQUALITY . boolean_equation
+    (14) boolean_equation -> . BOOLSYMBOL
+    (15) boolean_equation -> . LPAR boolean_equation RPAR
+    (16) boolean_equation -> . NEGATOR boolean_equation
+    (17) boolean_equation -> . boolean_equation CONJ boolean_equation
+    (18) boolean_equation -> . boolean_equation DISJ boolean_equation
+    (19) boolean_equation -> . boolean_equation EQUALITY boolean_equation
+    (20) boolean_equation -> . boolean_equation INEQUALITY boolean_equation
+    (21) boolean_equation -> . boolean_equation IMPLICATOR boolean_equation
+    (22) boolean_equation -> . variable EQUALITY variable
+    (23) boolean_equation -> . variable INEQUALITY variable
+    (24) boolean_equation -> . STRING EQUALITY STRING
+    (25) boolean_equation -> . STRING INEQUALITY STRING
+    (26) boolean_equation -> . NUMBER EQUALITY NUMBER
+    (27) boolean_equation -> . NUMBER INEQUALITY NUMBER
+    (28) boolean_equation -> . NUMBER LESSTHAN NUMBER
+    (29) boolean_equation -> . NUMBER LESSOREQUAL NUMBER
+    (30) boolean_equation -> . attribute EQUALITY attribute
+    (31) boolean_equation -> . attribute INEQUALITY attribute
+    (32) boolean_equation -> . attribute LESSTHAN attribute
+    (33) boolean_equation -> . attribute LESSOREQUAL attribute
+    (34) boolean_equation -> . attribute EQUALITY STRING
+    (35) boolean_equation -> . attribute INEQUALITY STRING
+    (36) boolean_equation -> . attribute EQUALITY NUMBER
+    (37) boolean_equation -> . attribute INEQUALITY NUMBER
+    (38) boolean_equation -> . attribute LESSTHAN NUMBER
+    (39) boolean_equation -> . attribute LESSOREQUAL NUMBER
+    (40) boolean_equation -> . STRING EQUALITY attribute
+    (41) boolean_equation -> . STRING INEQUALITY attribute
+    (42) boolean_equation -> . NUMBER EQUALITY attribute
+    (43) boolean_equation -> . NUMBER INEQUALITY attribute
+    (44) boolean_equation -> . NUMBER LESSTHAN attribute
+    (45) boolean_equation -> . NUMBER LESSOREQUAL attribute
+    (46) boolean_equation -> . FORALL VARIABLENAME MEMBEROF nodes_or_edges boolean_equation
+    (47) boolean_equation -> . EXISTS VARIABLENAME MEMBEROF nodes_or_edges boolean_equation
+    (49) variable -> . VARIABLENAME
+    (48) attribute -> . VARIABLENAME CLPAR PROPERTYNAME CRPAR
+
+    BOOLSYMBOL      shift and go to state 12
+    LPAR            shift and go to state 5
+    NEGATOR         shift and go to state 13
+    STRING          shift and go to state 15
+    NUMBER          shift and go to state 16
+    FORALL          shift and go to state 18
+    EXISTS          shift and go to state 20
+    VARIABLENAME    shift and go to state 19
+
+    boolean_equation               shift and go to state 52
+    variable                       shift and go to state 14
+    attribute                      shift and go to state 17
+
+state 29
+
+    (20) boolean_equation -> boolean_equation INEQUALITY . boolean_equation
+    (14) boolean_equation -> . BOOLSYMBOL
+    (15) boolean_equation -> . LPAR boolean_equation RPAR
+    (16) boolean_equation -> . NEGATOR boolean_equation
+    (17) boolean_equation -> . boolean_equation CONJ boolean_equation
+    (18) boolean_equation -> . boolean_equation DISJ boolean_equation
+    (19) boolean_equation -> . boolean_equation EQUALITY boolean_equation
+    (20) boolean_equation -> . boolean_equation INEQUALITY boolean_equation
+    (21) boolean_equation -> . boolean_equation IMPLICATOR boolean_equation
+    (22) boolean_equation -> . variable EQUALITY variable
+    (23) boolean_equation -> . variable INEQUALITY variable
+    (24) boolean_equation -> . STRING EQUALITY STRING
+    (25) boolean_equation -> . STRING INEQUALITY STRING
+    (26) boolean_equation -> . NUMBER EQUALITY NUMBER
+    (27) boolean_equation -> . NUMBER INEQUALITY NUMBER
+    (28) boolean_equation -> . NUMBER LESSTHAN NUMBER
+    (29) boolean_equation -> . NUMBER LESSOREQUAL NUMBER
+    (30) boolean_equation -> . attribute EQUALITY attribute
+    (31) boolean_equation -> . attribute INEQUALITY attribute
+    (32) boolean_equation -> . attribute LESSTHAN attribute
+    (33) boolean_equation -> . attribute LESSOREQUAL attribute
+    (34) boolean_equation -> . attribute EQUALITY STRING
+    (35) boolean_equation -> . attribute INEQUALITY STRING
+    (36) boolean_equation -> . attribute EQUALITY NUMBER
+    (37) boolean_equation -> . attribute INEQUALITY NUMBER
+    (38) boolean_equation -> . attribute LESSTHAN NUMBER
+    (39) boolean_equation -> . attribute LESSOREQUAL NUMBER
+    (40) boolean_equation -> . STRING EQUALITY attribute
+    (41) boolean_equation -> . STRING INEQUALITY attribute
+    (42) boolean_equation -> . NUMBER EQUALITY attribute
+    (43) boolean_equation -> . NUMBER INEQUALITY attribute
+    (44) boolean_equation -> . NUMBER LESSTHAN attribute
+    (45) boolean_equation -> . NUMBER LESSOREQUAL attribute
+    (46) boolean_equation -> . FORALL VARIABLENAME MEMBEROF nodes_or_edges boolean_equation
+    (47) boolean_equation -> . EXISTS VARIABLENAME MEMBEROF nodes_or_edges boolean_equation
+    (49) variable -> . VARIABLENAME
+    (48) attribute -> . VARIABLENAME CLPAR PROPERTYNAME CRPAR
+
+    BOOLSYMBOL      shift and go to state 12
+    LPAR            shift and go to state 5
+    NEGATOR         shift and go to state 13
+    STRING          shift and go to state 15
+    NUMBER          shift and go to state 16
+    FORALL          shift and go to state 18
+    EXISTS          shift and go to state 20
+    VARIABLENAME    shift and go to state 19
+
+    boolean_equation               shift and go to state 53
+    variable                       shift and go to state 14
+    attribute                      shift and go to state 17
+
+state 30
+
+    (21) boolean_equation -> boolean_equation IMPLICATOR . boolean_equation
+    (14) boolean_equation -> . BOOLSYMBOL
+    (15) boolean_equation -> . LPAR boolean_equation RPAR
+    (16) boolean_equation -> . NEGATOR boolean_equation
+    (17) boolean_equation -> . boolean_equation CONJ boolean_equation
+    (18) boolean_equation -> . boolean_equation DISJ boolean_equation
+    (19) boolean_equation -> . boolean_equation EQUALITY boolean_equation
+    (20) boolean_equation -> . boolean_equation INEQUALITY boolean_equation
+    (21) boolean_equation -> . boolean_equation IMPLICATOR boolean_equation
+    (22) boolean_equation -> . variable EQUALITY variable
+    (23) boolean_equation -> . variable INEQUALITY variable
+    (24) boolean_equation -> . STRING EQUALITY STRING
+    (25) boolean_equation -> . STRING INEQUALITY STRING
+    (26) boolean_equation -> . NUMBER EQUALITY NUMBER
+    (27) boolean_equation -> . NUMBER INEQUALITY NUMBER
+    (28) boolean_equation -> . NUMBER LESSTHAN NUMBER
+    (29) boolean_equation -> . NUMBER LESSOREQUAL NUMBER
+    (30) boolean_equation -> . attribute EQUALITY attribute
+    (31) boolean_equation -> . attribute INEQUALITY attribute
+    (32) boolean_equation -> . attribute LESSTHAN attribute
+    (33) boolean_equation -> . attribute LESSOREQUAL attribute
+    (34) boolean_equation -> . attribute EQUALITY STRING
+    (35) boolean_equation -> . attribute INEQUALITY STRING
+    (36) boolean_equation -> . attribute EQUALITY NUMBER
+    (37) boolean_equation -> . attribute INEQUALITY NUMBER
+    (38) boolean_equation -> . attribute LESSTHAN NUMBER
+    (39) boolean_equation -> . attribute LESSOREQUAL NUMBER
+    (40) boolean_equation -> . STRING EQUALITY attribute
+    (41) boolean_equation -> . STRING INEQUALITY attribute
+    (42) boolean_equation -> . NUMBER EQUALITY attribute
+    (43) boolean_equation -> . NUMBER INEQUALITY attribute
+    (44) boolean_equation -> . NUMBER LESSTHAN attribute
+    (45) boolean_equation -> . NUMBER LESSOREQUAL attribute
+    (46) boolean_equation -> . FORALL VARIABLENAME MEMBEROF nodes_or_edges boolean_equation
+    (47) boolean_equation -> . EXISTS VARIABLENAME MEMBEROF nodes_or_edges boolean_equation
+    (49) variable -> . VARIABLENAME
+    (48) attribute -> . VARIABLENAME CLPAR PROPERTYNAME CRPAR
+
+    BOOLSYMBOL      shift and go to state 12
+    LPAR            shift and go to state 5
+    NEGATOR         shift and go to state 13
+    STRING          shift and go to state 15
+    NUMBER          shift and go to state 16
+    FORALL          shift and go to state 18
+    EXISTS          shift and go to state 20
+    VARIABLENAME    shift and go to state 19
+
+    boolean_equation               shift and go to state 54
+    variable                       shift and go to state 14
+    attribute                      shift and go to state 17
+
+state 31
+
+    (16) boolean_equation -> NEGATOR boolean_equation .
+    (17) boolean_equation -> boolean_equation . CONJ boolean_equation
+    (18) boolean_equation -> boolean_equation . DISJ boolean_equation
+    (19) boolean_equation -> boolean_equation . EQUALITY boolean_equation
+    (20) boolean_equation -> boolean_equation . INEQUALITY boolean_equation
+    (21) boolean_equation -> boolean_equation . IMPLICATOR boolean_equation
+
+  ! shift/reduce conflict for CONJ resolved as shift
+  ! shift/reduce conflict for DISJ resolved as shift
+  ! shift/reduce conflict for EQUALITY resolved as shift
+  ! shift/reduce conflict for INEQUALITY resolved as shift
+  ! shift/reduce conflict for IMPLICATOR resolved as shift
+    SEMICOLON       reduce using rule 16 (boolean_equation -> NEGATOR boolean_equation .)
+    RPAR            reduce using rule 16 (boolean_equation -> NEGATOR boolean_equation .)
+    CONJ            shift and go to state 26
+    DISJ            shift and go to state 27
+    EQUALITY        shift and go to state 28
+    INEQUALITY      shift and go to state 29
+    IMPLICATOR      shift and go to state 30
+
+  ! CONJ            [ reduce using rule 16 (boolean_equation -> NEGATOR boolean_equation .) ]
+  ! DISJ            [ reduce using rule 16 (boolean_equation -> NEGATOR boolean_equation .) ]
+  ! EQUALITY        [ reduce using rule 16 (boolean_equation -> NEGATOR boolean_equation .) ]
+  ! INEQUALITY      [ reduce using rule 16 (boolean_equation -> NEGATOR boolean_equation .) ]
+  ! IMPLICATOR      [ reduce using rule 16 (boolean_equation -> NEGATOR boolean_equation .) ]
+
+
+state 32
+
+    (22) boolean_equation -> variable EQUALITY . variable
+    (49) variable -> . VARIABLENAME
+
+    VARIABLENAME    shift and go to state 56
+
+    variable                       shift and go to state 55
+
+state 33
+
+    (23) boolean_equation -> variable INEQUALITY . variable
+    (49) variable -> . VARIABLENAME
+
+    VARIABLENAME    shift and go to state 56
+
+    variable                       shift and go to state 57
+
+state 34
+
+    (24) boolean_equation -> STRING EQUALITY . STRING
+    (40) boolean_equation -> STRING EQUALITY . attribute
+    (48) attribute -> . VARIABLENAME CLPAR PROPERTYNAME CRPAR
+
+    STRING          shift and go to state 58
+    VARIABLENAME    shift and go to state 60
+
+    attribute                      shift and go to state 59
+
+state 35
+
+    (25) boolean_equation -> STRING INEQUALITY . STRING
+    (41) boolean_equation -> STRING INEQUALITY . attribute
+    (48) attribute -> . VARIABLENAME CLPAR PROPERTYNAME CRPAR
+
+    STRING          shift and go to state 61
+    VARIABLENAME    shift and go to state 60
+
+    attribute                      shift and go to state 62
+
+state 36
+
+    (26) boolean_equation -> NUMBER EQUALITY . NUMBER
+    (42) boolean_equation -> NUMBER EQUALITY . attribute
+    (48) attribute -> . VARIABLENAME CLPAR PROPERTYNAME CRPAR
+
+    NUMBER          shift and go to state 63
+    VARIABLENAME    shift and go to state 60
+
+    attribute                      shift and go to state 64
+
+state 37
+
+    (27) boolean_equation -> NUMBER INEQUALITY . NUMBER
+    (43) boolean_equation -> NUMBER INEQUALITY . attribute
+    (48) attribute -> . VARIABLENAME CLPAR PROPERTYNAME CRPAR
+
+    NUMBER          shift and go to state 65
+    VARIABLENAME    shift and go to state 60
+
+    attribute                      shift and go to state 66
+
+state 38
+
+    (28) boolean_equation -> NUMBER LESSTHAN . NUMBER
+    (44) boolean_equation -> NUMBER LESSTHAN . attribute
+    (48) attribute -> . VARIABLENAME CLPAR PROPERTYNAME CRPAR
+
+    NUMBER          shift and go to state 67
+    VARIABLENAME    shift and go to state 60
+
+    attribute                      shift and go to state 68
+
+state 39
+
+    (29) boolean_equation -> NUMBER LESSOREQUAL . NUMBER
+    (45) boolean_equation -> NUMBER LESSOREQUAL . attribute
+    (48) attribute -> . VARIABLENAME CLPAR PROPERTYNAME CRPAR
+
+    NUMBER          shift and go to state 69
+    VARIABLENAME    shift and go to state 60
+
+    attribute                      shift and go to state 70
+
+state 40
+
+    (30) boolean_equation -> attribute EQUALITY . attribute
+    (34) boolean_equation -> attribute EQUALITY . STRING
+    (36) boolean_equation -> attribute EQUALITY . NUMBER
+    (48) attribute -> . VARIABLENAME CLPAR PROPERTYNAME CRPAR
+
+    STRING          shift and go to state 72
+    NUMBER          shift and go to state 73
+    VARIABLENAME    shift and go to state 60
+
+    attribute                      shift and go to state 71
+
+state 41
+
+    (31) boolean_equation -> attribute INEQUALITY . attribute
+    (35) boolean_equation -> attribute INEQUALITY . STRING
+    (37) boolean_equation -> attribute INEQUALITY . NUMBER
+    (48) attribute -> . VARIABLENAME CLPAR PROPERTYNAME CRPAR
+
+    STRING          shift and go to state 75
+    NUMBER          shift and go to state 76
+    VARIABLENAME    shift and go to state 60
+
+    attribute                      shift and go to state 74
+
+state 42
+
+    (32) boolean_equation -> attribute LESSTHAN . attribute
+    (38) boolean_equation -> attribute LESSTHAN . NUMBER
+    (48) attribute -> . VARIABLENAME CLPAR PROPERTYNAME CRPAR
+
+    NUMBER          shift and go to state 78
+    VARIABLENAME    shift and go to state 60
+
+    attribute                      shift and go to state 77
+
+state 43
+
+    (33) boolean_equation -> attribute LESSOREQUAL . attribute
+    (39) boolean_equation -> attribute LESSOREQUAL . NUMBER
+    (48) attribute -> . VARIABLENAME CLPAR PROPERTYNAME CRPAR
+
+    NUMBER          shift and go to state 80
+    VARIABLENAME    shift and go to state 60
+
+    attribute                      shift and go to state 79
+
+state 44
+
+    (46) boolean_equation -> FORALL VARIABLENAME . MEMBEROF nodes_or_edges boolean_equation
+
+    MEMBEROF        shift and go to state 81
+
+
+state 45
+
+    (48) attribute -> VARIABLENAME CLPAR . PROPERTYNAME CRPAR
+
+    PROPERTYNAME    shift and go to state 82
+
+
+state 46
+
+    (47) boolean_equation -> EXISTS VARIABLENAME . MEMBEROF nodes_or_edges boolean_equation
+
+    MEMBEROF        shift and go to state 83
+
+
+state 47
+
+    (10) declaration -> type_symbol variable_name LPAR . type_list RPAR SEMICOLON
+    (11) declaration -> type_symbol variable_name LPAR . RPAR SEMICOLON
+    (58) type_list -> . type_symbol
+    (59) type_list -> . type_list COMMA type_symbol
+    (52) type_symbol -> . TYPEINT
+    (53) type_symbol -> . TYPEFLOAT
+    (54) type_symbol -> . TYPESTR
+    (55) type_symbol -> . TYPELIST
+    (56) type_symbol -> . TYPEBOOL
+
+    RPAR            shift and go to state 86
+    TYPEINT         shift and go to state 7
+    TYPEFLOAT       shift and go to state 8
+    TYPESTR         shift and go to state 9
+    TYPELIST        shift and go to state 10
+    TYPEBOOL        shift and go to state 11
+
+    type_symbol                    shift and go to state 84
+    type_list                      shift and go to state 85
+
+state 48
+
+    (12) declaration -> type_symbol variable_name SEMICOLON .
+
+    TYPEINT         reduce using rule 12 (declaration -> type_symbol variable_name SEMICOLON .)
+    TYPEFLOAT       reduce using rule 12 (declaration -> type_symbol variable_name SEMICOLON .)
+    TYPESTR         reduce using rule 12 (declaration -> type_symbol variable_name SEMICOLON .)
+    TYPELIST        reduce using rule 12 (declaration -> type_symbol variable_name SEMICOLON .)
+    TYPEBOOL        reduce using rule 12 (declaration -> type_symbol variable_name SEMICOLON .)
+    BOOLSYMBOL      reduce using rule 12 (declaration -> type_symbol variable_name SEMICOLON .)
+    LPAR            reduce using rule 12 (declaration -> type_symbol variable_name SEMICOLON .)
+    NEGATOR         reduce using rule 12 (declaration -> type_symbol variable_name SEMICOLON .)
+    STRING          reduce using rule 12 (declaration -> type_symbol variable_name SEMICOLON .)
+    NUMBER          reduce using rule 12 (declaration -> type_symbol variable_name SEMICOLON .)
+    FORALL          reduce using rule 12 (declaration -> type_symbol variable_name SEMICOLON .)
+    EXISTS          reduce using rule 12 (declaration -> type_symbol variable_name SEMICOLON .)
+    VARIABLENAME    reduce using rule 12 (declaration -> type_symbol variable_name SEMICOLON .)
+    $end            reduce using rule 12 (declaration -> type_symbol variable_name SEMICOLON .)
+
+
+state 49
+
+    (15) boolean_equation -> LPAR boolean_equation RPAR .
+
+    SEMICOLON       reduce using rule 15 (boolean_equation -> LPAR boolean_equation RPAR .)
+    CONJ            reduce using rule 15 (boolean_equation -> LPAR boolean_equation RPAR .)
+    DISJ            reduce using rule 15 (boolean_equation -> LPAR boolean_equation RPAR .)
+    EQUALITY        reduce using rule 15 (boolean_equation -> LPAR boolean_equation RPAR .)
+    INEQUALITY      reduce using rule 15 (boolean_equation -> LPAR boolean_equation RPAR .)
+    IMPLICATOR      reduce using rule 15 (boolean_equation -> LPAR boolean_equation RPAR .)
+    RPAR            reduce using rule 15 (boolean_equation -> LPAR boolean_equation RPAR .)
+
+
+state 50
+
+    (17) boolean_equation -> boolean_equation CONJ boolean_equation .
+    (17) boolean_equation -> boolean_equation . CONJ boolean_equation
+    (18) boolean_equation -> boolean_equation . DISJ boolean_equation
+    (19) boolean_equation -> boolean_equation . EQUALITY boolean_equation
+    (20) boolean_equation -> boolean_equation . INEQUALITY boolean_equation
+    (21) boolean_equation -> boolean_equation . IMPLICATOR boolean_equation
+
+  ! shift/reduce conflict for CONJ resolved as shift
+  ! shift/reduce conflict for DISJ resolved as shift
+  ! shift/reduce conflict for EQUALITY resolved as shift
+  ! shift/reduce conflict for INEQUALITY resolved as shift
+  ! shift/reduce conflict for IMPLICATOR resolved as shift
+    SEMICOLON       reduce using rule 17 (boolean_equation -> boolean_equation CONJ boolean_equation .)
+    RPAR            reduce using rule 17 (boolean_equation -> boolean_equation CONJ boolean_equation .)
+    CONJ            shift and go to state 26
+    DISJ            shift and go to state 27
+    EQUALITY        shift and go to state 28
+    INEQUALITY      shift and go to state 29
+    IMPLICATOR      shift and go to state 30
+
+  ! CONJ            [ reduce using rule 17 (boolean_equation -> boolean_equation CONJ boolean_equation .) ]
+  ! DISJ            [ reduce using rule 17 (boolean_equation -> boolean_equation CONJ boolean_equation .) ]
+  ! EQUALITY        [ reduce using rule 17 (boolean_equation -> boolean_equation CONJ boolean_equation .) ]
+  ! INEQUALITY      [ reduce using rule 17 (boolean_equation -> boolean_equation CONJ boolean_equation .) ]
+  ! IMPLICATOR      [ reduce using rule 17 (boolean_equation -> boolean_equation CONJ boolean_equation .) ]
+
+
+state 51
+
+    (18) boolean_equation -> boolean_equation DISJ boolean_equation .
+    (17) boolean_equation -> boolean_equation . CONJ boolean_equation
+    (18) boolean_equation -> boolean_equation . DISJ boolean_equation
+    (19) boolean_equation -> boolean_equation . EQUALITY boolean_equation
+    (20) boolean_equation -> boolean_equation . INEQUALITY boolean_equation
+    (21) boolean_equation -> boolean_equation . IMPLICATOR boolean_equation
+
+  ! shift/reduce conflict for CONJ resolved as shift
+  ! shift/reduce conflict for DISJ resolved as shift
+  ! shift/reduce conflict for EQUALITY resolved as shift
+  ! shift/reduce conflict for INEQUALITY resolved as shift
+  ! shift/reduce conflict for IMPLICATOR resolved as shift
+    SEMICOLON       reduce using rule 18 (boolean_equation -> boolean_equation DISJ boolean_equation .)
+    RPAR            reduce using rule 18 (boolean_equation -> boolean_equation DISJ boolean_equation .)
+    CONJ            shift and go to state 26
+    DISJ            shift and go to state 27
+    EQUALITY        shift and go to state 28
+    INEQUALITY      shift and go to state 29
+    IMPLICATOR      shift and go to state 30
+
+  ! CONJ            [ reduce using rule 18 (boolean_equation -> boolean_equation DISJ boolean_equation .) ]
+  ! DISJ            [ reduce using rule 18 (boolean_equation -> boolean_equation DISJ boolean_equation .) ]
+  ! EQUALITY        [ reduce using rule 18 (boolean_equation -> boolean_equation DISJ boolean_equation .) ]
+  ! INEQUALITY      [ reduce using rule 18 (boolean_equation -> boolean_equation DISJ boolean_equation .) ]
+  ! IMPLICATOR      [ reduce using rule 18 (boolean_equation -> boolean_equation DISJ boolean_equation .) ]
+
+
+state 52
+
+    (19) boolean_equation -> boolean_equation EQUALITY boolean_equation .
+    (17) boolean_equation -> boolean_equation . CONJ boolean_equation
+    (18) boolean_equation -> boolean_equation . DISJ boolean_equation
+    (19) boolean_equation -> boolean_equation . EQUALITY boolean_equation
+    (20) boolean_equation -> boolean_equation . INEQUALITY boolean_equation
+    (21) boolean_equation -> boolean_equation . IMPLICATOR boolean_equation
+
+  ! shift/reduce conflict for CONJ resolved as shift
+  ! shift/reduce conflict for DISJ resolved as shift
+  ! shift/reduce conflict for EQUALITY resolved as shift
+  ! shift/reduce conflict for INEQUALITY resolved as shift
+  ! shift/reduce conflict for IMPLICATOR resolved as shift
+    SEMICOLON       reduce using rule 19 (boolean_equation -> boolean_equation EQUALITY boolean_equation .)
+    RPAR            reduce using rule 19 (boolean_equation -> boolean_equation EQUALITY boolean_equation .)
+    CONJ            shift and go to state 26
+    DISJ            shift and go to state 27
+    EQUALITY        shift and go to state 28
+    INEQUALITY      shift and go to state 29
+    IMPLICATOR      shift and go to state 30
+
+  ! CONJ            [ reduce using rule 19 (boolean_equation -> boolean_equation EQUALITY boolean_equation .) ]
+  ! DISJ            [ reduce using rule 19 (boolean_equation -> boolean_equation EQUALITY boolean_equation .) ]
+  ! EQUALITY        [ reduce using rule 19 (boolean_equation -> boolean_equation EQUALITY boolean_equation .) ]
+  ! INEQUALITY      [ reduce using rule 19 (boolean_equation -> boolean_equation EQUALITY boolean_equation .) ]
+  ! IMPLICATOR      [ reduce using rule 19 (boolean_equation -> boolean_equation EQUALITY boolean_equation .) ]
+
+
+state 53
+
+    (20) boolean_equation -> boolean_equation INEQUALITY boolean_equation .
+    (17) boolean_equation -> boolean_equation . CONJ boolean_equation
+    (18) boolean_equation -> boolean_equation . DISJ boolean_equation
+    (19) boolean_equation -> boolean_equation . EQUALITY boolean_equation
+    (20) boolean_equation -> boolean_equation . INEQUALITY boolean_equation
+    (21) boolean_equation -> boolean_equation . IMPLICATOR boolean_equation
+
+  ! shift/reduce conflict for CONJ resolved as shift
+  ! shift/reduce conflict for DISJ resolved as shift
+  ! shift/reduce conflict for EQUALITY resolved as shift
+  ! shift/reduce conflict for INEQUALITY resolved as shift
+  ! shift/reduce conflict for IMPLICATOR resolved as shift
+    SEMICOLON       reduce using rule 20 (boolean_equation -> boolean_equation INEQUALITY boolean_equation .)
+    RPAR            reduce using rule 20 (boolean_equation -> boolean_equation INEQUALITY boolean_equation .)
+    CONJ            shift and go to state 26
+    DISJ            shift and go to state 27
+    EQUALITY        shift and go to state 28
+    INEQUALITY      shift and go to state 29
+    IMPLICATOR      shift and go to state 30
+
+  ! CONJ            [ reduce using rule 20 (boolean_equation -> boolean_equation INEQUALITY boolean_equation .) ]
+  ! DISJ            [ reduce using rule 20 (boolean_equation -> boolean_equation INEQUALITY boolean_equation .) ]
+  ! EQUALITY        [ reduce using rule 20 (boolean_equation -> boolean_equation INEQUALITY boolean_equation .) ]
+  ! INEQUALITY      [ reduce using rule 20 (boolean_equation -> boolean_equation INEQUALITY boolean_equation .) ]
+  ! IMPLICATOR      [ reduce using rule 20 (boolean_equation -> boolean_equation INEQUALITY boolean_equation .) ]
+
+
+state 54
+
+    (21) boolean_equation -> boolean_equation IMPLICATOR boolean_equation .
+    (17) boolean_equation -> boolean_equation . CONJ boolean_equation
+    (18) boolean_equation -> boolean_equation . DISJ boolean_equation
+    (19) boolean_equation -> boolean_equation . EQUALITY boolean_equation
+    (20) boolean_equation -> boolean_equation . INEQUALITY boolean_equation
+    (21) boolean_equation -> boolean_equation . IMPLICATOR boolean_equation
+
+  ! shift/reduce conflict for CONJ resolved as shift
+  ! shift/reduce conflict for DISJ resolved as shift
+  ! shift/reduce conflict for EQUALITY resolved as shift
+  ! shift/reduce conflict for INEQUALITY resolved as shift
+  ! shift/reduce conflict for IMPLICATOR resolved as shift
+    SEMICOLON       reduce using rule 21 (boolean_equation -> boolean_equation IMPLICATOR boolean_equation .)
+    RPAR            reduce using rule 21 (boolean_equation -> boolean_equation IMPLICATOR boolean_equation .)
+    CONJ            shift and go to state 26
+    DISJ            shift and go to state 27
+    EQUALITY        shift and go to state 28
+    INEQUALITY      shift and go to state 29
+    IMPLICATOR      shift and go to state 30
+
+  ! CONJ            [ reduce using rule 21 (boolean_equation -> boolean_equation IMPLICATOR boolean_equation .) ]
+  ! DISJ            [ reduce using rule 21 (boolean_equation -> boolean_equation IMPLICATOR boolean_equation .) ]
+  ! EQUALITY        [ reduce using rule 21 (boolean_equation -> boolean_equation IMPLICATOR boolean_equation .) ]
+  ! INEQUALITY      [ reduce using rule 21 (boolean_equation -> boolean_equation IMPLICATOR boolean_equation .) ]
+  ! IMPLICATOR      [ reduce using rule 21 (boolean_equation -> boolean_equation IMPLICATOR boolean_equation .) ]
+
+
+state 55
+
+    (22) boolean_equation -> variable EQUALITY variable .
+
+    SEMICOLON       reduce using rule 22 (boolean_equation -> variable EQUALITY variable .)
+    CONJ            reduce using rule 22 (boolean_equation -> variable EQUALITY variable .)
+    DISJ            reduce using rule 22 (boolean_equation -> variable EQUALITY variable .)
+    EQUALITY        reduce using rule 22 (boolean_equation -> variable EQUALITY variable .)
+    INEQUALITY      reduce using rule 22 (boolean_equation -> variable EQUALITY variable .)
+    IMPLICATOR      reduce using rule 22 (boolean_equation -> variable EQUALITY variable .)
+    RPAR            reduce using rule 22 (boolean_equation -> variable EQUALITY variable .)
+
+
+state 56
+
+    (49) variable -> VARIABLENAME .
+
+    SEMICOLON       reduce using rule 49 (variable -> VARIABLENAME .)
+    CONJ            reduce using rule 49 (variable -> VARIABLENAME .)
+    DISJ            reduce using rule 49 (variable -> VARIABLENAME .)
+    EQUALITY        reduce using rule 49 (variable -> VARIABLENAME .)
+    INEQUALITY      reduce using rule 49 (variable -> VARIABLENAME .)
+    IMPLICATOR      reduce using rule 49 (variable -> VARIABLENAME .)
+    RPAR            reduce using rule 49 (variable -> VARIABLENAME .)
+
+
+state 57
+
+    (23) boolean_equation -> variable INEQUALITY variable .
+
+    SEMICOLON       reduce using rule 23 (boolean_equation -> variable INEQUALITY variable .)
+    CONJ            reduce using rule 23 (boolean_equation -> variable INEQUALITY variable .)
+    DISJ            reduce using rule 23 (boolean_equation -> variable INEQUALITY variable .)
+    EQUALITY        reduce using rule 23 (boolean_equation -> variable INEQUALITY variable .)
+    INEQUALITY      reduce using rule 23 (boolean_equation -> variable INEQUALITY variable .)
+    IMPLICATOR      reduce using rule 23 (boolean_equation -> variable INEQUALITY variable .)
+    RPAR            reduce using rule 23 (boolean_equation -> variable INEQUALITY variable .)
+
+
+state 58
+
+    (24) boolean_equation -> STRING EQUALITY STRING .
+
+    SEMICOLON       reduce using rule 24 (boolean_equation -> STRING EQUALITY STRING .)
+    CONJ            reduce using rule 24 (boolean_equation -> STRING EQUALITY STRING .)
+    DISJ            reduce using rule 24 (boolean_equation -> STRING EQUALITY STRING .)
+    EQUALITY        reduce using rule 24 (boolean_equation -> STRING EQUALITY STRING .)
+    INEQUALITY      reduce using rule 24 (boolean_equation -> STRING EQUALITY STRING .)
+    IMPLICATOR      reduce using rule 24 (boolean_equation -> STRING EQUALITY STRING .)
+    RPAR            reduce using rule 24 (boolean_equation -> STRING EQUALITY STRING .)
+
+
+state 59
+
+    (40) boolean_equation -> STRING EQUALITY attribute .
+
+    SEMICOLON       reduce using rule 40 (boolean_equation -> STRING EQUALITY attribute .)
+    CONJ            reduce using rule 40 (boolean_equation -> STRING EQUALITY attribute .)
+    DISJ            reduce using rule 40 (boolean_equation -> STRING EQUALITY attribute .)
+    EQUALITY        reduce using rule 40 (boolean_equation -> STRING EQUALITY attribute .)
+    INEQUALITY      reduce using rule 40 (boolean_equation -> STRING EQUALITY attribute .)
+    IMPLICATOR      reduce using rule 40 (boolean_equation -> STRING EQUALITY attribute .)
+    RPAR            reduce using rule 40 (boolean_equation -> STRING EQUALITY attribute .)
+
+
+state 60
+
+    (48) attribute -> VARIABLENAME . CLPAR PROPERTYNAME CRPAR
+
+    CLPAR           shift and go to state 45
+
+
+state 61
+
+    (25) boolean_equation -> STRING INEQUALITY STRING .
+
+    SEMICOLON       reduce using rule 25 (boolean_equation -> STRING INEQUALITY STRING .)
+    CONJ            reduce using rule 25 (boolean_equation -> STRING INEQUALITY STRING .)
+    DISJ            reduce using rule 25 (boolean_equation -> STRING INEQUALITY STRING .)
+    EQUALITY        reduce using rule 25 (boolean_equation -> STRING INEQUALITY STRING .)
+    INEQUALITY      reduce using rule 25 (boolean_equation -> STRING INEQUALITY STRING .)
+    IMPLICATOR      reduce using rule 25 (boolean_equation -> STRING INEQUALITY STRING .)
+    RPAR            reduce using rule 25 (boolean_equation -> STRING INEQUALITY STRING .)
+
+
+state 62
+
+    (41) boolean_equation -> STRING INEQUALITY attribute .
+
+    SEMICOLON       reduce using rule 41 (boolean_equation -> STRING INEQUALITY attribute .)
+    CONJ            reduce using rule 41 (boolean_equation -> STRING INEQUALITY attribute .)
+    DISJ            reduce using rule 41 (boolean_equation -> STRING INEQUALITY attribute .)
+    EQUALITY        reduce using rule 41 (boolean_equation -> STRING INEQUALITY attribute .)
+    INEQUALITY      reduce using rule 41 (boolean_equation -> STRING INEQUALITY attribute .)
+    IMPLICATOR      reduce using rule 41 (boolean_equation -> STRING INEQUALITY attribute .)
+    RPAR            reduce using rule 41 (boolean_equation -> STRING INEQUALITY attribute .)
+
+
+state 63
+
+    (26) boolean_equation -> NUMBER EQUALITY NUMBER .
+
+    SEMICOLON       reduce using rule 26 (boolean_equation -> NUMBER EQUALITY NUMBER .)
+    CONJ            reduce using rule 26 (boolean_equation -> NUMBER EQUALITY NUMBER .)
+    DISJ            reduce using rule 26 (boolean_equation -> NUMBER EQUALITY NUMBER .)
+    EQUALITY        reduce using rule 26 (boolean_equation -> NUMBER EQUALITY NUMBER .)
+    INEQUALITY      reduce using rule 26 (boolean_equation -> NUMBER EQUALITY NUMBER .)
+    IMPLICATOR      reduce using rule 26 (boolean_equation -> NUMBER EQUALITY NUMBER .)
+    RPAR            reduce using rule 26 (boolean_equation -> NUMBER EQUALITY NUMBER .)
+
+
+state 64
+
+    (42) boolean_equation -> NUMBER EQUALITY attribute .
+
+    SEMICOLON       reduce using rule 42 (boolean_equation -> NUMBER EQUALITY attribute .)
+    CONJ            reduce using rule 42 (boolean_equation -> NUMBER EQUALITY attribute .)
+    DISJ            reduce using rule 42 (boolean_equation -> NUMBER EQUALITY attribute .)
+    EQUALITY        reduce using rule 42 (boolean_equation -> NUMBER EQUALITY attribute .)
+    INEQUALITY      reduce using rule 42 (boolean_equation -> NUMBER EQUALITY attribute .)
+    IMPLICATOR      reduce using rule 42 (boolean_equation -> NUMBER EQUALITY attribute .)
+    RPAR            reduce using rule 42 (boolean_equation -> NUMBER EQUALITY attribute .)
+
+
+state 65
+
+    (27) boolean_equation -> NUMBER INEQUALITY NUMBER .
+
+    SEMICOLON       reduce using rule 27 (boolean_equation -> NUMBER INEQUALITY NUMBER .)
+    CONJ            reduce using rule 27 (boolean_equation -> NUMBER INEQUALITY NUMBER .)
+    DISJ            reduce using rule 27 (boolean_equation -> NUMBER INEQUALITY NUMBER .)
+    EQUALITY        reduce using rule 27 (boolean_equation -> NUMBER INEQUALITY NUMBER .)
+    INEQUALITY      reduce using rule 27 (boolean_equation -> NUMBER INEQUALITY NUMBER .)
+    IMPLICATOR      reduce using rule 27 (boolean_equation -> NUMBER INEQUALITY NUMBER .)
+    RPAR            reduce using rule 27 (boolean_equation -> NUMBER INEQUALITY NUMBER .)
+
+
+state 66
+
+    (43) boolean_equation -> NUMBER INEQUALITY attribute .
+
+    SEMICOLON       reduce using rule 43 (boolean_equation -> NUMBER INEQUALITY attribute .)
+    CONJ            reduce using rule 43 (boolean_equation -> NUMBER INEQUALITY attribute .)
+    DISJ            reduce using rule 43 (boolean_equation -> NUMBER INEQUALITY attribute .)
+    EQUALITY        reduce using rule 43 (boolean_equation -> NUMBER INEQUALITY attribute .)
+    INEQUALITY      reduce using rule 43 (boolean_equation -> NUMBER INEQUALITY attribute .)
+    IMPLICATOR      reduce using rule 43 (boolean_equation -> NUMBER INEQUALITY attribute .)
+    RPAR            reduce using rule 43 (boolean_equation -> NUMBER INEQUALITY attribute .)
+
+
+state 67
+
+    (28) boolean_equation -> NUMBER LESSTHAN NUMBER .
+
+    SEMICOLON       reduce using rule 28 (boolean_equation -> NUMBER LESSTHAN NUMBER .)
+    CONJ            reduce using rule 28 (boolean_equation -> NUMBER LESSTHAN NUMBER .)
+    DISJ            reduce using rule 28 (boolean_equation -> NUMBER LESSTHAN NUMBER .)
+    EQUALITY        reduce using rule 28 (boolean_equation -> NUMBER LESSTHAN NUMBER .)
+    INEQUALITY      reduce using rule 28 (boolean_equation -> NUMBER LESSTHAN NUMBER .)
+    IMPLICATOR      reduce using rule 28 (boolean_equation -> NUMBER LESSTHAN NUMBER .)
+    RPAR            reduce using rule 28 (boolean_equation -> NUMBER LESSTHAN NUMBER .)
+
+
+state 68
+
+    (44) boolean_equation -> NUMBER LESSTHAN attribute .
+
+    SEMICOLON       reduce using rule 44 (boolean_equation -> NUMBER LESSTHAN attribute .)
+    CONJ            reduce using rule 44 (boolean_equation -> NUMBER LESSTHAN attribute .)
+    DISJ            reduce using rule 44 (boolean_equation -> NUMBER LESSTHAN attribute .)
+    EQUALITY        reduce using rule 44 (boolean_equation -> NUMBER LESSTHAN attribute .)
+    INEQUALITY      reduce using rule 44 (boolean_equation -> NUMBER LESSTHAN attribute .)
+    IMPLICATOR      reduce using rule 44 (boolean_equation -> NUMBER LESSTHAN attribute .)
+    RPAR            reduce using rule 44 (boolean_equation -> NUMBER LESSTHAN attribute .)
+
+
+state 69
+
+    (29) boolean_equation -> NUMBER LESSOREQUAL NUMBER .
+
+    SEMICOLON       reduce using rule 29 (boolean_equation -> NUMBER LESSOREQUAL NUMBER .)
+    CONJ            reduce using rule 29 (boolean_equation -> NUMBER LESSOREQUAL NUMBER .)
+    DISJ            reduce using rule 29 (boolean_equation -> NUMBER LESSOREQUAL NUMBER .)
+    EQUALITY        reduce using rule 29 (boolean_equation -> NUMBER LESSOREQUAL NUMBER .)
+    INEQUALITY      reduce using rule 29 (boolean_equation -> NUMBER LESSOREQUAL NUMBER .)
+    IMPLICATOR      reduce using rule 29 (boolean_equation -> NUMBER LESSOREQUAL NUMBER .)
+    RPAR            reduce using rule 29 (boolean_equation -> NUMBER LESSOREQUAL NUMBER .)
+
+
+state 70
+
+    (45) boolean_equation -> NUMBER LESSOREQUAL attribute .
+
+    SEMICOLON       reduce using rule 45 (boolean_equation -> NUMBER LESSOREQUAL attribute .)
+    CONJ            reduce using rule 45 (boolean_equation -> NUMBER LESSOREQUAL attribute .)
+    DISJ            reduce using rule 45 (boolean_equation -> NUMBER LESSOREQUAL attribute .)
+    EQUALITY        reduce using rule 45 (boolean_equation -> NUMBER LESSOREQUAL attribute .)
+    INEQUALITY      reduce using rule 45 (boolean_equation -> NUMBER LESSOREQUAL attribute .)
+    IMPLICATOR      reduce using rule 45 (boolean_equation -> NUMBER LESSOREQUAL attribute .)
+    RPAR            reduce using rule 45 (boolean_equation -> NUMBER LESSOREQUAL attribute .)
+
+
+state 71
+
+    (30) boolean_equation -> attribute EQUALITY attribute .
+
+    SEMICOLON       reduce using rule 30 (boolean_equation -> attribute EQUALITY attribute .)
+    CONJ            reduce using rule 30 (boolean_equation -> attribute EQUALITY attribute .)
+    DISJ            reduce using rule 30 (boolean_equation -> attribute EQUALITY attribute .)
+    EQUALITY        reduce using rule 30 (boolean_equation -> attribute EQUALITY attribute .)
+    INEQUALITY      reduce using rule 30 (boolean_equation -> attribute EQUALITY attribute .)
+    IMPLICATOR      reduce using rule 30 (boolean_equation -> attribute EQUALITY attribute .)
+    RPAR            reduce using rule 30 (boolean_equation -> attribute EQUALITY attribute .)
+
+
+state 72
+
+    (34) boolean_equation -> attribute EQUALITY STRING .
+
+    SEMICOLON       reduce using rule 34 (boolean_equation -> attribute EQUALITY STRING .)
+    CONJ            reduce using rule 34 (boolean_equation -> attribute EQUALITY STRING .)
+    DISJ            reduce using rule 34 (boolean_equation -> attribute EQUALITY STRING .)
+    EQUALITY        reduce using rule 34 (boolean_equation -> attribute EQUALITY STRING .)
+    INEQUALITY      reduce using rule 34 (boolean_equation -> attribute EQUALITY STRING .)
+    IMPLICATOR      reduce using rule 34 (boolean_equation -> attribute EQUALITY STRING .)
+    RPAR            reduce using rule 34 (boolean_equation -> attribute EQUALITY STRING .)
+
+
+state 73
+
+    (36) boolean_equation -> attribute EQUALITY NUMBER .
+
+    SEMICOLON       reduce using rule 36 (boolean_equation -> attribute EQUALITY NUMBER .)
+    CONJ            reduce using rule 36 (boolean_equation -> attribute EQUALITY NUMBER .)
+    DISJ            reduce using rule 36 (boolean_equation -> attribute EQUALITY NUMBER .)
+    EQUALITY        reduce using rule 36 (boolean_equation -> attribute EQUALITY NUMBER .)
+    INEQUALITY      reduce using rule 36 (boolean_equation -> attribute EQUALITY NUMBER .)
+    IMPLICATOR      reduce using rule 36 (boolean_equation -> attribute EQUALITY NUMBER .)
+    RPAR            reduce using rule 36 (boolean_equation -> attribute EQUALITY NUMBER .)
+
+
+state 74
+
+    (31) boolean_equation -> attribute INEQUALITY attribute .
+
+    SEMICOLON       reduce using rule 31 (boolean_equation -> attribute INEQUALITY attribute .)
+    CONJ            reduce using rule 31 (boolean_equation -> attribute INEQUALITY attribute .)
+    DISJ            reduce using rule 31 (boolean_equation -> attribute INEQUALITY attribute .)
+    EQUALITY        reduce using rule 31 (boolean_equation -> attribute INEQUALITY attribute .)
+    INEQUALITY      reduce using rule 31 (boolean_equation -> attribute INEQUALITY attribute .)
+    IMPLICATOR      reduce using rule 31 (boolean_equation -> attribute INEQUALITY attribute .)
+    RPAR            reduce using rule 31 (boolean_equation -> attribute INEQUALITY attribute .)
+
+
+state 75
+
+    (35) boolean_equation -> attribute INEQUALITY STRING .
+
+    SEMICOLON       reduce using rule 35 (boolean_equation -> attribute INEQUALITY STRING .)
+    CONJ            reduce using rule 35 (boolean_equation -> attribute INEQUALITY STRING .)
+    DISJ            reduce using rule 35 (boolean_equation -> attribute INEQUALITY STRING .)
+    EQUALITY        reduce using rule 35 (boolean_equation -> attribute INEQUALITY STRING .)
+    INEQUALITY      reduce using rule 35 (boolean_equation -> attribute INEQUALITY STRING .)
+    IMPLICATOR      reduce using rule 35 (boolean_equation -> attribute INEQUALITY STRING .)
+    RPAR            reduce using rule 35 (boolean_equation -> attribute INEQUALITY STRING .)
+
+
+state 76
+
+    (37) boolean_equation -> attribute INEQUALITY NUMBER .
+
+    SEMICOLON       reduce using rule 37 (boolean_equation -> attribute INEQUALITY NUMBER .)
+    CONJ            reduce using rule 37 (boolean_equation -> attribute INEQUALITY NUMBER .)
+    DISJ            reduce using rule 37 (boolean_equation -> attribute INEQUALITY NUMBER .)
+    EQUALITY        reduce using rule 37 (boolean_equation -> attribute INEQUALITY NUMBER .)
+    INEQUALITY      reduce using rule 37 (boolean_equation -> attribute INEQUALITY NUMBER .)
+    IMPLICATOR      reduce using rule 37 (boolean_equation -> attribute INEQUALITY NUMBER .)
+    RPAR            reduce using rule 37 (boolean_equation -> attribute INEQUALITY NUMBER .)
+
+
+state 77
+
+    (32) boolean_equation -> attribute LESSTHAN attribute .
+
+    SEMICOLON       reduce using rule 32 (boolean_equation -> attribute LESSTHAN attribute .)
+    CONJ            reduce using rule 32 (boolean_equation -> attribute LESSTHAN attribute .)
+    DISJ            reduce using rule 32 (boolean_equation -> attribute LESSTHAN attribute .)
+    EQUALITY        reduce using rule 32 (boolean_equation -> attribute LESSTHAN attribute .)
+    INEQUALITY      reduce using rule 32 (boolean_equation -> attribute LESSTHAN attribute .)
+    IMPLICATOR      reduce using rule 32 (boolean_equation -> attribute LESSTHAN attribute .)
+    RPAR            reduce using rule 32 (boolean_equation -> attribute LESSTHAN attribute .)
+
+
+state 78
+
+    (38) boolean_equation -> attribute LESSTHAN NUMBER .
+
+    SEMICOLON       reduce using rule 38 (boolean_equation -> attribute LESSTHAN NUMBER .)
+    CONJ            reduce using rule 38 (boolean_equation -> attribute LESSTHAN NUMBER .)
+    DISJ            reduce using rule 38 (boolean_equation -> attribute LESSTHAN NUMBER .)
+    EQUALITY        reduce using rule 38 (boolean_equation -> attribute LESSTHAN NUMBER .)
+    INEQUALITY      reduce using rule 38 (boolean_equation -> attribute LESSTHAN NUMBER .)
+    IMPLICATOR      reduce using rule 38 (boolean_equation -> attribute LESSTHAN NUMBER .)
+    RPAR            reduce using rule 38 (boolean_equation -> attribute LESSTHAN NUMBER .)
+
+
+state 79
+
+    (33) boolean_equation -> attribute LESSOREQUAL attribute .
+
+    SEMICOLON       reduce using rule 33 (boolean_equation -> attribute LESSOREQUAL attribute .)
+    CONJ            reduce using rule 33 (boolean_equation -> attribute LESSOREQUAL attribute .)
+    DISJ            reduce using rule 33 (boolean_equation -> attribute LESSOREQUAL attribute .)
+    EQUALITY        reduce using rule 33 (boolean_equation -> attribute LESSOREQUAL attribute .)
+    INEQUALITY      reduce using rule 33 (boolean_equation -> attribute LESSOREQUAL attribute .)
+    IMPLICATOR      reduce using rule 33 (boolean_equation -> attribute LESSOREQUAL attribute .)
+    RPAR            reduce using rule 33 (boolean_equation -> attribute LESSOREQUAL attribute .)
+
+
+state 80
+
+    (39) boolean_equation -> attribute LESSOREQUAL NUMBER .
+
+    SEMICOLON       reduce using rule 39 (boolean_equation -> attribute LESSOREQUAL NUMBER .)
+    CONJ            reduce using rule 39 (boolean_equation -> attribute LESSOREQUAL NUMBER .)
+    DISJ            reduce using rule 39 (boolean_equation -> attribute LESSOREQUAL NUMBER .)
+    EQUALITY        reduce using rule 39 (boolean_equation -> attribute LESSOREQUAL NUMBER .)
+    INEQUALITY      reduce using rule 39 (boolean_equation -> attribute LESSOREQUAL NUMBER .)
+    IMPLICATOR      reduce using rule 39 (boolean_equation -> attribute LESSOREQUAL NUMBER .)
+    RPAR            reduce using rule 39 (boolean_equation -> attribute LESSOREQUAL NUMBER .)
+
+
+state 81
+
+    (46) boolean_equation -> FORALL VARIABLENAME MEMBEROF . nodes_or_edges boolean_equation
+    (50) nodes_or_edges -> . NODES
+    (51) nodes_or_edges -> . EDGES
+
+    NODES           shift and go to state 88
+    EDGES           shift and go to state 89
+
+    nodes_or_edges                 shift and go to state 87
+
+state 82
+
+    (48) attribute -> VARIABLENAME CLPAR PROPERTYNAME . CRPAR
+
+    CRPAR           shift and go to state 90
+
+
+state 83
+
+    (47) boolean_equation -> EXISTS VARIABLENAME MEMBEROF . nodes_or_edges boolean_equation
+    (50) nodes_or_edges -> . NODES
+    (51) nodes_or_edges -> . EDGES
+
+    NODES           shift and go to state 88
+    EDGES           shift and go to state 89
+
+    nodes_or_edges                 shift and go to state 91
+
+state 84
+
+    (58) type_list -> type_symbol .
+
+    RPAR            reduce using rule 58 (type_list -> type_symbol .)
+    COMMA           reduce using rule 58 (type_list -> type_symbol .)
+
+
+state 85
+
+    (10) declaration -> type_symbol variable_name LPAR type_list . RPAR SEMICOLON
+    (59) type_list -> type_list . COMMA type_symbol
+
+    RPAR            shift and go to state 92
+    COMMA           shift and go to state 93
+
+
+state 86
+
+    (11) declaration -> type_symbol variable_name LPAR RPAR . SEMICOLON
+
+    SEMICOLON       shift and go to state 94
+
+
+state 87
+
+    (46) boolean_equation -> FORALL VARIABLENAME MEMBEROF nodes_or_edges . boolean_equation
+    (14) boolean_equation -> . BOOLSYMBOL
+    (15) boolean_equation -> . LPAR boolean_equation RPAR
+    (16) boolean_equation -> . NEGATOR boolean_equation
+    (17) boolean_equation -> . boolean_equation CONJ boolean_equation
+    (18) boolean_equation -> . boolean_equation DISJ boolean_equation
+    (19) boolean_equation -> . boolean_equation EQUALITY boolean_equation
+    (20) boolean_equation -> . boolean_equation INEQUALITY boolean_equation
+    (21) boolean_equation -> . boolean_equation IMPLICATOR boolean_equation
+    (22) boolean_equation -> . variable EQUALITY variable
+    (23) boolean_equation -> . variable INEQUALITY variable
+    (24) boolean_equation -> . STRING EQUALITY STRING
+    (25) boolean_equation -> . STRING INEQUALITY STRING
+    (26) boolean_equation -> . NUMBER EQUALITY NUMBER
+    (27) boolean_equation -> . NUMBER INEQUALITY NUMBER
+    (28) boolean_equation -> . NUMBER LESSTHAN NUMBER
+    (29) boolean_equation -> . NUMBER LESSOREQUAL NUMBER
+    (30) boolean_equation -> . attribute EQUALITY attribute
+    (31) boolean_equation -> . attribute INEQUALITY attribute
+    (32) boolean_equation -> . attribute LESSTHAN attribute
+    (33) boolean_equation -> . attribute LESSOREQUAL attribute
+    (34) boolean_equation -> . attribute EQUALITY STRING
+    (35) boolean_equation -> . attribute INEQUALITY STRING
+    (36) boolean_equation -> . attribute EQUALITY NUMBER
+    (37) boolean_equation -> . attribute INEQUALITY NUMBER
+    (38) boolean_equation -> . attribute LESSTHAN NUMBER
+    (39) boolean_equation -> . attribute LESSOREQUAL NUMBER
+    (40) boolean_equation -> . STRING EQUALITY attribute
+    (41) boolean_equation -> . STRING INEQUALITY attribute
+    (42) boolean_equation -> . NUMBER EQUALITY attribute
+    (43) boolean_equation -> . NUMBER INEQUALITY attribute
+    (44) boolean_equation -> . NUMBER LESSTHAN attribute
+    (45) boolean_equation -> . NUMBER LESSOREQUAL attribute
+    (46) boolean_equation -> . FORALL VARIABLENAME MEMBEROF nodes_or_edges boolean_equation
+    (47) boolean_equation -> . EXISTS VARIABLENAME MEMBEROF nodes_or_edges boolean_equation
+    (49) variable -> . VARIABLENAME
+    (48) attribute -> . VARIABLENAME CLPAR PROPERTYNAME CRPAR
+
+    BOOLSYMBOL      shift and go to state 12
+    LPAR            shift and go to state 5
+    NEGATOR         shift and go to state 13
+    STRING          shift and go to state 15
+    NUMBER          shift and go to state 16
+    FORALL          shift and go to state 18
+    EXISTS          shift and go to state 20
+    VARIABLENAME    shift and go to state 19
+
+    boolean_equation               shift and go to state 95
+    variable                       shift and go to state 14
+    attribute                      shift and go to state 17
+
+state 88
+
+    (50) nodes_or_edges -> NODES .
+
+    BOOLSYMBOL      reduce using rule 50 (nodes_or_edges -> NODES .)
+    LPAR            reduce using rule 50 (nodes_or_edges -> NODES .)
+    NEGATOR         reduce using rule 50 (nodes_or_edges -> NODES .)
+    STRING          reduce using rule 50 (nodes_or_edges -> NODES .)
+    NUMBER          reduce using rule 50 (nodes_or_edges -> NODES .)
+    FORALL          reduce using rule 50 (nodes_or_edges -> NODES .)
+    EXISTS          reduce using rule 50 (nodes_or_edges -> NODES .)
+    VARIABLENAME    reduce using rule 50 (nodes_or_edges -> NODES .)
+
+
+state 89
+
+    (51) nodes_or_edges -> EDGES .
+
+    BOOLSYMBOL      reduce using rule 51 (nodes_or_edges -> EDGES .)
+    LPAR            reduce using rule 51 (nodes_or_edges -> EDGES .)
+    NEGATOR         reduce using rule 51 (nodes_or_edges -> EDGES .)
+    STRING          reduce using rule 51 (nodes_or_edges -> EDGES .)
+    NUMBER          reduce using rule 51 (nodes_or_edges -> EDGES .)
+    FORALL          reduce using rule 51 (nodes_or_edges -> EDGES .)
+    EXISTS          reduce using rule 51 (nodes_or_edges -> EDGES .)
+    VARIABLENAME    reduce using rule 51 (nodes_or_edges -> EDGES .)
+
+
+state 90
+
+    (48) attribute -> VARIABLENAME CLPAR PROPERTYNAME CRPAR .
+
+    EQUALITY        reduce using rule 48 (attribute -> VARIABLENAME CLPAR PROPERTYNAME CRPAR .)
+    INEQUALITY      reduce using rule 48 (attribute -> VARIABLENAME CLPAR PROPERTYNAME CRPAR .)
+    LESSTHAN        reduce using rule 48 (attribute -> VARIABLENAME CLPAR PROPERTYNAME CRPAR .)
+    LESSOREQUAL     reduce using rule 48 (attribute -> VARIABLENAME CLPAR PROPERTYNAME CRPAR .)
+    SEMICOLON       reduce using rule 48 (attribute -> VARIABLENAME CLPAR PROPERTYNAME CRPAR .)
+    CONJ            reduce using rule 48 (attribute -> VARIABLENAME CLPAR PROPERTYNAME CRPAR .)
+    DISJ            reduce using rule 48 (attribute -> VARIABLENAME CLPAR PROPERTYNAME CRPAR .)
+    IMPLICATOR      reduce using rule 48 (attribute -> VARIABLENAME CLPAR PROPERTYNAME CRPAR .)
+    RPAR            reduce using rule 48 (attribute -> VARIABLENAME CLPAR PROPERTYNAME CRPAR .)
+
+
+state 91
+
+    (47) boolean_equation -> EXISTS VARIABLENAME MEMBEROF nodes_or_edges . boolean_equation
+    (14) boolean_equation -> . BOOLSYMBOL
+    (15) boolean_equation -> . LPAR boolean_equation RPAR
+    (16) boolean_equation -> . NEGATOR boolean_equation
+    (17) boolean_equation -> . boolean_equation CONJ boolean_equation
+    (18) boolean_equation -> . boolean_equation DISJ boolean_equation
+    (19) boolean_equation -> . boolean_equation EQUALITY boolean_equation
+    (20) boolean_equation -> . boolean_equation INEQUALITY boolean_equation
+    (21) boolean_equation -> . boolean_equation IMPLICATOR boolean_equation
+    (22) boolean_equation -> . variable EQUALITY variable
+    (23) boolean_equation -> . variable INEQUALITY variable
+    (24) boolean_equation -> . STRING EQUALITY STRING
+    (25) boolean_equation -> . STRING INEQUALITY STRING
+    (26) boolean_equation -> . NUMBER EQUALITY NUMBER
+    (27) boolean_equation -> . NUMBER INEQUALITY NUMBER
+    (28) boolean_equation -> . NUMBER LESSTHAN NUMBER
+    (29) boolean_equation -> . NUMBER LESSOREQUAL NUMBER
+    (30) boolean_equation -> . attribute EQUALITY attribute
+    (31) boolean_equation -> . attribute INEQUALITY attribute
+    (32) boolean_equation -> . attribute LESSTHAN attribute
+    (33) boolean_equation -> . attribute LESSOREQUAL attribute
+    (34) boolean_equation -> . attribute EQUALITY STRING
+    (35) boolean_equation -> . attribute INEQUALITY STRING
+    (36) boolean_equation -> . attribute EQUALITY NUMBER
+    (37) boolean_equation -> . attribute INEQUALITY NUMBER
+    (38) boolean_equation -> . attribute LESSTHAN NUMBER
+    (39) boolean_equation -> . attribute LESSOREQUAL NUMBER
+    (40) boolean_equation -> . STRING EQUALITY attribute
+    (41) boolean_equation -> . STRING INEQUALITY attribute
+    (42) boolean_equation -> . NUMBER EQUALITY attribute
+    (43) boolean_equation -> . NUMBER INEQUALITY attribute
+    (44) boolean_equation -> . NUMBER LESSTHAN attribute
+    (45) boolean_equation -> . NUMBER LESSOREQUAL attribute
+    (46) boolean_equation -> . FORALL VARIABLENAME MEMBEROF nodes_or_edges boolean_equation
+    (47) boolean_equation -> . EXISTS VARIABLENAME MEMBEROF nodes_or_edges boolean_equation
+    (49) variable -> . VARIABLENAME
+    (48) attribute -> . VARIABLENAME CLPAR PROPERTYNAME CRPAR
+
+    BOOLSYMBOL      shift and go to state 12
+    LPAR            shift and go to state 5
+    NEGATOR         shift and go to state 13
+    STRING          shift and go to state 15
+    NUMBER          shift and go to state 16
+    FORALL          shift and go to state 18
+    EXISTS          shift and go to state 20
+    VARIABLENAME    shift and go to state 19
+
+    boolean_equation               shift and go to state 96
+    variable                       shift and go to state 14
+    attribute                      shift and go to state 17
+
+state 92
+
+    (10) declaration -> type_symbol variable_name LPAR type_list RPAR . SEMICOLON
+
+    SEMICOLON       shift and go to state 97
+
+
+state 93
+
+    (59) type_list -> type_list COMMA . type_symbol
+    (52) type_symbol -> . TYPEINT
+    (53) type_symbol -> . TYPEFLOAT
+    (54) type_symbol -> . TYPESTR
+    (55) type_symbol -> . TYPELIST
+    (56) type_symbol -> . TYPEBOOL
+
+    TYPEINT         shift and go to state 7
+    TYPEFLOAT       shift and go to state 8
+    TYPESTR         shift and go to state 9
+    TYPELIST        shift and go to state 10
+    TYPEBOOL        shift and go to state 11
+
+    type_symbol                    shift and go to state 98
+
+state 94
+
+    (11) declaration -> type_symbol variable_name LPAR RPAR SEMICOLON .
+
+    TYPEINT         reduce using rule 11 (declaration -> type_symbol variable_name LPAR RPAR SEMICOLON .)
+    TYPEFLOAT       reduce using rule 11 (declaration -> type_symbol variable_name LPAR RPAR SEMICOLON .)
+    TYPESTR         reduce using rule 11 (declaration -> type_symbol variable_name LPAR RPAR SEMICOLON .)
+    TYPELIST        reduce using rule 11 (declaration -> type_symbol variable_name LPAR RPAR SEMICOLON .)
+    TYPEBOOL        reduce using rule 11 (declaration -> type_symbol variable_name LPAR RPAR SEMICOLON .)
+    BOOLSYMBOL      reduce using rule 11 (declaration -> type_symbol variable_name LPAR RPAR SEMICOLON .)
+    LPAR            reduce using rule 11 (declaration -> type_symbol variable_name LPAR RPAR SEMICOLON .)
+    NEGATOR         reduce using rule 11 (declaration -> type_symbol variable_name LPAR RPAR SEMICOLON .)
+    STRING          reduce using rule 11 (declaration -> type_symbol variable_name LPAR RPAR SEMICOLON .)
+    NUMBER          reduce using rule 11 (declaration -> type_symbol variable_name LPAR RPAR SEMICOLON .)
+    FORALL          reduce using rule 11 (declaration -> type_symbol variable_name LPAR RPAR SEMICOLON .)
+    EXISTS          reduce using rule 11 (declaration -> type_symbol variable_name LPAR RPAR SEMICOLON .)
+    VARIABLENAME    reduce using rule 11 (declaration -> type_symbol variable_name LPAR RPAR SEMICOLON .)
+    $end            reduce using rule 11 (declaration -> type_symbol variable_name LPAR RPAR SEMICOLON .)
+
+
+state 95
+
+    (46) boolean_equation -> FORALL VARIABLENAME MEMBEROF nodes_or_edges boolean_equation .
+    (17) boolean_equation -> boolean_equation . CONJ boolean_equation
+    (18) boolean_equation -> boolean_equation . DISJ boolean_equation
+    (19) boolean_equation -> boolean_equation . EQUALITY boolean_equation
+    (20) boolean_equation -> boolean_equation . INEQUALITY boolean_equation
+    (21) boolean_equation -> boolean_equation . IMPLICATOR boolean_equation
+
+  ! shift/reduce conflict for CONJ resolved as shift
+  ! shift/reduce conflict for DISJ resolved as shift
+  ! shift/reduce conflict for EQUALITY resolved as shift
+  ! shift/reduce conflict for INEQUALITY resolved as shift
+  ! shift/reduce conflict for IMPLICATOR resolved as shift
+    SEMICOLON       reduce using rule 46 (boolean_equation -> FORALL VARIABLENAME MEMBEROF nodes_or_edges boolean_equation .)
+    RPAR            reduce using rule 46 (boolean_equation -> FORALL VARIABLENAME MEMBEROF nodes_or_edges boolean_equation .)
+    CONJ            shift and go to state 26
+    DISJ            shift and go to state 27
+    EQUALITY        shift and go to state 28
+    INEQUALITY      shift and go to state 29
+    IMPLICATOR      shift and go to state 30
+
+  ! CONJ            [ reduce using rule 46 (boolean_equation -> FORALL VARIABLENAME MEMBEROF nodes_or_edges boolean_equation .) ]
+  ! DISJ            [ reduce using rule 46 (boolean_equation -> FORALL VARIABLENAME MEMBEROF nodes_or_edges boolean_equation .) ]
+  ! EQUALITY        [ reduce using rule 46 (boolean_equation -> FORALL VARIABLENAME MEMBEROF nodes_or_edges boolean_equation .) ]
+  ! INEQUALITY      [ reduce using rule 46 (boolean_equation -> FORALL VARIABLENAME MEMBEROF nodes_or_edges boolean_equation .) ]
+  ! IMPLICATOR      [ reduce using rule 46 (boolean_equation -> FORALL VARIABLENAME MEMBEROF nodes_or_edges boolean_equation .) ]
+
+
+state 96
+
+    (47) boolean_equation -> EXISTS VARIABLENAME MEMBEROF nodes_or_edges boolean_equation .
+    (17) boolean_equation -> boolean_equation . CONJ boolean_equation
+    (18) boolean_equation -> boolean_equation . DISJ boolean_equation
+    (19) boolean_equation -> boolean_equation . EQUALITY boolean_equation
+    (20) boolean_equation -> boolean_equation . INEQUALITY boolean_equation
+    (21) boolean_equation -> boolean_equation . IMPLICATOR boolean_equation
+
+  ! shift/reduce conflict for CONJ resolved as shift
+  ! shift/reduce conflict for DISJ resolved as shift
+  ! shift/reduce conflict for EQUALITY resolved as shift
+  ! shift/reduce conflict for INEQUALITY resolved as shift
+  ! shift/reduce conflict for IMPLICATOR resolved as shift
+    SEMICOLON       reduce using rule 47 (boolean_equation -> EXISTS VARIABLENAME MEMBEROF nodes_or_edges boolean_equation .)
+    RPAR            reduce using rule 47 (boolean_equation -> EXISTS VARIABLENAME MEMBEROF nodes_or_edges boolean_equation .)
+    CONJ            shift and go to state 26
+    DISJ            shift and go to state 27
+    EQUALITY        shift and go to state 28
+    INEQUALITY      shift and go to state 29
+    IMPLICATOR      shift and go to state 30
+
+  ! CONJ            [ reduce using rule 47 (boolean_equation -> EXISTS VARIABLENAME MEMBEROF nodes_or_edges boolean_equation .) ]
+  ! DISJ            [ reduce using rule 47 (boolean_equation -> EXISTS VARIABLENAME MEMBEROF nodes_or_edges boolean_equation .) ]
+  ! EQUALITY        [ reduce using rule 47 (boolean_equation -> EXISTS VARIABLENAME MEMBEROF nodes_or_edges boolean_equation .) ]
+  ! INEQUALITY      [ reduce using rule 47 (boolean_equation -> EXISTS VARIABLENAME MEMBEROF nodes_or_edges boolean_equation .) ]
+  ! IMPLICATOR      [ reduce using rule 47 (boolean_equation -> EXISTS VARIABLENAME MEMBEROF nodes_or_edges boolean_equation .) ]
+
+
+state 97
+
+    (10) declaration -> type_symbol variable_name LPAR type_list RPAR SEMICOLON .
+
+    TYPEINT         reduce using rule 10 (declaration -> type_symbol variable_name LPAR type_list RPAR SEMICOLON .)
+    TYPEFLOAT       reduce using rule 10 (declaration -> type_symbol variable_name LPAR type_list RPAR SEMICOLON .)
+    TYPESTR         reduce using rule 10 (declaration -> type_symbol variable_name LPAR type_list RPAR SEMICOLON .)
+    TYPELIST        reduce using rule 10 (declaration -> type_symbol variable_name LPAR type_list RPAR SEMICOLON .)
+    TYPEBOOL        reduce using rule 10 (declaration -> type_symbol variable_name LPAR type_list RPAR SEMICOLON .)
+    BOOLSYMBOL      reduce using rule 10 (declaration -> type_symbol variable_name LPAR type_list RPAR SEMICOLON .)
+    LPAR            reduce using rule 10 (declaration -> type_symbol variable_name LPAR type_list RPAR SEMICOLON .)
+    NEGATOR         reduce using rule 10 (declaration -> type_symbol variable_name LPAR type_list RPAR SEMICOLON .)
+    STRING          reduce using rule 10 (declaration -> type_symbol variable_name LPAR type_list RPAR SEMICOLON .)
+    NUMBER          reduce using rule 10 (declaration -> type_symbol variable_name LPAR type_list RPAR SEMICOLON .)
+    FORALL          reduce using rule 10 (declaration -> type_symbol variable_name LPAR type_list RPAR SEMICOLON .)
+    EXISTS          reduce using rule 10 (declaration -> type_symbol variable_name LPAR type_list RPAR SEMICOLON .)
+    VARIABLENAME    reduce using rule 10 (declaration -> type_symbol variable_name LPAR type_list RPAR SEMICOLON .)
+    $end            reduce using rule 10 (declaration -> type_symbol variable_name LPAR type_list RPAR SEMICOLON .)
+
+
+state 98
+
+    (59) type_list -> type_list COMMA type_symbol .
+
+    RPAR            reduce using rule 59 (type_list -> type_list COMMA type_symbol .)
+    COMMA           reduce using rule 59 (type_list -> type_list COMMA type_symbol .)
+
+WARNING: 
+WARNING: Conflicts:
+WARNING: 
+WARNING: shift/reduce conflict for CONJ in state 31 resolved as shift
+WARNING: shift/reduce conflict for DISJ in state 31 resolved as shift
+WARNING: shift/reduce conflict for EQUALITY in state 31 resolved as shift
+WARNING: shift/reduce conflict for INEQUALITY in state 31 resolved as shift
+WARNING: shift/reduce conflict for IMPLICATOR in state 31 resolved as shift
+WARNING: shift/reduce conflict for CONJ in state 50 resolved as shift
+WARNING: shift/reduce conflict for DISJ in state 50 resolved as shift
+WARNING: shift/reduce conflict for EQUALITY in state 50 resolved as shift
+WARNING: shift/reduce conflict for INEQUALITY in state 50 resolved as shift
+WARNING: shift/reduce conflict for IMPLICATOR in state 50 resolved as shift
+WARNING: shift/reduce conflict for CONJ in state 51 resolved as shift
+WARNING: shift/reduce conflict for DISJ in state 51 resolved as shift
+WARNING: shift/reduce conflict for EQUALITY in state 51 resolved as shift
+WARNING: shift/reduce conflict for INEQUALITY in state 51 resolved as shift
+WARNING: shift/reduce conflict for IMPLICATOR in state 51 resolved as shift
+WARNING: shift/reduce conflict for CONJ in state 52 resolved as shift
+WARNING: shift/reduce conflict for DISJ in state 52 resolved as shift
+WARNING: shift/reduce conflict for EQUALITY in state 52 resolved as shift
+WARNING: shift/reduce conflict for INEQUALITY in state 52 resolved as shift
+WARNING: shift/reduce conflict for IMPLICATOR in state 52 resolved as shift
+WARNING: shift/reduce conflict for CONJ in state 53 resolved as shift
+WARNING: shift/reduce conflict for DISJ in state 53 resolved as shift
+WARNING: shift/reduce conflict for EQUALITY in state 53 resolved as shift
+WARNING: shift/reduce conflict for INEQUALITY in state 53 resolved as shift
+WARNING: shift/reduce conflict for IMPLICATOR in state 53 resolved as shift
+WARNING: shift/reduce conflict for CONJ in state 54 resolved as shift
+WARNING: shift/reduce conflict for DISJ in state 54 resolved as shift
+WARNING: shift/reduce conflict for EQUALITY in state 54 resolved as shift
+WARNING: shift/reduce conflict for INEQUALITY in state 54 resolved as shift
+WARNING: shift/reduce conflict for IMPLICATOR in state 54 resolved as shift
+WARNING: shift/reduce conflict for CONJ in state 95 resolved as shift
+WARNING: shift/reduce conflict for DISJ in state 95 resolved as shift
+WARNING: shift/reduce conflict for EQUALITY in state 95 resolved as shift
+WARNING: shift/reduce conflict for INEQUALITY in state 95 resolved as shift
+WARNING: shift/reduce conflict for IMPLICATOR in state 95 resolved as shift
+WARNING: shift/reduce conflict for CONJ in state 96 resolved as shift
+WARNING: shift/reduce conflict for DISJ in state 96 resolved as shift
+WARNING: shift/reduce conflict for EQUALITY in state 96 resolved as shift
+WARNING: shift/reduce conflict for INEQUALITY in state 96 resolved as shift
+WARNING: shift/reduce conflict for IMPLICATOR in state 96 resolved as shift
