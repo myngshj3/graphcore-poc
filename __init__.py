@@ -1,3 +1,3 @@
 
-VERSION = "0.1"
-LINCENSE = "MIT Lincense"
+VERSION = "0.1.0"
+LINCENSE = "GNU General Public License"
