@@ -2,7 +2,7 @@
 
 import numpy as np
 from graphcore.shell import GraphCoreContextHandler
-import tensorflow as tf
+# import tensorflow as tf
 import threading
 
 
