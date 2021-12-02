@@ -14,8 +14,8 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.Qt import *
 import graphcore as gc
-from graphcore.graphics import GCPane, GCGraph, CommandParser
-from graphcore.graphicsscene import GCScene
+from graphics import GCPane, GCGraph, CommandParser
+from graphicsscene import GCScene
 from graphcore.drawutil import straight_edge_ellipse_to_ellipse,\
     straight_edge_ellipse_to_rect, straight_edge_rect_to_ellipse, straight_edge_rect_to_rect
 

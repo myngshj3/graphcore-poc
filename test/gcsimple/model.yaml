@@ -1,0 +1,145 @@
+!!python/object:networkx.classes.digraph.DiGraph
+_adj: &id010
+  0:
+    5: &id004
+      label: (0,5)
+  1:
+    4: &id003
+      label: (1,4)
+  2:
+    0: &id001
+      label: (2,0)
+  3:
+    1: &id002
+      label: (3,1)
+  4:
+    6: &id005
+      label: (4,6)
+  5:
+    6: &id006
+      label: (5,6)
+  6:
+    7: &id007
+      label: (6,7)
+  7:
+    8: &id008
+      label: (7,8)
+  8:
+    9: &id009
+      label: (8,9)
+  9: {}
+_node: &id012
+  0:
+    h: 100.0
+    label: "\u305C\u308D"
+    name: '0'
+    shape: ellipse
+    w: 100.0
+    x: -622.0
+    y: -177.0
+  1:
+    h: 100.0
+    label: "\u3044\u3061"
+    name: '1'
+    shape: ellipse
+    w: 100.0
+    x: -635.0
+    y: 208.0
+  2:
+    color: '#cc8'
+    h: 100.0
+    label: '2'
+    name: '2'
+    shape: rect
+    w: 100.0
+    x: -819.0
+    y: -177.0
+  3:
+    color: '#cc8'
+    h: 100.0
+    label: '3'
+    name: '3'
+    shape: rect
+    w: 100.0
+    x: -824.0
+    y: 208.0
+  4:
+    color: '#cc8'
+    h: 100.0
+    label: '4'
+    name: '4'
+    shape: rect
+    w: 100.0
+    x: -463.0
+    y: 208.0
+  5:
+    color: '#cc8'
+    h: 100.0
+    label: '5'
+    name: '5'
+    shape: rect
+    w: 100.0
+    x: -465.0
+    y: -177.0
+  6:
+    h: 100.0
+    label: '6'
+    name: '6'
+    shape: ellipse
+    w: 100.0
+    x: -347.0
+    y: 14.0
+  7:
+    h: 100.0
+    label: '7'
+    name: '7'
+    shape: rect
+    w: 100.0
+    x: -175.0
+    y: 14.0
+  8:
+    h: 100.0
+    label: '8'
+    name: '8'
+    shape: ellipse
+    w: 100.0
+    x: 2.0
+    y: 14.0
+  9:
+    h: 100.0
+    label: '9'
+    name: '9'
+    shape: rect
+    w: 100.0
+    x: 181.0
+    y: 14.0
+_pred:
+  0:
+    2: *id001
+  1:
+    3: *id002
+  2: {}
+  3: {}
+  4:
+    1: *id003
+  5:
+    0: *id004
+  6:
+    4: *id005
+    5: *id006
+  7:
+    6: *id007
+  8:
+    7: *id008
+  9:
+    8: *id009
+_succ: *id010
+adjlist_inner_dict_factory: &id011 !!python/name:builtins.dict ''
+adjlist_outer_dict_factory: *id011
+edge_attr_dict_factory: *id011
+graph: {}
+graph_attr_dict_factory: *id011
+node_attr_dict_factory: *id011
+node_dict_factory: *id011
+nodes: !!python/object:networkx.classes.reportviews.NodeView
+  _nodes: *id012
