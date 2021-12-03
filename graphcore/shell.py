@@ -1,9 +1,22 @@
 # from GraphCore.model import GraphCoreModel
 from graphcore.settings import GraphCoreSettings
 import networkx as nx
+import yaml
 from graphcore.reporter import GraphCoreReporter
 from PyQt5.QtCore import QThread, QMutex, pyqtSignal
 import traceback
+
+
+# yaml's presettings for load/dump
+def represent_odict(dumper, instance):
+    return dumper.represent_mapping('tag:yaml.org,2002:map', instance.items())
+
+yaml.add_representer(dict, represent_odict)
+
+def construct_odict(loader, node):
+    return dict(loader.construct_pairs(node))
+
+yaml.add_constructor('tag:yaml.org,2002:map', construct_odict)
 
 
 # GraphCore Shell Thread Signal class
@@ -163,8 +176,9 @@ class GraphCoreContext(object):
     def read_file(self, filename) -> None:
         try:
             with open(filename, "r") as f:
+                G = yaml.load(f, Loader=yaml.Loader)
                 # A = nx.nx_pydot.read_dot(filename)
-                G = nx.read_yaml(filename)
+                # G = nx.read_yaml(filename)
                 if 'constraints' not in G.graph.keys():
                     G.graph['constraints'] = {}
                 self._G = G
@@ -184,10 +198,14 @@ class GraphCoreContext(object):
             if self.filename is None:
                 self.reporter.report("filename not specified")
             else:
-                nx.write_yaml(self.G, self.filename)
+                # nx.write_yaml(self.G, self.filename)
+                with open(filename,'w') as f:
+                    yaml.dump(self.G, f)
                 self.dirty = False
         else:
-            nx.write_yaml(self.G, filename)
+            # nx.write_yaml(self.G, filename)
+            with open(filename,'w') as f:
+                yaml.dump(self.G, f)
             self.filename = filename
             self.dirty = False
 
