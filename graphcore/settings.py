@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import os
 import json
 
 
@@ -121,5 +122,10 @@ _settings = None
 def gcore_settings() -> GraphCoreSettings:
     global _settings
     if _settings is None:
-        _settings = GraphCoreSettings()
+        home_dir = os.getenv("GRAPHCORE_HOME")
+        if home_dir is None:
+            config_file = "graphcore.cfg"
+        else:
+            config_file = home_dir + "/" + "graphcore.cfg"
+        _settings = GraphCoreSettings(config_file)
     return _settings
