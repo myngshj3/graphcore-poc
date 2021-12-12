@@ -1,4 +1,5 @@
 
+import os
 from graphcore.settings import gcore_settings
 from gui.mainwindow import GraphCoreEditorMainWindow
 from gui.Ui_MainWindow import Ui_MainWindow
@@ -13,6 +14,7 @@ from gui.solvercontroller import SolverControllerDialog
 from graphcore.shell import GraphCoreShell
 from gui.geomserializable import GeometrySerializableFrame
 from graphcore.graphicsscene import GraphCoreScene
+# from graphcore.constraint import set_constraint_main_window
 import sys
 from PyQt5.QtWidgets import *
 
@@ -123,6 +125,9 @@ def main():
     main_window.serializers.append(
         lambda: settings.set_setting_value(['solver-controller', 'height'], solver_controller.frameGeometry().height()))
 
+    # etc.
+    # set_constraint_main_window(main_window)
+    
     # show main window
     main_window.command_new_model()
     main_window.show()
