@@ -1,4 +1,5 @@
 
+import networkx as nx
 import traceback
 import re
 from graphcore.shell import GraphCoreShell, GraphCoreContext, GraphCoreContextHandler, GraphCoreAsyncContextHandler
@@ -1087,6 +1088,47 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
     def command_start_solver(self):
         try:
             self.solver_controller.setModal(True)
+            G = nx.DiGraph()
+            for n in self.handler.context.G.nodes:
+                G.add_node(n)
+                for k in self.handler.context.G.nodes[n].keys():
+                    G.nodes[n][k] = self.handler.context.G.nodes[n][k]['value']
+            for e in self.handler.context.G.edges:
+                G.add_edge(e[0], e[1])
+                for k in self.handler.context.G.edges[e[0], e[1]].keys():
+                    G.edges[e[0], e[1]][k] = self.handler.context.G.edges[e[0], e[1]][k]['value']
+            self.solver_controller.G = G
+            # initialize value property combobox
+            node_properties = []
+            for i, n in enumerate(self.solver_controller.G.nodes):
+                node_properties = [_ for _ in self.solver_controller.G.nodes[n].keys()]
+                if i == 0:
+                    break
+            combo_boxes = (
+                self.solver_controller.ui.valuePropertyNameComboBox,
+                self.solver_controller.ui.maxValuePropertyComboBox
+            )
+            for cb in combo_boxes:
+                cb.clear()
+                for k in node_properties:
+                    cb.addItem(k)
+            # initialize edge property combobox
+            edge_properties = []
+            for i, e in enumerate(self.solver_controller.G.edges):
+                edge_properties = [_ for _ in self.solver_controller.G.edges[e[0], e[1]].keys()]
+                if i == 0:
+                    break
+            combo_boxes = (
+                self.solver_controller.ui.velocityPropertyComboBox,
+                self.solver_controller.ui.maxVelocityPropertyComboBox,
+                self.solver_controller.ui.currentMaxVelocityPropertyComboBox
+            )
+            for cb in combo_boxes:
+                cb.clear()
+                for k in edge_properties:
+                    cb.addItem(k)
+
+            # open dialog
             self.solver_controller.exec_()
             # solver = GraphCoreGenericSolver(self.async_handler)
             # equation = lambda: self.handler.node_attr('19', 'fill-color') == 'blue'
