@@ -1099,11 +1099,7 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
                     G.edges[e[0], e[1]][k] = self.handler.context.G.edges[e[0], e[1]][k]['value']
             self.solver_controller.G = G
             # initialize value property combobox
-            node_properties = []
-            for i, n in enumerate(self.solver_controller.G.nodes):
-                node_properties = [_ for _ in self.solver_controller.G.nodes[n].keys()]
-                if i == 0:
-                    break
+            node_properties = self.settings.setting('default-node-attrs')['control-volume'].keys()
             combo_boxes = (
                 self.solver_controller.ui.valuePropertyNameComboBox,
                 self.solver_controller.ui.maxValuePropertyComboBox
@@ -1113,15 +1109,12 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
                 for k in node_properties:
                     cb.addItem(k)
             # initialize edge property combobox
-            edge_properties = []
-            for i, e in enumerate(self.solver_controller.G.edges):
-                edge_properties = [_ for _ in self.solver_controller.G.edges[e[0], e[1]].keys()]
-                if i == 0:
-                    break
+            edge_properties = self.settings.setting('default-edge-attrs')['dataflow'].keys()
             combo_boxes = (
                 self.solver_controller.ui.velocityPropertyComboBox,
                 self.solver_controller.ui.maxVelocityPropertyComboBox,
-                self.solver_controller.ui.currentMaxVelocityPropertyComboBox
+                self.solver_controller.ui.currentMaxVelocityPropertyComboBox,
+                self.solver_controller.ui.distancePropertyComboBox
             )
             for cb in combo_boxes:
                 cb.clear()

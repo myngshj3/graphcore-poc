@@ -7,6 +7,7 @@ from graphcore.gcsolver import GCSolver
 from gui.Ui_SolverController import Ui_SolverControllerForm
 from PyQt5.QtWidgets import QDialog, QMenu
 from PyQt5.QtCore import QPoint
+import traceback
 
 
 class SolverControllerDialog(QDialog):
@@ -46,6 +47,7 @@ class SolverControllerDialog(QDialog):
             velocity_property = self.ui.velocityPropertyComboBox.currentText()
             max_velocity_property = self.ui.maxVelocityPropertyComboBox.currentText()
             current_max_velocity_property = self.ui.currentMaxVelocityPropertyComboBox.currentText()
+            distance_property = self.ui.distancePropertyComboBox.currentText()
             self.ui.startButton.setEnabled(False)
             self.ui.stopButton.setEnabled(True)
             self.ui.closeButton.setEnabled(False)
@@ -53,34 +55,36 @@ class SolverControllerDialog(QDialog):
             steps = self.ui.spinBox.value()
             solver: GCSolver = GCSolver(self.G, dt)
             G = solver.clone_graph(self.G)
+            solver.G = G
             G_array = [G]
             for i in range(steps):
                 if self._cancel:
                     break
                 percentage = 100.0 * i / steps
                 self.ui.progressBar.setValue(percentage)
-                if 0 == i:
-                    print(f'[{i}]')
-                    for n in G.nodes:
-                        print(f'  n={n}, value={G.nodes[n][value_property]}, maxValue={G.nodes[n][max_value_property]}')
-                    for e in G.edges:
-                        print(f'  e={e}, velocity={G.edges[e[0], e[1]][velocity_property]}, currentMaxVelocity={G.edges[e[0], e[1]][current_max_velocity_property]}, maxVelocity={G.edges[e[0], e[1]][max_velocity_property]}')
+                # if 0 == i:
+                #     print(f'[{i}]**')
+                #     for n in G.nodes:
+                #         print(f'  n={n}, value={G.nodes[n][value_property]}, maxValue={G.nodes[n][max_value_property]}')
+                #     for e in G.edges:
+                #         print(f'  e={e}, velocity={G.edges[e[0], e[1]][velocity_property]}, currentMaxVelocity={G.edges[e[0], e[1]][current_max_velocity_property]}, maxVelocity={G.edges[e[0], e[1]][max_velocity_property]}')
                 G = solver.calc_one_step(value_property, max_value_property, velocity_property, max_velocity_property,
-                                         current_max_velocity_property)
+                                         current_max_velocity_property, distance_property)
                 data = nx.node_link_data(G)
-                if 0 < i and divmod(i, 100)[1] == 0:
-                    print(f'[{i}]')
-                    for n in G.nodes:
-                        print(f'  n={n}, value={G.nodes[n][value_property]}, maxValue={G.nodes[n][max_value_property]}')
-                    for e in G.edges:
-                        print(f'  e={e}, velocity={G.edges[e[0], e[1]][velocity_property]}, maxVelocity={G.edges[e[0], e[1]][max_velocity_property]}')
+                # if True:  # 0 < i and divmod(i, 100)[1] == 0:
+                #     print(f'[{i}]')
+                #     for n in G.nodes:
+                #         print(f'  n={n}, value={G.nodes[n][value_property]}, maxValue={G.nodes[n][max_value_property]}')
+                #     for e in G.edges:
+                #         print(f'  e={e}, velocity={G.edges[e[0], e[1]][velocity_property]}, maxVelocity={G.edges[e[0], e[1]][max_velocity_property]}')
                 G_array.append(data)
                 self._G = G
             if not self._cancel:
                 self.ui.progressBar.setValue(100)
                 self._post_data = tuple(G_array)
         except Exception as ex:
-            print(ex)
+            print('exception occured:', ex)
+            print(traceback.format_exc())
         finally:
             self._cancel = True
             self.ui.startButton.setEnabled(True)
