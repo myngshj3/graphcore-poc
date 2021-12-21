@@ -18,6 +18,8 @@ from gui.console import ConsoleDialog
 from gui.scripteditor import ScriptEditorDialog
 from gui.coordfinderwidget import CoordFinderWidget
 from gui.solvercontroller import SolverControllerDialog
+from gui.visualizer import GCVisualizerDialog
+from gui.postscreen import PostScreenDialog
 from graphcore.settings import GraphCoreSettings
 from graphcore.graphicsscene import GraphCoreScene
 import os
@@ -37,11 +39,17 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
         self._async_handler = async_handler
         self._ui = ui
         self.ui.setupUi(self)
+        self.ui.constraintWidget.setHorizontalHeaderItem(0, QTableWidgetItem('Enabled'))
+        self.ui.constraintWidget.setHorizontalHeaderItem(1, QTableWidgetItem('Id'))
+        self.ui.constraintWidget.setHorizontalHeaderItem(2, QTableWidgetItem('Constraiant'))
+        self.ui.constraintWidget.setHorizontalHeaderItem(3, QTableWidgetItem('Eescription'))
         self.ui.tabWidget.clear()
         self._coord_finder = None
         self._console = None
         self._script_editor = None
         self._solver_controller = None
+        self._visualizer = None
+        self._post_screen = None
         self._scene = None
         self._serializers = []
         self.install_shell_actions()
@@ -97,6 +105,22 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
     @solver_controller.setter
     def solver_controller(self, solver_controller: SolverControllerDialog):
         self._solver_controller = solver_controller
+
+    @property
+    def visualizer(self) -> GCVisualizerDialog:
+        return self._visualizer
+
+    @visualizer.setter
+    def visualizer(self, value: GCVisualizerDialog):
+        self._visualizer = value
+
+    @property
+    def post_screen(self) -> PostScreenDialog:
+        return self._post_screen
+
+    @post_screen.setter
+    def post_screen(self, value: PostScreenDialog):
+        self._post_screen = value
 
     @property
     def serializers(self) -> list:
@@ -188,6 +212,8 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
         self.constraints_clear()
         self._handler = handler
         self._async_handler = async_handler
+        self.update_node_list()
+        self.update_edge_list()
 
     def handler_purged(self):
         for e in self.element_to_item.keys():
@@ -209,10 +235,12 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
         elif attr['shape']['value'] in ('box', 'doublebox'):
             item = GraphCoreRectNodeItem(n, self.handler.context, self.handler)
         else:
-            self.print("Unsupported shape:{}. force to circle".format(attr['shape']))
+            self.print("Unsupported shape:{}. force to circle".format(attr['shape']['value']))
             item = GraphCoreCircleNodeItem(n, self.handler.context, self.handler)
         self.scene.addItem(item)
         self.element_to_item[n] = item
+        self.update_node_list()
+        self.update_edge_list()
         self.set_modified(True)
 
     # redraw node item
@@ -222,6 +250,7 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
         for e in edges:
             item = self.element_to_item[e]
             item.redraw()
+        self.update_node_list()
         self.set_modified(True)
 
     def update_node_item(self, n):
@@ -232,6 +261,8 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
         item = self.element_to_item[n]
         self.scene.removeItem(item)
         self.element_to_item.pop(n)
+        self.update_node_list()
+        self.update_edge_list()
         self.set_modified(True)
 
     # create node item
@@ -240,11 +271,14 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
         item = GraphCoreEdgeItem(e[0], e[1], self.handler.context, self.handler)
         self.scene.addItem(item)
         self.element_to_item[e] = item
+        self.update_edge_list()
         self.set_modified(True)
 
     # redraw edge item
     def redraw_edge_item(self, e):
         self.element_to_item[e].redraw()
+        self.update_node_list()
+        self.update_edge_list()
         self.set_modified(True)
 
     def update_edge_item(self, e):
@@ -255,6 +289,7 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
         item = self.element_to_item[e]
         self.scene.removeItem(item)
         self.element_to_item.pop(e)
+        self.update_edge_list()
         self.set_modified(True)
 
     # change view
@@ -295,7 +330,8 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
 
     # print message
     def print(self, text: object) -> None:
-        print(text)
+        # print(text)
+        self.ui.messages.append(str(text))
 
     # Label menu command
     # setup label menu
@@ -376,6 +412,9 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
                     self.shell.set_current_handler_by_name(filename[0])
                     return
                 self.shell.open(filename[0])
+                self.update_node_list()
+                self.update_edge_list()
+
         except Exception as ex:
             self.print(traceback.format_exc())
         finally:
@@ -398,6 +437,8 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
                         return False
                 self.handler.save(filename=filename)
             # deallocate all graph components
+            self.ui.nodeTableWidget.clear()
+            self.ui.edgeTableWidget.clear()
             self.shell.purge_handler(self.handler)
             return True
         except Exception as ex:
@@ -452,9 +493,43 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
             self.setCommandEnabilities()
         self.print('command_save_as')
 
+    def update_node_list(self):
+        self.ui.nodeTableWidget.clear()
+        self.ui.nodeTableWidget.setHorizontalHeaderItem(0, QTableWidgetItem('Id'))
+        self.ui.nodeTableWidget.setHorizontalHeaderItem(1, QTableWidgetItem('Label'))
+        self.ui.nodeTableWidget.setHorizontalHeaderItem(2, QTableWidgetItem('Caption'))
+        self.ui.nodeTableWidget.setHorizontalHeaderItem(3, QTableWidgetItem('Description'))
+        self.ui.nodeTableWidget.setRowCount(len(self.handler.context.G.nodes))
+        for i, n in enumerate(self.handler.context.G.nodes):
+            id = n
+            label = self.handler.context.G.nodes[n]['label']['value']
+            caption = self.handler.context.G.nodes[n]['caption']['value']
+            description = self.handler.context.G.nodes[n]['description']['value']
+            self.ui.nodeTableWidget.setItem(i, 0, QTableWidgetItem(id))
+            self.ui.nodeTableWidget.setItem(i, 1, QTableWidgetItem(label))
+            self.ui.nodeTableWidget.setItem(i, 2, QTableWidgetItem(caption))
+            self.ui.nodeTableWidget.setItem(i, 3, QTableWidgetItem(description))
+
+    def update_edge_list(self):
+        self.ui.edgeTableWidget.clear()
+        self.ui.edgeTableWidget.setHorizontalHeaderItem(0, QTableWidgetItem('Id'))
+        self.ui.edgeTableWidget.setHorizontalHeaderItem(1, QTableWidgetItem('Label'))
+        self.ui.edgeTableWidget.setHorizontalHeaderItem(2, QTableWidgetItem('Caption'))
+        self.ui.edgeTableWidget.setHorizontalHeaderItem(3, QTableWidgetItem('Description'))
+        self.ui.edgeTableWidget.setRowCount(len(self.handler.context.G.edges))
+        for i, e in enumerate(self.handler.context.G.edges):
+            id = "({0}, {1})".format(e[0], e[1])
+            label = self.handler.context.G.edges[e[0], e[1]]['label']['value']
+            caption = self.handler.context.G.edges[e[0], e[1]]['caption']['value']
+            description = self.handler.context.G.edges[e[0], e[1]]['description']['value']
+            self.ui.edgeTableWidget.setItem(i, 0, QTableWidgetItem(id))
+            self.ui.edgeTableWidget.setItem(i, 1, QTableWidgetItem(label))
+            self.ui.edgeTableWidget.setItem(i, 2, QTableWidgetItem(caption))
+            self.ui.edgeTableWidget.setItem(i, 3, QTableWidgetItem(description))
+
     def command_new_node(self, x=None, y=None, node_type=None):
         try:
-            self.print('command_new_node')
+            # self.print('command_new_node')
             if x is None or y is None:
                 rect = self.scene.sceneRect()
                 x = rect.x() + rect.width() / 2
@@ -542,20 +617,20 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
             for n in self.handler.context.nodes:
                 attr = self.handler.context.nodes[n]
                 if xmin is None:
-                    xmin = attr['x']
-                    xmax = attr['x']
+                    xmin = attr['x']['value']
+                    xmax = attr['x']['value']
                 elif ymin is None:
-                    ymin = attr['y']
-                    ymax = attr['y']
+                    ymin = attr['y']['value']
+                    ymax = attr['y']['value']
                 else:
-                    if attr['x'] < xmin:
-                        xmin = attr['x']
-                    if xmax < attr['x']:
-                        xmax = attr['x']
-                    if attr['y'] < ymin:
-                        ymin = attr['y']
-                    if ymax < attr['y']:
-                        ymax = attr['y']
+                    if attr['x']['value'] < xmin:
+                        xmin = attr['x']['value']
+                    if xmax < attr['x']['value']:
+                        xmax = attr['x']['value']
+                    if attr['y']['value'] < ymin:
+                        ymin = attr['y']['value']
+                    if ymax < attr['y']['value']:
+                        ymax = attr['y']['value']
             if xmin is None:
                 # do nothing
                 return
@@ -814,7 +889,7 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
             attr = self.handler.context.nodes[n]
             item = self.element_to_item[n]
             if item.toolTip() is None or item.toolTip() == "":
-                item.setToolTip(attr['description'])
+                item.setToolTip(attr['description']['value'])
             else:
                 item.setToolTip("")
             item.redraw()
@@ -826,7 +901,7 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
             attr = self.handler.context.edges[e[0], e[1]]
             item: GraphCoreEdgeItem = self.graphElemToItem(e)
             if item.toolTip() is None or item.toolTip() == "":
-                item.setToolTip(attr['description'])
+                item.setToolTip(attr['description']['value'])
             else:
                 item.setToolTip("")
             item.redraw()
@@ -848,7 +923,7 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
 
     def command_show_context_menu(self, p):
         try:
-            self.print("context menu at {}".format(p))
+            # self.print("context menu at {}".format(p))
             view: QGraphicsView = self.ui.tabWidget.currentWidget()
             global_pos = view.mapToGlobal(p)
             item = view.itemAt(p)
@@ -1084,7 +1159,7 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
     def constraints_delete(self, cid):
         self.handler.remove_constraint(cid)
 
-    # Solve/Simulation Menu / Start Solver command
+    # Solve/Simulation Menu / Solver Controller command
     def command_start_solver(self):
         try:
             self.solver_controller.setModal(True)
@@ -1123,12 +1198,30 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
 
             # open dialog
             self.solver_controller.exec_()
-            # solver = GraphCoreGenericSolver(self.async_handler)
-            # equation = lambda: self.handler.node_attr('19', 'fill-color') == 'blue'
-            # self.async_handler.run(lambda: solver.compute(equation, err=0.01, timeup=3600*24*30*12))
-            # self.async_handler.run(lambda: solver.compute(lambda: self.handler.node_attr('19', 'fill-color') == "blue",
-            #                                               err=0.01, timeup=3600 * 24 * 30 * 12))
+
+            # save post data within graph of current context.
+            self.handler.context.G.graph['post-data'] = self.solver_controller.post_data
+
         except Exception as ex:
+            self.print(traceback.format_exc())
+        finally:
+            self.set_command_enable()
+
+
+    # Solver/Simulation menu Visualizer command
+    def command_visualizer(self):
+        try:
+            # self.post_screen.setModal(True)
+            # open post screen dialog
+            # self.post_screen.exec_()
+            # self.visualizer.setup(self.handler.context.G, self._settings.settings('default-node-attrs'),
+            #                 self._settings.settings('default-edge-attrs'))
+            self.visualizer.setModal(True)
+            self.visualizer.setup(self.handler.context.G, self._settings.setting('default-node-attrs'),
+                            self._settings.setting('default-edge-attrs'))
+            self.visualizer.exec_()
+        except Exception as ex:
+            self.print(ex)
             self.print(traceback.format_exc())
         finally:
             self.set_command_enable()

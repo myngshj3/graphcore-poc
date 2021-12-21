@@ -11,6 +11,10 @@ from gui.Ui_ConsoleWidget import Ui_ConsoleForm
 from gui.scripteditor import ScriptEditorDialog
 from gui.Ui_SolverController import Ui_SolverControllerForm
 from gui.solvercontroller import SolverControllerDialog
+from gui.Ui_Visualizer import Ui_visualizerDialog
+from gui.visualizer import GCVisualizerDialog
+from gui.ui_postscreen import Ui_PostScreenDialog
+from gui.postscreen import PostScreenDialog
 from graphcore.shell import GraphCoreShell
 from gui.geomserializable import GeometrySerializableFrame
 from graphcore.graphicsscene import GraphCoreScene
@@ -125,6 +129,15 @@ def main():
     main_window.serializers.append(
         lambda: settings.set_setting_value(['solver-controller', 'height'], solver_controller.frameGeometry().height()))
 
+    # setup visualizer
+    visualizer_ui = Ui_visualizerDialog()
+    visualizer = GCVisualizerDialog(main_window, visualizer_ui)
+    main_window.visualizer = visualizer
+
+    # setup post screen
+    post_screen_ui = Ui_PostScreenDialog()
+    post_screen = PostScreenDialog(main_window, post_screen_ui)
+    main_window.post_screen = post_screen
     # etc.
     # set_constraint_main_window(main_window)
     

@@ -55,7 +55,6 @@ class GCSolver:
                     k = 0
                 else:
                     k = G.edges[d[0],d[1]][w_sym] / sum_w
-                print(f'Assert k={k}<=1')
                 if sum_w * dt <= G.nodes[i][x_sym]:
                     G.edges[d[0], d[1]][v_sym] = k * G.edges[d[0], d[1]][w_sym]
                 elif G.nodes[i][x_sym] < sum_w * dt and k*G.nodes[i][x_sym] / dt <= G.edges[d[0], d[1]][w_sym]:

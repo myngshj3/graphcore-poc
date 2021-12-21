@@ -64,9 +64,6 @@
            <property name="autoFillBackground">
             <bool>false</bool>
            </property>
-           <property name="styleSheet">
-            <string notr="true">background-color: #cfcf08</string>
-           </property>
            <property name="frameShape">
             <enum>QFrame::StyledPanel</enum>
            </property>
@@ -80,9 +77,6 @@
                <enum>Qt::Vertical</enum>
               </property>
               <widget class="GeometrySerializableFrame" name="left_top_pane">
-               <property name="styleSheet">
-                <string notr="true">background: rgb(255,255,255)</string>
-               </property>
                <property name="frameShape">
                 <enum>QFrame::StyledPanel</enum>
                </property>
@@ -116,58 +110,25 @@
                    <attribute name="title">
                     <string>Nodes</string>
                    </attribute>
-                   <widget class="QFrame" name="frame_4">
-                    <property name="geometry">
-                     <rect>
-                      <x>11</x>
-                      <y>11</y>
-                      <width>364</width>
-                      <height>52</height>
-                     </rect>
-                    </property>
-                    <property name="frameShape">
-                     <enum>QFrame::StyledPanel</enum>
-                    </property>
-                    <property name="frameShadow">
-                     <enum>QFrame::Raised</enum>
-                    </property>
-                    <layout class="QHBoxLayout" name="horizontalLayout_6">
-                     <item>
-                      <widget class="QPushButton" name="pushButton_2">
-                       <property name="text">
-                        <string>Add</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item>
-                      <widget class="QPushButton" name="pushButton_3">
-                       <property name="text">
-                        <string>Delete</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item>
-                      <widget class="QPushButton" name="pushButton_5">
-                       <property name="text">
-                        <string>Update</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item>
-                      <spacer name="horizontalSpacer_2">
-                       <property name="orientation">
-                        <enum>Qt::Horizontal</enum>
-                       </property>
-                       <property name="sizeHint" stdset="0">
-                        <size>
-                         <width>40</width>
-                         <height>20</height>
-                        </size>
-                       </property>
-                      </spacer>
-                     </item>
-                    </layout>
-                   </widget>
+                   <layout class="QVBoxLayout" name="verticalLayout_3">
+                    <item>
+                     <widget class="QTableWidget" name="nodeTableWidget">
+                      <property name="verticalScrollBarPolicy">
+                       <enum>Qt::ScrollBarAlwaysOn</enum>
+                      </property>
+                      <property name="horizontalScrollBarPolicy">
+                       <enum>Qt::ScrollBarAlwaysOn</enum>
+                      </property>
+                      <property name="columnCount">
+                       <number>4</number>
+                      </property>
+                      <column/>
+                      <column/>
+                      <column/>
+                      <column/>
+                     </widget>
+                    </item>
+                   </layout>
                   </widget>
                   <widget class="QWidget" name="tab_2">
                    <attribute name="title">
@@ -177,53 +138,21 @@
                     <item>
                      <layout class="QVBoxLayout" name="verticalLayout_6">
                       <item>
-                       <widget class="QFrame" name="frame_7">
-                        <property name="frameShape">
-                         <enum>QFrame::StyledPanel</enum>
+                       <widget class="QTableWidget" name="edgeTableWidget">
+                        <property name="verticalScrollBarPolicy">
+                         <enum>Qt::ScrollBarAlwaysOn</enum>
                         </property>
-                        <property name="frameShadow">
-                         <enum>QFrame::Raised</enum>
+                        <property name="horizontalScrollBarPolicy">
+                         <enum>Qt::ScrollBarAlwaysOn</enum>
                         </property>
-                        <layout class="QHBoxLayout" name="horizontalLayout_7">
-                         <item>
-                          <widget class="QPushButton" name="pushButton_6">
-                           <property name="text">
-                            <string>Add</string>
-                           </property>
-                          </widget>
-                         </item>
-                         <item>
-                          <widget class="QPushButton" name="pushButton_7">
-                           <property name="text">
-                            <string>Delete</string>
-                           </property>
-                          </widget>
-                         </item>
-                         <item>
-                          <widget class="QPushButton" name="pushButton_8">
-                           <property name="text">
-                            <string>Update</string>
-                           </property>
-                          </widget>
-                         </item>
-                         <item>
-                          <spacer name="horizontalSpacer_3">
-                           <property name="orientation">
-                            <enum>Qt::Horizontal</enum>
-                           </property>
-                           <property name="sizeHint" stdset="0">
-                            <size>
-                             <width>40</width>
-                             <height>20</height>
-                            </size>
-                           </property>
-                          </spacer>
-                         </item>
-                        </layout>
+                        <property name="columnCount">
+                         <number>4</number>
+                        </property>
+                        <column/>
+                        <column/>
+                        <column/>
+                        <column/>
                        </widget>
-                      </item>
-                      <item>
-                       <widget class="QTableView" name="edgeTableView"/>
                       </item>
                      </layout>
                     </item>
@@ -235,46 +164,20 @@
                    </attribute>
                    <layout class="QGridLayout" name="gridLayout_6">
                     <item row="0" column="0">
-                     <widget class="QFrame" name="frame_8">
-                      <property name="frameShape">
-                       <enum>QFrame::StyledPanel</enum>
+                     <widget class="QTableWidget" name="constraintWidget">
+                      <property name="verticalScrollBarPolicy">
+                       <enum>Qt::ScrollBarAlwaysOn</enum>
                       </property>
-                      <property name="frameShadow">
-                       <enum>QFrame::Raised</enum>
+                      <property name="horizontalScrollBarPolicy">
+                       <enum>Qt::ScrollBarAlwaysOn</enum>
                       </property>
-                      <layout class="QHBoxLayout" name="horizontalLayout_9">
-                       <item>
-                        <widget class="QPushButton" name="addConstraintButton">
-                         <property name="text">
-                          <string>Add</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <widget class="QPushButton" name="deleteConstraintButton">
-                         <property name="text">
-                          <string>Delete</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <spacer name="horizontalSpacer_4">
-                         <property name="orientation">
-                          <enum>Qt::Horizontal</enum>
-                         </property>
-                         <property name="sizeHint" stdset="0">
-                          <size>
-                           <width>40</width>
-                           <height>20</height>
-                          </size>
-                         </property>
-                        </spacer>
-                       </item>
-                      </layout>
+                      <property name="columnCount">
+                       <number>3</number>
+                      </property>
+                      <column/>
+                      <column/>
+                      <column/>
                      </widget>
-                    </item>
-                    <item row="1" column="0">
-                     <widget class="QTableWidget" name="constraintWidget"/>
                     </item>
                    </layout>
                   </widget>
@@ -359,9 +262,6 @@
        </property>
        <property name="autoFillBackground">
         <bool>false</bool>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">background-color: rgb(255, 255, 193);</string>
        </property>
        <property name="frameShape">
         <enum>QFrame::StyledPanel</enum>
@@ -470,6 +370,7 @@
      <string>Solver/Simulation</string>
     </property>
     <addaction name="actionStart_Solver"/>
+    <addaction name="actionVisualizer"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -545,7 +446,7 @@
   </action>
   <action name="actionFitToScene">
    <property name="enabled">
-    <bool>false</bool>
+    <bool>true</bool>
    </property>
    <property name="text">
     <string>Fit to Scene</string>
@@ -679,6 +580,11 @@
    </property>
    <property name="text">
     <string>Paste</string>
+   </property>
+  </action>
+  <action name="actionVisualizer">
+   <property name="text">
+    <string>Visualizer</string>
    </property>
   </action>
  </widget>
@@ -1060,6 +966,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionVisualizer</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>command_visualizer()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>583</x>
+     <y>429</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>command_open()</slot>
@@ -1098,5 +1020,6 @@
   <slot>command_new_model()</slot>
   <slot>command_change_current(int)</slot>
   <slot>command_start_solver()</slot>
+  <slot>command_visualizer()</slot>
  </slots>
 </ui>

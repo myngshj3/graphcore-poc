@@ -62,21 +62,21 @@ class SolverControllerDialog(QDialog):
                     break
                 percentage = 100.0 * i / steps
                 self.ui.progressBar.setValue(percentage)
-                # if 0 == i:
-                #     print(f'[{i}]**')
-                #     for n in G.nodes:
-                #         print(f'  n={n}, value={G.nodes[n][value_property]}, maxValue={G.nodes[n][max_value_property]}')
-                #     for e in G.edges:
-                #         print(f'  e={e}, velocity={G.edges[e[0], e[1]][velocity_property]}, currentMaxVelocity={G.edges[e[0], e[1]][current_max_velocity_property]}, maxVelocity={G.edges[e[0], e[1]][max_velocity_property]}')
+                if 0 == i:
+                    self.ui.message.append(f'{i}')
+                    for n in G.nodes:
+                        self.ui.message.append(f'  n={n}, value={G.nodes[n][value_property]}, maxValue={G.nodes[n][max_value_property]}')
+                    for e in G.edges:
+                        self.ui.message.append(f'  e={e}, velocity={G.edges[e[0], e[1]][velocity_property]}, currentMaxVelocity={G.edges[e[0], e[1]][current_max_velocity_property]}, maxVelocity={G.edges[e[0], e[1]][max_velocity_property]}')
                 G = solver.calc_one_step(value_property, max_value_property, velocity_property, max_velocity_property,
                                          current_max_velocity_property, distance_property)
                 data = nx.node_link_data(G)
-                # if True:  # 0 < i and divmod(i, 100)[1] == 0:
-                #     print(f'[{i}]')
-                #     for n in G.nodes:
-                #         print(f'  n={n}, value={G.nodes[n][value_property]}, maxValue={G.nodes[n][max_value_property]}')
-                #     for e in G.edges:
-                #         print(f'  e={e}, velocity={G.edges[e[0], e[1]][velocity_property]}, maxVelocity={G.edges[e[0], e[1]][max_velocity_property]}')
+                if True:  # 0 < i and divmod(i, 100)[1] == 0:
+                    self.ui.message.append(f'[{i}]')
+                    for n in G.nodes:
+                        self.ui.message.append(f'  n={n}, value={G.nodes[n][value_property]}, maxValue={G.nodes[n][max_value_property]}')
+                    for e in G.edges:
+                        self.ui.message.append(f'  e={e}, velocity={G.edges[e[0], e[1]][velocity_property]}, maxVelocity={G.edges[e[0], e[1]][max_velocity_property]}')
                 G_array.append(data)
                 self._G = G
             if not self._cancel:
