@@ -359,9 +359,9 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
 
     # View/Scene / Console command
     def command_console(self):
-        self.console.setModal(True)
+        self.console.setModal(False)
         self.console.set_handler_pair(self.handler, self.async_handler)
-        self.console.exec_()
+        self.console.show()
 
     # node label change command
     def command_set_node_label(self, attr_name):

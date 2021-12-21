@@ -35,13 +35,13 @@
   <customwidget>
    <class>GeometrySerializableFrame</class>
    <extends>QFrame</extends>
-   <header>GUI.geomserializable</header>
+   <header>gui.geomserializable</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>ConsoleWidget</class>
    <extends>QTextEdit</extends>
-   <header>GUI.consolewidget</header>
+   <header>gui.consolewidget</header>
   </customwidget>
  </customwidgets>
  <resources/>

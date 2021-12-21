@@ -48,7 +48,7 @@ def main():
     main_ui.left_top_pane.resize(settings.setting_value(['main-window-left-top-pane', 'height']),
                                  settings.setting_value(['main-window-left-top-pane', 'width']))
     main_ui.editorTabWidget.setCurrentIndex(settings.setting_value(['editor-tab-widget', 'tab-index']))
-    main_ui.messageTab.setCurrentIndex(settings.setting_value(['message-tab-widget', 'tab-index']))
+    # main_ui.messageTab.setCurrentIndex(settings.setting_value(['message-tab-widget', 'tab-index']))
     main_window.serializers.append(lambda: settings.set_setting_value(['main-window', 'x'], main_window.frameGeometry().x()))
     main_window.serializers.append(lambda: settings.set_setting_value(['main-window', 'y'], main_window.frameGeometry().y()))
     main_window.serializers.append(lambda: settings.set_setting_value(['main-window', 'width'], main_window.frameGeometry().width()))
@@ -71,8 +71,8 @@ def main():
                                                                       main_ui.left_top_pane.frameGeometry().height()))
     main_window.serializers.append(lambda: settings.set_setting_value(['editor-tab-widget', 'tab-index'],
                                                                       main_ui.editorTabWidget.currentIndex()))
-    main_window.serializers.append(lambda: settings.set_setting_value(['message-tab-widget', 'tab-index'],
-                                                                      main_ui.messageTab.currentIndex()))
+    # main_window.serializers.append(lambda: settings.set_setting_value(['message-tab-widget', 'tab-index'],
+    #                                                                   main_ui.messageTab.currentIndex()))
 
     main_window.property_init()
     main_window.error_message_init()

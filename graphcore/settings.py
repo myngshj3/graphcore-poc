@@ -126,6 +126,7 @@ def gcore_settings() -> GraphCoreSettings:
         if home_dir is None:
             config_file = "graphcore.cfg"
         else:
+            os.chdir(home_dir)
             config_file = home_dir + "/" + "graphcore.cfg"
         _settings = GraphCoreSettings(config_file)
     return _settings
