@@ -1093,10 +1093,16 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
 
     # Edges section
     def constraints_init(self):
+        header_labels = ('Enabled', 'Id', 'Constraint', 'Description')
+        constraint_widget = self.ui.systemConstraintWidget
+        constraint_widget.setRowCount(0)
+        constraint_widget.setColumnCount(4)
+        constraint_widget.setHorizontalHeaderLabels(header_labels)
+        constraint_widget.setColumnWidth(0, 20)
+        constraint_widget.setColumnWidth(1, 20)
         constraint_widget = self.ui.constraintWidget
         constraint_widget.setRowCount(0)
         constraint_widget.setColumnCount(4)
-        header_labels = ('Enabled', 'Id', 'Constraint', 'Description')
         constraint_widget.setHorizontalHeaderLabels(header_labels)
         constraint_widget.setColumnWidth(0, 20)
         constraint_widget.setColumnWidth(1, 20)
