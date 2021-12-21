@@ -746,6 +746,9 @@
    </property>
   </action>
   <action name="actionVisualizer">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Visualizer</string>
    </property>

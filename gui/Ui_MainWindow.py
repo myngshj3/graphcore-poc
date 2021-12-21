@@ -366,6 +366,7 @@ class Ui_MainWindow(object):
         self.actionPaste.setEnabled(False)
         self.actionPaste.setObjectName("actionPaste")
         self.actionVisualizer = QtWidgets.QAction(MainWindow)
+        self.actionVisualizer.setEnabled(False)
         self.actionVisualizer.setObjectName("actionVisualizer")
         self.menuFile.addAction(self.actionNew)
         self.menuFile.addAction(self.actionOpen)
