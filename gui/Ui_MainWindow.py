@@ -438,6 +438,7 @@ class Ui_MainWindow(object):
         self.tabWidget.currentChanged['int'].connect(MainWindow.command_change_current)
         self.actionStart_Solver.triggered.connect(MainWindow.command_start_solver)
         self.actionVisualizer.triggered.connect(MainWindow.command_visualizer)
+        self.addUserConstraintButton.clicked.connect(MainWindow.command_add_constraint)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):

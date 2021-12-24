@@ -10,6 +10,7 @@ from graphcore.terms import *
 # Global data FIXME
 error_info = []
 reporter = None
+_handler = None
 
 
 def reset_error_info():
@@ -20,6 +21,16 @@ def reset_error_info():
 def set_reporter(rep):
     global reporter
     reporter = rep
+
+
+def set_handler(handler):
+    global _handler
+    _handler = handler
+
+
+def get_handler() -> GraphCoreContextHandler:
+    global _handler
+    return _handler
 
 
 def _print(s):
@@ -83,12 +94,12 @@ def t_PROPERTYNAME(t):
 def t_ASSIGNMENT(t):
     r":="
     _print("ASSIGNMENT:[{}]".format(t.value))
-    t.value = AssignmentDeclaration()
+    # t.value = AssignmentDeclaration()
     return t
 def t_FORALL(t):
     r"\\forall"
     # t.value = lambda x, y, z: forall_in_a_set(x, y, z)
-    t.value = ForallEquation()
+    t.value = ForallEquation(get_handler())
     return t
 def exists_in_a_set(x, y, z):
     for a in y:
@@ -98,7 +109,7 @@ def exists_in_a_set(x, y, z):
 def t_EXISTS(t):
     r"\\exists"
     # t.value = lambda x, y, z: exists_in_a_set(x, y, z)
-    t.value = ExistsEquation()
+    t.value = ExistsEquation(get_handler())
     return t
 def t_CARD(t):
     r"card"
@@ -142,7 +153,7 @@ def t_NUMBER(t):
     r"[1-9][0-9]*\.[0-9]+|0\.[0-9]+|[0-9]+"
     _print("NUMBER:[{}]".format(t.value))
     if r"." in t.value:
-        t.value = Constant(float(t.value))
+        t.value = Constant(get_handler(), float(t.value))
     else:
         t.value = Constant(int(t.value))
     return t
@@ -150,7 +161,7 @@ def t_STRING(t):
     # r"\"[\w\W\s\S]*\""
     r"\"[a-zA-Z0-9_=/~!#$%&{}\-\[\]\(\)]*\""
     _print("STRING:[{}]".format(t.value))
-    t.value = Constant(t.value)
+    t.value = Constant(get_handler(), t.value)
     return t
 def t_BOOLSYMBOL(t):
     r"true|false|True|False"
@@ -255,7 +266,7 @@ def p_terms(p):
     terms :
     terms : declaration_list
     """
-    for i, a in enumerate(p):
+    for i, a in enumerate(p[1]):
         _print("[f{}] {}".format(i, a))
     if len(p) == 1:
         p[0] = []
@@ -269,7 +280,7 @@ def p_declaration_list(p):
     declaration_list : declaration
                      | declaration_list declaration
     """
-    for i, a in enumerate(p):
+    for i, a in enumerate(p[1:]):
         _print("[e{}] {}".format(i, a))
     if len(p) == 2:
         p[0] = [p[1]]
@@ -332,7 +343,7 @@ def p_declaration(p):
     # SEMICOLON
     # | attribute
     # SEMICOLON
-    for i, a in enumerate(p):
+    for i, a in enumerate(p[1:]):
         _print("[{}] {}".format(i, a))
     # boolean_equation ;
     if len(p) == 3:

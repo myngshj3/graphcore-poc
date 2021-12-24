@@ -1,31 +1,36 @@
 
-import os
-from graphcore.settings import gcore_settings
-from gui.mainwindow import GraphCoreEditorMainWindow
-from gui.Ui_MainWindow import Ui_MainWindow
-from gui.coordfinderwidget import CoordFinderWidget
-from gui.CoordinationFinderWidget import Ui_CoordFinderForm
-from gui.console import ConsoleDialog
-from gui.Ui_ScriptEditor import Ui_ScriptEdior
-from gui.Ui_ConsoleWidget import Ui_ConsoleForm
-from gui.scripteditor import ScriptEditorDialog
-from gui.Ui_SolverController import Ui_SolverControllerForm
-from gui.solvercontroller import SolverControllerDialog
-from gui.Ui_Visualizer import Ui_visualizerDialog
-from gui.visualizer import GCVisualizerDialog
-from gui.ui_postscreen import Ui_PostScreenDialog
-from gui.postscreen import PostScreenDialog
-from graphcore.shell import GraphCoreShell
-from gui.geomserializable import GeometrySerializableFrame
-from graphcore.graphicsscene import GraphCoreScene
-# from graphcore.constraint import set_constraint_main_window
-import sys
-from PyQt5.QtWidgets import *
 
 
 def main():
+    # environment variable
+
     # load settings
+    from graphcore.settings import gcore_settings
     settings = gcore_settings()
+    from networkml import config
+    config.set_log_config(settings.setting_value(('networkml', 'log-config')))
+
+    import os
+    from gui.mainwindow import GraphCoreEditorMainWindow
+    from gui.Ui_MainWindow import Ui_MainWindow
+    from gui.coordfinderwidget import CoordFinderWidget
+    from gui.CoordinationFinderWidget import Ui_CoordFinderForm
+    from gui.console import ConsoleDialog
+    from gui.Ui_ScriptEditor import Ui_ScriptEdior
+    from gui.Ui_ConsoleWidget import Ui_ConsoleForm
+    from gui.scripteditor import ScriptEditorDialog
+    from gui.Ui_SolverController import Ui_SolverControllerForm
+    from gui.solvercontroller import SolverControllerDialog
+    from gui.Ui_Visualizer import Ui_visualizerDialog
+    from gui.visualizer import GCVisualizerDialog
+    from gui.ui_postscreen import Ui_PostScreenDialog
+    from gui.postscreen import PostScreenDialog
+    from graphcore.shell import GraphCoreShell
+    from gui.geomserializable import GeometrySerializableFrame
+    from graphcore.graphicsscene import GraphCoreScene
+    # from graphcore.constraint import set_constraint_main_window
+    import sys
+    from PyQt5.QtWidgets import QApplication
 
     # load shell
     shell = GraphCoreShell(settings=settings)

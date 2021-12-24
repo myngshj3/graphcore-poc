@@ -13,7 +13,8 @@ from graphcore.script import GraphCoreScript
 from graphcore.settings import GraphCoreSettings
 from gui.geomserializable import GeometrySerializableDialog
 from gui.widgetutil import GraphCoreContextHandlerInterface
-
+from networkml.network import NetworkClass, NetworkInstance
+from networkml.lexer import NetworkParser, NetworkParserError
 
 # Script Editor Dialog class
 class ScriptEditorDialog(QDialog, GraphCoreContextHandlerInterface):
@@ -45,6 +46,7 @@ class ScriptEditorDialog(QDialog, GraphCoreContextHandlerInterface):
         script = self.ui.scriptEdit.toPlainText()
         self.script_handler.handler = self.handler
         self.script_handler.reporter = self.reporter
+        # execute script
         self.script_handler.execute_script(script)
         self.handler.clear_user_defined()
 

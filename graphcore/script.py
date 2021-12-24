@@ -9,6 +9,10 @@ from graphcore.reporter import GraphCoreReporter
 from graphcore.terms import Variable, Function, BuiltinFunction, Constant, IfStatement, WhileStatement, ForStatement, \
                              ForallEquation, ExistsEquation, GraphObject, NodesObject, EdgesObject, AssignmentStatement, \
                              PrintFunction
+from networkml.network import NetworkClass, NetworkClassInstance, NetworkMethod, NetworkCallable
+from networkml.lexer import NetworkParser
+from networkml.specnetwork import SpecValidator
+
 
 # Global data FIXME
 _global_data = {}
@@ -705,14 +709,95 @@ class GraphCoreScript:
 
     def execute_script(self, script: str) -> bool:
         try:
-            results, errs = graphcore_parse_script(self.handler, script, self.reporter)
-            if len(errs) != 0:
-                for e in errs:
-                    self.reporter.report(e)
-                return False
-            for r in results:
-                r.evaluate()
+            from networkml.network import ExtensibleWrappedAccessor
+            clazz = NetworkClass(None, "GCScriptClass")
+            sig = "{}.{}".format(clazz.signature, clazz.next_instance_id)
+            initializer_args = ()
+            toplevel = clazz(clazz, (sig, (), initializer_args))
+            # validator/evaluator
+            validator = SpecValidator(owner=toplevel)
+            toplevel.set_validator(validator)
+            # methods
+            printer = ExtensibleWrappedAccessor(toplevel, "print", self.reporter,
+                                                lambda ao, c, eo, ca, ea: eo.report(" ".join([str(_) for _ in ca])),
+                                                globally=True)
+            toplevel.declare_method(printer, globally=True)
+            append = ExtensibleWrappedAccessor(toplevel, "append", None,
+                                               lambda ao, c, eo, ca, ea: ca[0].append(ca[1]),
+                                               globally=True)
+            toplevel.declare_method(append, globally=True)
+            length = ExtensibleWrappedAccessor(toplevel, "len", None,
+                                               lambda ao, c, eo, ca, ea: len(ca[0]),
+                                               globally=True)
+            toplevel.declare_method(length, globally=True)
+            keys = ExtensibleWrappedAccessor(toplevel, "keys", None,
+                                             lambda ao, c, eo, ca, ea: ca[0].keys())
+            toplevel.declare_method(keys, globally=True)
+            m = ExtensibleWrappedAccessor(toplevel, "nodes", None,
+                                              lambda ao, c, eo, ca, ea: [_ for _ in self.handler.context.G.nodes],
+                                              globally=True)
+            toplevel.declare_method(m, globally=True)
+            m = ExtensibleWrappedAccessor(toplevel, "node_attr_keys", None,
+                                          lambda ao, c, eo, ca, ea: self.handler.context.G.nodes[ca[0]].keys(),
+                                          globally=True)
+            toplevel.declare_method(m, globally=True)
+            m = ExtensibleWrappedAccessor(toplevel, "get_node_value", None,
+                                              lambda ao, c, eo, ca, ea: self.handler.node_attr(ca[0], ca[1]),
+                                              globally=True)
+            toplevel.declare_method(m, globally=True)
+            m = ExtensibleWrappedAccessor(toplevel, "set_node_value", None,
+                                                    lambda ao, c, eo, ca, ea: self.handler.change_node_attr(ca[0],
+                                                                                                            ca[1],
+                                                                                                            ca[2]))
+            toplevel.declare_method(m, globally=True)
+            edges = ExtensibleWrappedAccessor(toplevel, "edges", None,
+                                              lambda ao, c, eo, ca, ea: [_ for _ in self.handler.context.G.edges],
+                                              globally=True)
+            toplevel.declare_method(edges, globally=True)
+            m = ExtensibleWrappedAccessor(toplevel, "edge_attr_keys", None,
+                                          lambda ao, c, eo, ca, ea: self.handler.context.G.edges[ca[0], ca[1]].keys(),
+                                          globally=True)
+            toplevel.declare_method(m, globally=True)
+            m = ExtensibleWrappedAccessor(toplevel, "get_edge_value", None,
+                                              lambda ao, c, eo, ca, ea: self.handler.edge_attr(ca[0], ca[1], ca[2]),
+                                              globally=True)
+            toplevel.declare_method(m, globally=True)
+            m = ExtensibleWrappedAccessor(toplevel, "set_edge_value", None,
+                                        lambda ao, c, eo, ca, ea: self.handler.change_edge_attr(ca[0], ca[1], ca[2], ca[3]))
+            toplevel.declare_method(m, globally=True)
+            successors = ExtensibleWrappedAccessor(toplevel, "successors", None,
+                                                   lambda ao, c, eo, ca, ea: [_ for _ in self.handler.context.G.successors(ca[0])],
+                                              globally=True)
+            toplevel.declare_method(successors, globally=True)
+            predecessors = ExtensibleWrappedAccessor(toplevel, "predecessors", None,
+                                                   lambda ao, c, eo, ca, ea: [_ for _ in self.handler.context.G.predecessors(ca[0])],
+                                              globally=True)
+            toplevel.declare_method(predecessors, globally=True)
+            # parse
+            parser = NetworkParser(toplevel)
+            ret = parser.parse_script(script)
+            for r in ret:
+                if isinstance(r, NetworkClassInstance):
+                    toplevel.declare_class(r, globally=True)
+                    self.reporter.report('class {} declared.'.format(r))
+                elif isinstance(r, NetworkMethod):
+                    toplevel.declare_method(r, globally=True)
+                    self.reporter.report('method {} declared.'.format(r.signature))
+                elif isinstance(r, NetworkCallable):
+                    # rtn = r(toplevel)
+                    # self.reporter.report(str(rtn))
+                    r(toplevel)
+                else:
+                    pass
             return True
+            # results, errs = graphcore_parse_script(self.handler, script, self.reporter)
+            # if len(errs) != 0:
+            #     for e in errs:
+            #         self.reporter.report(e)
+            #     return False
+            # for r in results:
+            #     r.evaluate()
+            # return True
         except Exception as ex:
             self.reporter.report(traceback.format_exc())
             return False
