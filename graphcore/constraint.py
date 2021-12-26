@@ -1068,7 +1068,7 @@ class GCConstraintParser:
         """
         literal : LITERAL
         """
-        p[0] = p[1][1:len(p[1])]
+        p[0] = p[1][1:len(p[1])-1]
 
     def p_pattern(self, p):
         """
