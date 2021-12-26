@@ -4,6 +4,7 @@ import ply.lex as lex
 import ply.yacc as yacc
 import sys
 import traceback
+import networkx as nx
 from graphcore.shell import GraphCoreContextHandler
 from graphcore.reporter import GraphCoreReporter
 from graphcore.terms import Variable, Function, BuiltinFunction, Constant, IfStatement, WhileStatement, ForStatement, \
@@ -738,7 +739,7 @@ class GraphCoreScript:
                                               globally=True)
             toplevel.declare_method(m, globally=True)
             m = ExtensibleWrappedAccessor(toplevel, "node_attr_keys", None,
-                                          lambda ao, c, eo, ca, ea: self.handler.context.G.nodes[ca[0]].keys(),
+                                          lambda ao, c, eo, ca, ea: [_ for _ in self.handler.context.G.nodes[ca[0]].keys()],
                                           globally=True)
             toplevel.declare_method(m, globally=True)
             m = ExtensibleWrappedAccessor(toplevel, "get_node_value", None,
@@ -755,7 +756,7 @@ class GraphCoreScript:
                                               globally=True)
             toplevel.declare_method(edges, globally=True)
             m = ExtensibleWrappedAccessor(toplevel, "edge_attr_keys", None,
-                                          lambda ao, c, eo, ca, ea: self.handler.context.G.edges[ca[0], ca[1]].keys(),
+                                          lambda ao, c, eo, ca, ea: [_ for _ in self.handler.context.G.edges[ca[0], ca[1]].keys()],
                                           globally=True)
             toplevel.declare_method(m, globally=True)
             m = ExtensibleWrappedAccessor(toplevel, "get_edge_value", None,
