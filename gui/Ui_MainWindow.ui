@@ -1164,6 +1164,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>deleteUserConstraintButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>command_delete_constraint()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>428</x>
+     <y>340</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>583</x>
+     <y>429</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>command_open()</slot>

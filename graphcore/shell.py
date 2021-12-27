@@ -663,7 +663,7 @@ class GraphCoreContextHandler:
     def remove_constraint(self, cid):
         self.context.constraints.pop(cid)
         self.context.dirty = True
-        self.do_reflection(GraphCoreContextHandler.ConstraintRemoved)
+        self.do_reflection(GraphCoreContextHandler.ConstraintRemoved, cid)
 
     def remove_selected_constraints(self):
         for cid in self.selected_constraints:

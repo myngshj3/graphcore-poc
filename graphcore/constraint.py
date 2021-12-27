@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from networkml import config
+from graphcore.reporter import GraphCoreReporter
 config.set_log_config("log4p.conf")
 
 import ply.lex as lex
@@ -398,14 +399,22 @@ class ExistsEquation(ExistsStatement):
 
 class GCConstraintParser:
 
-    def __init__(self, owner: NetworkInstance):
+    def __init__(self, owner: NetworkInstance, reporter: GraphCoreReporter=GraphCoreReporter(print)):
         self._owner = owner
+        self._reporter = reporter
         self.lexer = lex.lex(module=self)
         self.parser = yacc.yacc(module=self)
 
     @property
     def owner(self) -> NetworkInstance:
         return self._owner
+
+    @property
+    def reporter(self) -> GraphCoreReporter:
+        return self._reporter
+
+    def set_reporter(self, value: GraphCoreReporter):
+        self._reporter = value
 
     def parse(self, text):
         return self.parse_script(text)
@@ -420,7 +429,7 @@ class GCConstraintParser:
             tok = self.lexer.token()
             if not tok:
                 break
-            print(tok)
+            self.reporter.report(tok)
 
     # Word analysis
     reserved = {

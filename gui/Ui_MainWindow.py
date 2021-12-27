@@ -439,6 +439,7 @@ class Ui_MainWindow(object):
         self.actionStart_Solver.triggered.connect(MainWindow.command_start_solver)
         self.actionVisualizer.triggered.connect(MainWindow.command_visualizer)
         self.addUserConstraintButton.clicked.connect(MainWindow.command_add_constraint)
+        self.deleteUserConstraintButton.clicked.connect(MainWindow.command_delete_constraint)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):

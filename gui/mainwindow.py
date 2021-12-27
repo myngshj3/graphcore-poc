@@ -13,7 +13,10 @@ from PyQt5.QtCore import *
 from graphcore.propertyeditor import TextEditor, IntEditor, FloatEditor, BoolEditor, ComboBoxEditor
 # from GraphCore.graphcoreeditor import TextEditor, IntEditor, FloatEditor, ComboBoxEditor, CheckBoxEditor,\
 #     CheckBoxEditorEx, TextEditorEx
-from graphcore.constraint import graphcore_parse_constraint
+from graphcore.constraint import GCConstraintParser
+from networkml.error import NetworkParserError
+from networkml.network import NetworkClass, NetworkInstance
+from networkml.specnetwork import SpecValidator
 from gui.console import ConsoleDialog
 from gui.scripteditor import ScriptEditorDialog
 from gui.coordfinderwidget import CoordFinderWidget
@@ -22,6 +25,7 @@ from gui.visualizer import GCVisualizerDialog
 from gui.postscreen import PostScreenDialog
 from graphcore.settings import GraphCoreSettings
 from graphcore.graphicsscene import GraphCoreScene
+from graphcore.reporter import GraphCoreReporter
 import os
 from graphcore.solver import GraphCoreGenericSolver
 from gui.geomserializable import GeometrySerializer
@@ -39,10 +43,6 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
         self._async_handler = async_handler
         self._ui = ui
         self.ui.setupUi(self)
-        self.ui.constraintWidget.setHorizontalHeaderItem(0, QTableWidgetItem('Enabled'))
-        self.ui.constraintWidget.setHorizontalHeaderItem(1, QTableWidgetItem('Id'))
-        self.ui.constraintWidget.setHorizontalHeaderItem(2, QTableWidgetItem('Constraiant'))
-        self.ui.constraintWidget.setHorizontalHeaderItem(3, QTableWidgetItem('Eescription'))
         self.ui.tabWidget.clear()
         self._coord_finder = None
         self._console = None
@@ -52,7 +52,12 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
         self._post_screen = None
         self._scene = None
         self._serializers = []
+        self._reporter = GraphCoreReporter(lambda x: self.ui.messages.append(str(x)))
         self.install_shell_actions()
+
+    @property
+    def reporter(self) -> GraphCoreReporter:
+        return self._reporter
 
     @property
     def settings(self) -> GraphCoreSettings:
@@ -811,7 +816,7 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
                 enabled = constraints[cid]['enabled']
                 if not enabled:
                     continue
-                result, error = graphcore_parse_constraint(equation)
+                result, error = (), ()
                 if len(error) != 0:
                     ui.errorWidget.setRowCount(ui.errorWidget.rowCount() + 1)
                     item = QTableWidgetItem("Constraint Error: {}: {}".format(cid, error))
@@ -834,7 +839,15 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
 
     # Models / Delete Constraint
     def command_delete_constraint(self):
-        self.handler.remove_selected_constraints()
+        # selected constraints.
+        rows = []
+        for i in self.ui.constraintWidget.selectedIndexes():
+            if not i.row() in rows:
+                rows.append(i.row())
+        rows.sort(reverse=True)
+        for r in rows:
+            cid = self.ui.constraintWidget.item(r, 1).text()
+            self.handler.remove_constraint(cid)
 
     def error_message_init(self):
         error_widget = self.ui.errorWidget
@@ -1091,15 +1104,36 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
                 self.print("unsupported type:{}".format(t))
             property_widget.setCellWidget(attr_count - 1, 1, editor)
 
-    # Edges section
-    def constraints_init(self):
+    def system_constraints_init(self):
         header_labels = ('Enabled', 'Id', 'Constraint', 'Description')
         constraint_widget = self.ui.systemConstraintWidget
-        constraint_widget.setRowCount(0)
         constraint_widget.setColumnCount(4)
         constraint_widget.setHorizontalHeaderLabels(header_labels)
         constraint_widget.setColumnWidth(0, 20)
         constraint_widget.setColumnWidth(1, 20)
+        constraints = self.settings.setting('system-constraints')
+        constraint_widget.setRowCount(len(constraints.keys()))
+        for i, k in enumerate(constraints.keys()):
+            constraint = constraints[k]
+            item = QTableWidgetItem(constraint['enabled'])
+            if constraint['enabled']:
+                item.setCheckState(Qt.CheckState.Checked)
+            else:
+                item.setCheckState(Qt.CheckState.Unchecked)
+            item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEditable)
+            constraint_widget.setItem(i, 0, item)
+            item = QTableWidgetItem(k)
+            item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEditable)
+            constraint_widget.setItem(i, 1, item)
+            item = QTableWidgetItem(constraint['equation'])
+            item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEditable)
+            constraint_widget.setItem(i, 2, item)
+            item = QTableWidgetItem(constraint['description'])
+            item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEditable)
+            constraint_widget.setItem(i, 3, item)
+
+    def constraints_init(self):
+        header_labels = ('Enabled', 'Id', 'Constraint', 'Description')
         constraint_widget = self.ui.constraintWidget
         constraint_widget.setRowCount(0)
         constraint_widget.setColumnCount(4)
@@ -1118,18 +1152,39 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
 
     # Check constraint syntax
     def constraint_check_equation(self, eq):
-        # result = None
-        error_info = []
+        meta = NetworkClass(None, "GCScriptClass")
+        clazz_sig = "{}[{}]".format("NetworkML", 1)
+        data = nx.node_link_data(self.handler.context.G)
+        G = nx.node_link_graph(data)
+        for n in G.nodes:
+            for k in G.nodes[n].keys():
+                G.nodes[n][k] = G.nodes[n][k]['value']
+        for e in G.edges:
+            for k in G.edges[e[0], e[1]].keys():
+                G.edges[e[0], e[1]][k] = G.edges[e[0], e[1]][k]['value']
+        embedded = [("G", G)]
+        args = ()
+        clazz = meta(meta, (clazz_sig, embedded, args))
+        sig = "{}.{}".format(clazz.signature, clazz.next_instance_id)
+        initializer_args = ()
+        embedded = ()
+        toplevel: NetworkInstance = clazz(clazz, (sig, embedded, initializer_args))
+        toplevel.set_stack_enable(True)
+        # validator/evaluator
+        validator = SpecValidator(owner=toplevel)
+        toplevel.set_validator(validator)
+        # parser = GCConstraintParser(toplevel, reporter=self.shell.default_reporter)
+        parser = GCConstraintParser(toplevel, reporter=self.reporter)
         try:
-            _, error_info = graphcore_parse_constraint(eq)
-            if len(error_info) == 0:
-                return True
+            parser.parse(eq)
+            return True
+        except NetworkParserError as ex:
+            self.reporter.report("Syntax error:")
+            self.reporter.report(ex.detail())
             return False
         except Exception as ex:
-            self.print(traceback.format_exc())
-        finally:
-            for e in error_info:
-                self.print_error("Constraint Error: {}".format(e))
+            self.reporter.report(traceback.format_exc())
+            return False
 
     # Add constraint to constraint_widget
     def constraint_add_to_widget(self, cid):
@@ -1143,6 +1198,7 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
                           apply=lambda x, y: self.handler.change_constraint(cid, x, y))
         constraint_widget.setCellWidget(constraint_widget.rowCount() - 1, 0, item)
         item = QTableWidgetItem(cid)
+        item.setFlags(Qt.ItemIsEditable)
         constraint_widget.setItem(constraint_widget.rowCount() - 1, 1, item)
 
         # set equation
@@ -1157,13 +1213,20 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
                           apply=lambda x, y: self.handler.change_constraint(cid, x, y))
         constraint_widget.setCellWidget(constraint_widget.rowCount() - 1, 3, item)
 
+        self.handler.context.dirty = True
+        self.set_command_enable()
+
     # Add constraint
     def constraints_add_new(self):
         self.handler.new_constraint()
 
     # Add constraint
-    def constraints_delete(self, cid):
-        self.handler.remove_constraint(cid)
+    def constraint_delete(self, cid):
+        for i in self.ui.constraintWidget.selectedIndexes():
+            item = self.ui.constraintWidget.item(i.row(), 1)
+            if item.text() == cid:
+                self.ui.constraintWidget.removeRow(i.row())
+                break
 
     # Solve/Simulation Menu / Solver Controller command
     def command_start_solver(self):
