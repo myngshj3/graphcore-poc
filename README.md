@@ -45,5 +45,4 @@ An application is opened as GraphCore application suite. Current supports are th
   
   o Custmize component properties according to the user purposes.
   
-  o ....
-  
+  o Basic solver is implemented and it supports simple dataflow model. See graphcore-example repository.
