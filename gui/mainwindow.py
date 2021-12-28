@@ -2,6 +2,7 @@
 import networkx as nx
 import traceback
 import re
+from graphcore.shell import GraphCoreThreadSignal
 from graphcore.shell import GraphCoreShell, GraphCoreContext, GraphCoreContextHandler, GraphCoreAsyncContextHandler
 from gui.Ui_MainWindow import Ui_MainWindow
 from graphcore.graphicsitem import GraphCoreCircleNodeItem, GraphCoreRectNodeItem, GraphCoreEdgeItem, \
@@ -144,6 +145,17 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
     @property
     def element_to_item(self):
         return self.handler.extras['element_to_item']
+
+    # def do_shell_action(self, sig: GraphCoreThreadSignal):
+    #     if sig.signal == GraphCoreContextHandler.NodeUpdated:
+    #         self.redraw_node_item(sig.data)
+    #     elif sig.signal == GraphCoreContextHandler.EdgeUpdated:
+    #         self.redraw_edge_item(sig.data)
+    #
+    # # command slot from thread
+    # def install_drawing_slot(self):
+    #     from graphcore.script_worker import get_script_worker
+    #     get_script_worker().main_window_command.connect(self.do_shell_action)
 
     # command interface from shell
     def install_shell_actions(self):
@@ -1173,13 +1185,13 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
         # validator/evaluator
         validator = SpecValidator(owner=toplevel)
         toplevel.set_validator(validator)
-        # parser = GCConstraintParser(toplevel, reporter=self.shell.default_reporter)
-        parser = GCConstraintParser(toplevel, reporter=self.reporter)
+        parser = GCConstraintParser(toplevel, reporter=self.shell.default_reporter)
+        # parser = GCConstraintParser(toplevel, reporter=self.reporter)
         try:
             parser.parse(eq)
             return True
         except NetworkParserError as ex:
-            self.reporter.report("Syntax error:")
+            # self.reporter.report("Syntax error:")
             self.reporter.report(ex.detail())
             return False
         except Exception as ex:

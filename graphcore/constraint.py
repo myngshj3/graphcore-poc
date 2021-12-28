@@ -1199,7 +1199,7 @@ class GCConstraintParser:
 
     # if error occurred
     def p_error(self, p):
-        print('Syntax error: %d: %d: %r' % (p.lineno, p.lexpos, p.value))
+        self.reporter.report('Syntax error: %d: %d: %r' % (p.lineno, p.lexpos, p.value))
         raise NetworkParserError(p)
 
 

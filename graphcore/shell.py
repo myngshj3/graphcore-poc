@@ -1,5 +1,8 @@
 # from GraphCore.model import GraphCoreModel
 from graphcore.settings import GraphCoreSettings
+from graphcore.thread_signal import GraphCoreThreadSignal
+from graphcore.script_worker import get_script_worker
+from graphcore.script_worker import ScriptWorker
 import networkx as nx
 import yaml
 from graphcore.reporter import GraphCoreReporter
@@ -18,38 +21,6 @@ def construct_odict(loader, node):
 
 yaml.add_constructor('tag:yaml.org,2002:map', construct_odict)
 
-
-# GraphCore Shell Thread Signal class
-class GraphCoreThreadSignal:
-    def __init__(self, sig, data, func=None, args=None):
-        self._sig = sig
-        self._data = data
-        self._func = func
-        self._args = args
-        self._result = None
-
-    @property
-    def signal(self):
-        return self._sig
-
-    @property
-    def data(self):
-        return self._data
-
-    @property
-    def func(self):
-        return self._func
-
-    @property
-    def args(self):
-        return self._args
-
-    @property
-    def result(self):        return self._result
-
-    @result.setter
-    def result(self, _result):
-        self._result = _result
 
 
 # GraphCore's Context class
@@ -430,6 +401,9 @@ class GraphCoreContextHandler:
         self._extras = {}
         self.install_builtin_functions()
 
+    def emit_main_window_command(self, command_id, *args):
+        pass
+
     @property
     def context(self):
         return self._context
@@ -583,7 +557,8 @@ class GraphCoreContextHandler:
     def change_node_attr(self, n, a, v):
         self.context.nodes[n][a]['value'] = v
         self.context.dirty = True
-        self.do_reflection(GraphCoreContextHandler.NodeUpdated, n)
+        get_script_worker().main_window_command.emit(GraphCoreThreadSignal(GraphCoreContextHandler.NodeUpdated, n, None))
+        # self.do_reflection(GraphCoreContextHandler.NodeUpdated, n)
 
     def edge_attr(self, u, v, a):
         return self.context.edges[u, v][a]['value']
