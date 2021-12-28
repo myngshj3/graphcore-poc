@@ -49,7 +49,7 @@ class ScriptEditorDialog(QDialog, GraphCoreContextHandlerInterface):
         return self._ui
 
     def test_script(self):
-        from graphcore.script_worker import set_script_worker
+        from graphcore.script_worker import get_script_worker, set_script_worker
         script = self.ui.scriptEdit.toPlainText()
         self.script_handler.handler = self.handler
         self.script_handler.reporter = self.reporter
@@ -58,6 +58,12 @@ class ScriptEditorDialog(QDialog, GraphCoreContextHandlerInterface):
         self._thread = QThread()
         self._worker = ScriptWorker(self.script_handler, script)
         set_script_worker(self._worker)
+        def callback(cbdata: GraphCoreThreadSignal):
+            if cbdata.signal == GraphCoreContextHandler.NodeUpdated:
+                self.handler.update_node(cbdata.data)
+            elif cbdata.signal == GraphCoreContextHandler.EdgeUpdated:
+                self.handler.update_edge(cbdata.data[0], cbdata.data[1])
+        get_script_worker().main_window_command.connect(callback)
         self._worker.moveToThread(self._thread)
         self._thread.started.connect(self._worker.run)
         self._worker.finished.connect(self._thread.quit)

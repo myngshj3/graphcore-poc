@@ -691,8 +691,8 @@ def graphcore_parse_script(handler, text, reporter):
 
 class GraphCoreScript:
     def __init__(self, handler: GraphCoreContextHandler, reporter: GraphCoreReporter):
-        from gui.scripteditor import ScriptWorker
         from graphcore.shell import GraphCoreThreadSignal
+        from graphcore.script_worker import get_script_worker
         self._handler = handler
         self._reporter = reporter
         from networkml.network import NetworkClass, NetworkInstance
@@ -747,10 +747,12 @@ class GraphCoreScript:
                                       lambda ao, c, eo, ca, ea: self.handler.node_attr(ca[0], ca[1]),
                                       globally=True)
         self._toplevel.declare_method(m, globally=True)
+        def set_node_value(n, a, v):
+            self.handler.context.nodes[n][a]['value'] = v
+            self.handler.context.dirty = True
+            get_script_worker().main_window_command.emit(GraphCoreThreadSignal(GraphCoreContextHandler.NodeUpdated, n, None))
         m = ExtensibleWrappedAccessor(self._toplevel, "set_node_value", None,
-                                      lambda ao, c, eo, ca, ea: self.handler.change_node_attr(ca[0],
-                                                                                              ca[1],
-                                                                                              ca[2]))
+                                      lambda ao, c, eo, ca, ea: set_node_value(ca[0], ca[1], ca[2]))
         self._toplevel.declare_method(m, globally=True)
         edges = ExtensibleWrappedAccessor(self._toplevel, "edges", None,
                                           lambda ao, c, eo, ca, ea: [_ for _ in self.handler.context.G.edges],

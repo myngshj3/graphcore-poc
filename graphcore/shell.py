@@ -557,8 +557,8 @@ class GraphCoreContextHandler:
     def change_node_attr(self, n, a, v):
         self.context.nodes[n][a]['value'] = v
         self.context.dirty = True
-        get_script_worker().main_window_command.emit(GraphCoreThreadSignal(GraphCoreContextHandler.NodeUpdated, n, None))
-        # self.do_reflection(GraphCoreContextHandler.NodeUpdated, n)
+        # get_script_worker().main_window_command.emit(GraphCoreThreadSignal(GraphCoreContextHandler.NodeUpdated, n, None))
+        self.do_reflection(GraphCoreContextHandler.NodeUpdated, n)
 
     def edge_attr(self, u, v, a):
         return self.context.edges[u, v][a]['value']
