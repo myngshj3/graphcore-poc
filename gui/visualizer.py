@@ -25,6 +25,7 @@ class GCVisualizerDialog(QDialog):
         from PyQt5.QtCore import QItemSelection
         self._Gs = [nx.node_link_graph(_) for _ in Gs]
         self.ui.nodes.clear()
+        self.ui.nodes.resizeRowsToContents()
         self.ui.nodes.setColumnCount(4)
         self.ui.nodes.setHorizontalHeaderItem(0, QTableWidgetItem('id'))
         self.ui.nodes.setHorizontalHeaderItem(1, QTableWidgetItem('label'))
@@ -46,6 +47,7 @@ class GCVisualizerDialog(QDialog):
             item = QTableWidgetItem(n['description'])
             # item.setFlags(Qt.ItemIsEditable)
             self.ui.nodes.setItem(i, 3, item)
+        self.ui.nodes.resizeColumnsToContents()
 
         self.ui.nodeProperties.clear()
         def selected_node_changed(selected: QItemSelection, deselected: QItemSelection):
@@ -65,6 +67,7 @@ class GCVisualizerDialog(QDialog):
         self.ui.nodeProperties.itemDoubleClicked.connect(selected_node_property_double_clicked)
 
         self.ui.edges.clear()
+        self.ui.edges.resizeRowsToContents()
         self.ui.edges.setColumnCount(4)
         self.ui.edges.setHorizontalHeaderItem(0, QTableWidgetItem('id'))
         self.ui.edges.setHorizontalHeaderItem(1, QTableWidgetItem('label'))
@@ -85,6 +88,7 @@ class GCVisualizerDialog(QDialog):
             item = QTableWidgetItem(n['description'])
             # item.setFlags(Qt.ItemIsEditable)
             self.ui.edges.setItem(i, 3, item)
+        self.ui.edges.resizeColumnsToContents()
 
         self.ui.nodeProperties.clear()
         def selected_edge_changed(selected: QItemSelection, deselected: QItemSelection):
