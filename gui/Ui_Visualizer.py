@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'Ui_Visualizer2.ui'
+# Form implementation generated from reading ui file 'Ui_Visualizer.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.4
 #
@@ -62,6 +62,7 @@ class Ui_visualizerDialog(object):
         self.edges.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
         self.edges.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
         self.edges.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
+        self.edges.setWordWrap(False)
         self.edges.setObjectName("edges")
         self.edges.setColumnCount(4)
         self.edges.setRowCount(0)
@@ -73,6 +74,7 @@ class Ui_visualizerDialog(object):
         self.edges.setHorizontalHeaderItem(2, item)
         item = QtWidgets.QTableWidgetItem()
         self.edges.setHorizontalHeaderItem(3, item)
+        self.edges.verticalHeader().setVisible(False)
         self.verticalLayout_5.addWidget(self.edges)
         self.verticalLayout_8.addWidget(self.frame_7)
         self.frame_6 = QtWidgets.QFrame(self.frame_13)
@@ -107,7 +109,7 @@ class Ui_visualizerDialog(object):
         self.label_6.setObjectName("label_6")
         self.verticalLayout_7.addWidget(self.label_6)
         self.selectedEdgeProperties = QtWidgets.QListWidget(self.frame_9)
-        self.selectedEdgeProperties.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
+        self.selectedEdgeProperties.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.selectedEdgeProperties.setObjectName("selectedEdgeProperties")
         self.verticalLayout_7.addWidget(self.selectedEdgeProperties)
         self.horizontalLayout.addWidget(self.frame_9)
@@ -270,6 +272,7 @@ class Ui_visualizerDialog(object):
         self.nodes.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
         self.nodes.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
         self.nodes.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
+        self.nodes.setWordWrap(False)
         self.nodes.setObjectName("nodes")
         self.nodes.setColumnCount(4)
         self.nodes.setRowCount(0)
@@ -317,7 +320,8 @@ class Ui_visualizerDialog(object):
         self.label_3.setObjectName("label_3")
         self.verticalLayout_3.addWidget(self.label_3)
         self.selectedNodeProperties = QtWidgets.QListWidget(self.frame_4)
-        self.selectedNodeProperties.setContextMenuPolicy(QtCore.Qt.ActionsContextMenu)
+        self.selectedNodeProperties.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.selectedNodeProperties.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
         self.selectedNodeProperties.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
         self.selectedNodeProperties.setObjectName("selectedNodeProperties")
         self.verticalLayout_3.addWidget(self.selectedNodeProperties)

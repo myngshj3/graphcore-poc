@@ -2,6 +2,9 @@
 
 import networkx as nx
 from PyQt5.QtWidgets import QDialog, QTableWidgetItem, QTableWidget
+from PyQt5.QtGui import QContextMenuEvent
+from PyQt5.QtWidgets import QMenu
+from PyQt5.QtCore import QPoint
 import pyqtgraph as pg
 from pyqtgraph import PlotItem
 import numpy as np
@@ -66,6 +69,9 @@ class GCVisualizerDialog(QDialog):
             self.ui.selectedNodeProperties.addItem(node_prop)
         self.ui.nodeProperties.itemDoubleClicked.connect(selected_node_property_double_clicked)
 
+        # context menu on selectedNodeProperties
+        self.ui.selectedNodeProperties.customContextMenuRequested.connect(self.nodesContextMenuEvent)
+
         self.ui.edges.clear()
         self.ui.edges.resizeRowsToContents()
         self.ui.edges.setColumnCount(4)
@@ -108,6 +114,9 @@ class GCVisualizerDialog(QDialog):
             edge_prop = self.ui.edgeProperties.item(prop_row).text()
             self.ui.selectedEdgeProperties.addItem(edge_prop)
         self.ui.edgeProperties.itemDoubleClicked.connect(selected_edge_property_double_clicked)
+
+        # context menu on selectedEdgeProperties
+        self.ui.selectedEdgeProperties.customContextMenuRequested.connect(self.edgesContextMenuEvent)
 
         self.ui.animateButton.clicked.connect(self.plot)
         self.ui.closeButton.clicked.connect(self.close)
@@ -159,3 +168,19 @@ class GCVisualizerDialog(QDialog):
             c[1] /= r
             c[2] /= r
         return c
+
+    def nodesContextMenuEvent(self, a0: QPoint) -> None:
+        contextMenu = QMenu(self)
+        removeAction = contextMenu.addAction("Remove")
+        a0 = self.ui.selectedNodeProperties.mapToGlobal(a0)
+        action = contextMenu.exec_(a0)
+        if action == removeAction:
+            self.ui.selectedNodeProperties.takeItem(self.ui.selectedNodeProperties.currentRow())
+
+    def edgesContextMenuEvent(self, a0: QPoint) -> None:
+        contextMenu = QMenu(self)
+        removeAction = contextMenu.addAction("Remove")
+        a0 = self.ui.selectedEdgeProperties.mapToGlobal(a0)
+        action = contextMenu.exec_(a0)
+        if action == removeAction:
+            self.ui.selectedEdgeProperties.takeItem(self.ui.selectedEdgeProperties.currentRow())

@@ -242,7 +242,7 @@
                <item>
                 <widget class="QListWidget" name="selectedEdgeProperties">
                  <property name="contextMenuPolicy">
-                  <enum>Qt::ActionsContextMenu</enum>
+                  <enum>Qt::CustomContextMenu</enum>
                  </property>
                 </widget>
                </item>
@@ -789,7 +789,10 @@
                <item>
                 <widget class="QListWidget" name="selectedNodeProperties">
                  <property name="contextMenuPolicy">
-                  <enum>Qt::ActionsContextMenu</enum>
+                  <enum>Qt::CustomContextMenu</enum>
+                 </property>
+                 <property name="editTriggers">
+                  <set>QAbstractItemView::NoEditTriggers</set>
                  </property>
                  <property name="selectionBehavior">
                   <enum>QAbstractItemView::SelectRows</enum>
