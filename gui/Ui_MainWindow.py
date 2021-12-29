@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1167, 860)
+        MainWindow.resize(1167, 804)
         MainWindow.setAutoFillBackground(True)
         MainWindow.setStyleSheet("")
         self.centralwidget = QtWidgets.QWidget(MainWindow)
@@ -366,7 +366,7 @@ class Ui_MainWindow(object):
         self.actionPaste.setEnabled(False)
         self.actionPaste.setObjectName("actionPaste")
         self.actionVisualizer = QtWidgets.QAction(MainWindow)
-        self.actionVisualizer.setEnabled(False)
+        self.actionVisualizer.setEnabled(True)
         self.actionVisualizer.setObjectName("actionVisualizer")
         self.menuFile.addAction(self.actionNew)
         self.menuFile.addAction(self.actionOpen)

@@ -1292,14 +1292,16 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
     # Solver/Simulation menu Visualizer command
     def command_visualizer(self):
         try:
-            # self.post_screen.setModal(True)
-            # open post screen dialog
-            # self.post_screen.exec_()
-            # self.visualizer.setup(self.handler.context.G, self._settings.settings('default-node-attrs'),
-            #                 self._settings.settings('default-edge-attrs'))
+            # data = nx.node_link_data(self.handler.context.G)
+            # G = nx.node_link_graph(data)
+            # for n in G.nodes:
+            #     for k in G.nodes[n].keys():
+            #         G.nodes[n][k] = G.nodes[n][k]['value']
+            # for e in G.edges:
+            #     for k in G.edges[e[0], e[1]].keys():
+            #         G.edges[e[0], e[1]][k] = G.edges[e[0], e[1]][k]['value']
             self.visualizer.setModal(True)
-            self.visualizer.setup(self.handler.context.G, self._settings.setting('default-node-attrs'),
-                            self._settings.setting('default-edge-attrs'))
+            self.visualizer.setup(self.handler.context.G.graph['post-data'])
             self.visualizer.exec_()
         except Exception as ex:
             self.print(ex)

@@ -56,7 +56,7 @@ class SolverControllerDialog(QDialog):
             solver: GCSolver = GCSolver(self.G, dt)
             G = solver.clone_graph(self.G)
             solver.G = G
-            G_array = [G]
+            G_array = [nx.node_link_data(G)]
             for i in range(steps):
                 if self._cancel:
                     break
