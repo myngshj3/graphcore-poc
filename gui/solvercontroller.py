@@ -57,6 +57,7 @@ class SolverControllerDialog(QDialog):
             G = solver.clone_graph(self.G)
             solver.G = G
             G_array = [nx.node_link_data(G)]
+            t = 0
             for i in range(steps):
                 if self._cancel:
                     break
@@ -69,7 +70,8 @@ class SolverControllerDialog(QDialog):
                     for e in G.edges:
                         self.ui.message.append(f'  e={e}, velocity={G.edges[e[0], e[1]][velocity_property]}, currentMaxVelocity={G.edges[e[0], e[1]][current_max_velocity_property]}, maxVelocity={G.edges[e[0], e[1]][max_velocity_property]}')
                 G = solver.calc_one_step(value_property, max_value_property, velocity_property, max_velocity_property,
-                                         current_max_velocity_property, distance_property)
+                                         current_max_velocity_property, distance_property, t)
+                t += dt
                 data = nx.node_link_data(G)
                 if True:  # 0 < i and divmod(i, 100)[1] == 0:
                     self.ui.message.append(f'[{i}]')

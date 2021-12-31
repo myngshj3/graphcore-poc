@@ -5,19 +5,60 @@ from PyQt5.QtWidgets import QDialog, QTableWidgetItem, QTableWidget
 from PyQt5.QtGui import QContextMenuEvent
 from PyQt5.QtWidgets import QMenu
 from PyQt5.QtCore import QPoint
+from PyQt5.QtCore import QItemSelection
 import pyqtgraph as pg
-from pyqtgraph import PlotItem
+from pyqtgraph import PlotItem, PlotWidget, AxisItem
 import numpy as np
 from gui.Ui_Visualizer import Ui_visualizerDialog
 
 
 class GCVisualizerDialog(QDialog):
 
+    def selected_node_changed(self, selected: QItemSelection, deselected: QItemSelection):
+        G: nx.DiGraph = self._Gs[0]
+        row = selected.indexes()[0].row()
+        id = self.ui.nodes.item(row, 0).text()
+        self.ui.nodeProperties.clear()
+        for k in G.nodes[id].keys():
+            text = "{}.{}".format(id, k)
+            self.ui.nodeProperties.addItem(text)
+
+    def selected_node_property_double_clicked(self):
+        prop_row = self.ui.nodeProperties.selectedIndexes()[0].row()
+        node_prop = self.ui.nodeProperties.item(prop_row).text()
+        self.ui.selectedNodeProperties.addItem(node_prop)
+
+    def selected_edge_changed(self, selected: QItemSelection, deselected: QItemSelection):
+        G: nx.DiGraph = self._Gs[0]
+        indices = selected.indexes()
+        if len(indices) == 0:
+            return
+        row = selected.indexes()[0].row()
+        id = self.ui.edges.item(row, 0).text()
+        id = id[1:len(id) - 1]
+        uv = id.split(",")
+        self.ui.edgeProperties.clear()
+        for k in G.edges[uv[0], uv[1]].keys():
+            text = "({}).{}".format(id, k)
+            self.ui.edgeProperties.addItem(text)
+
+    def selected_edge_property_double_clicked(self):
+        prop_row = self.ui.edgeProperties.selectedIndexes()[0].row()
+        edge_prop = self.ui.edgeProperties.item(prop_row).text()
+        self.ui.selectedEdgeProperties.addItem(edge_prop)
+
     def __init__(self, parent, ui: Ui_visualizerDialog):
         super().__init__(parent)
         self._ui = ui
         self.ui.setupUi(self)
         self._Gs = None
+        self.ui.nodes.selectionModel().selectionChanged.connect(self.selected_node_changed)
+
+        self.ui.nodeProperties.itemDoubleClicked.connect(self.selected_node_property_double_clicked)
+        self.ui.selectedNodeProperties.customContextMenuRequested.connect(self.nodesContextMenuEvent)
+        self.ui.edges.selectionModel().selectionChanged.connect(self.selected_edge_changed)
+        self.ui.edgeProperties.itemDoubleClicked.connect(self.selected_edge_property_double_clicked)
+        self.ui.selectedEdgeProperties.customContextMenuRequested.connect(self.edgesContextMenuEvent)
 
 
     @property
@@ -25,8 +66,9 @@ class GCVisualizerDialog(QDialog):
         return self._ui
 
     def setup(self, Gs):
-        from PyQt5.QtCore import QItemSelection
         self._Gs = [nx.node_link_graph(_) for _ in Gs]
+        G: nx.DiGraph = self._Gs[0]
+        # reset nodes
         self.ui.nodes.clear()
         self.ui.nodes.resizeRowsToContents()
         self.ui.nodes.setColumnCount(4)
@@ -34,7 +76,6 @@ class GCVisualizerDialog(QDialog):
         self.ui.nodes.setHorizontalHeaderItem(1, QTableWidgetItem('label'))
         self.ui.nodes.setHorizontalHeaderItem(2, QTableWidgetItem('caption'))
         self.ui.nodes.setHorizontalHeaderItem(3, QTableWidgetItem('description'))
-        G: nx.DiGraph = self._Gs[0]
         self.ui.nodes.setRowCount(len(G.nodes))
         for i, v in enumerate(G.nodes):
             n = G.nodes[v]
@@ -51,26 +92,9 @@ class GCVisualizerDialog(QDialog):
             # item.setFlags(Qt.ItemIsEditable)
             self.ui.nodes.setItem(i, 3, item)
         self.ui.nodes.resizeColumnsToContents()
-
         self.ui.nodeProperties.clear()
-        def selected_node_changed(selected: QItemSelection, deselected: QItemSelection):
-            row = selected.indexes()[0].row()
-            id = self.ui.nodes.item(row, 0).text()
-            self.ui.nodeProperties.clear()
-            for k in G.nodes[id].keys():
-                text = "{}.{}".format(id, k)
-                self.ui.nodeProperties.addItem(text)
-        self.ui.nodes.selectionModel().selectionChanged.connect(selected_node_changed)
-
         self.ui.selectedNodeProperties.clear()
-        def selected_node_property_double_clicked():
-            prop_row = self.ui.nodeProperties.selectedIndexes()[0].row()
-            node_prop = self.ui.nodeProperties.item(prop_row).text()
-            self.ui.selectedNodeProperties.addItem(node_prop)
-        self.ui.nodeProperties.itemDoubleClicked.connect(selected_node_property_double_clicked)
-
-        # context menu on selectedNodeProperties
-        self.ui.selectedNodeProperties.customContextMenuRequested.connect(self.nodesContextMenuEvent)
+        self.ui.selectedNodeProperties.clear()
 
         self.ui.edges.clear()
         self.ui.edges.resizeRowsToContents()
@@ -95,28 +119,15 @@ class GCVisualizerDialog(QDialog):
             # item.setFlags(Qt.ItemIsEditable)
             self.ui.edges.setItem(i, 3, item)
         self.ui.edges.resizeColumnsToContents()
-
-        self.ui.nodeProperties.clear()
-        def selected_edge_changed(selected: QItemSelection, deselected: QItemSelection):
-            row = selected.indexes()[0].row()
-            id = self.ui.edges.item(row, 0).text()
-            id = id[1:len(id)-1]
-            uv = id.split(",")
-            self.ui.edgeProperties.clear()
-            for k in G.edges[uv[0], uv[1]].keys():
-                text = "({}).{}".format(id, k)
-                self.ui.edgeProperties.addItem(text)
-        self.ui.edges.selectionModel().selectionChanged.connect(selected_edge_changed)
-
+        self.ui.edgeProperties.clear()
         self.ui.selectedEdgeProperties.clear()
-        def selected_edge_property_double_clicked():
-            prop_row = self.ui.edgeProperties.selectedIndexes()[0].row()
-            edge_prop = self.ui.edgeProperties.item(prop_row).text()
-            self.ui.selectedEdgeProperties.addItem(edge_prop)
-        self.ui.edgeProperties.itemDoubleClicked.connect(selected_edge_property_double_clicked)
 
-        # context menu on selectedEdgeProperties
-        self.ui.selectedEdgeProperties.customContextMenuRequested.connect(self.edgesContextMenuEvent)
+        p: PlotItem = self.ui.nodePlot
+        p.clear()
+        p.clearPlots()
+        p = self.ui.edgePlot
+        p.clear()
+        p.clearPlots()
 
         self.ui.animateButton.clicked.connect(self.plot)
         self.ui.closeButton.clicked.connect(self.close)
@@ -127,12 +138,14 @@ class GCVisualizerDialog(QDialog):
 
     def plotNodes(self):
         x = [0.1*i for i in range(len(self._Gs))]
-        plotItem: PlotItem = self.ui.nodePlot.getPlotItem()
+        plotItem: PlotItem = self.ui.nodePlot.plotItem
         plotItem.clear()
-        plotItem.setTitle("Node attributes' time series charts.")
+        plotItem.setTitle("Node attribute's time series charts.")
         plotItem.addLegend(offset=(-30, 5))
-        plotItem.getViewBox().setXRange(x[0], x[len(x)-1])
+        # plotItem.getViewBox().autoRange()
         plotItem.getAxis('bottom').setLabel(text="time")
+        ymin = 0
+        ymax = 0
         for i in range(self.ui.selectedNodeProperties.count()):
             prop_id = self.ui.selectedNodeProperties.item(i).text()
             text = prop_id.split(".")
@@ -140,24 +153,39 @@ class GCVisualizerDialog(QDialog):
             prop = text[1]
             y = [_.nodes[id][prop] for _ in self._Gs]
             plotItem.plot(x, y, pen=self.decidePen(i), name=prop_id)
+            m1 = min(y)
+            m2 = max(y)
+            ymin = min(ymin, m1)
+            ymax = max(ymax, m2)
+        plotItem.getViewBox().setXRange(x[0], x[len(x)-1])
+        plotItem.getAxis('bottom').setRange(x[0], x[len(x)-1])
+        plotItem.getAxis('left').setRange(ymin, ymax)
 
     def plotEdges(self):
         x = [0.1 * i for i, g in enumerate(self._Gs)]
         plotItem: PlotItem = self.ui.edgePlot.plotItem
         plotItem.clear()
-        plotItem.setTitle("Edge attributes' time series charts.")
+        plotItem.setTitle("Edge attribute's time series charts.")
         plotItem.addLegend(offset=(-30, 5))
-        plotItem.getViewBox().setXRange(x[0], x[len(x)-1])
+        # plotItem.getViewBox().setXRange(x[0], x[len(x)-1])
         plotItem.getAxis('bottom').setLabel(text="time")
+        ymin = 0
+        ymax = 0
         for i in range(self.ui.selectedEdgeProperties.count()):
             prop_id = self.ui.selectedEdgeProperties.item(i).text()
             text = prop_id.split(".")
             id = text[0]
             uv = id[1:len(id)-1].split(",")
             prop = text[1]
-            print("uv:{}, prop={}".format(uv, prop))
             y = [_.edges[uv[0], uv[1]][prop] for _ in self._Gs]
             plotItem.plot(x, y, pen=self.decidePen(i), name=prop_id)
+            m1 = min(y)
+            m2 = max(y)
+            ymin = min(ymin, m1)
+            ymax = max(ymax, m2)
+        plotItem.getViewBox().setXRange(x[0], x[len(x)-1])
+        plotItem.getAxis('bottom').setRange(x[0], x[len(x)-1])
+        plotItem.getAxis('left').setRange(ymin, ymax)
 
     def decidePen(self, i: int):
         color = ((255,0,0), (0,255,0), (0,0,255), (255,255,0), (255,0,255), (0,255,255), (255,255,255))
