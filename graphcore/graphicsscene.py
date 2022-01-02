@@ -7,6 +7,7 @@ from PyQt5.Qt import *
 from graphcore.drawutil import *
 from graphcore.settings import GraphCoreSettings, gcore_settings
 from graphcore.graphicsitem import GraphCoreNodeItemInterface
+from graphcore.graphicsitem import GraphCoreEdgeItemInterface
 from graphcore.shell import GraphCoreContextHandler, GraphCoreShell
 
 
@@ -51,6 +52,21 @@ class GraphCoreScene(QGraphicsScene):
             item.setPolygon(poly)
         super().mouseMoveEvent(event)
         pass
+
+    # find edges at
+    def find_edges(self, pos):
+        items = []
+        for c in self.items(pos):
+            if isinstance(c, GraphCoreEdgeItemInterface):
+                items.append(c)
+        return items
+
+    # find top edge at
+    def find_top_edge(self, pos):
+        nodes = self.find_edges(pos)
+        if len(nodes) == 0:
+            return None
+        return nodes[0]
 
     # find nodes at
     def find_nodes(self, pos):
@@ -103,6 +119,8 @@ class GraphCoreScene(QGraphicsScene):
             elif self.find_top_node(event.scenePos()) is None:
                 self.handler.deselect_all()
                 return
+            else:
+                pass
             pass
         elif event.button() == 2:  # right
             if self.handler.extras['edge_creating']:

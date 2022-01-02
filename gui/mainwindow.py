@@ -679,6 +679,7 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
     # selected node
     def command_select_node(self, n) -> None:
         try:
+            self.print("command_select_node")
             self.handler.select_node(n)
         except Exception as ex:
             self.print(traceback.format_exc())

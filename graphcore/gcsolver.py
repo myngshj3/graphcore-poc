@@ -71,10 +71,10 @@ class GCSolver:
             D = G.successors(i)
             sum_v_s = 0
             for s in S:
-                sum_v_s += G.edges[s, i][v_sym] * G.edges[s, i][l_sym]
+                sum_v_s += G.edges[s, i][v_sym] / G.edges[s, i][l_sym]
             sum_v_d = 0
             for d in D:
-                sum_v_d += G.edges[i, d][v_sym] * G.edges[i, d][l_sym]
+                sum_v_d += G.edges[i, d][v_sym] / G.edges[i, d][l_sym]
             H.nodes[i][x_sym] = G.nodes[i][x_sym] + sum_v_s * dt - sum_v_d * dt + self.generated_value(G, i, t, dt)
         self._G = H
         return H
@@ -106,17 +106,18 @@ class GCSolver:
             # print("step={}".format(ret))
             return ret
         elif node['generator-type'] == 'normal':
-            raise Exception("normal distribution not supported yet")
+            ret = a*(self.normal(t2,b,c) + self.normal(t1,b,c))/2*dt
+            return ret
         elif node['generator-type'] == 'uniform':
             ret = (a*np.random.uniform(0, 1) + a*np.random.uniform(0, 1) + 2*b) / 2 * dt
             # print("uniform = {}".format(ret))
             return ret
         elif node['generator-type'] == 'sin':
-            ret = a*(np.sin(b*t2) + np.sin(b*t1) + 2*c) / 2 * dt
+            ret = a*(np.sin(np.pi/b*t2) + np.sin(np.pi/b*t1) + 2*c) / 2 * dt
             # print("{}(sin({}*{}) + sin({}*{}) + {}){}/2 = {}".format(a, b, t2, b, t1, 2*c, dt, ret))
             return ret
         elif node['generator-type'] == 'cos':
-            ret = a*(np.cos(b*t2) + np.cos(b*t1) + 2*c) / 2 * dt
+            ret = a*(np.cos(np.pi/b*t2) + np.cos(np.pi/b*t1) + 2*c) / 2 * dt
             # print("{}(cos({}*{}) + cos({}*{}) + {}){}/2 = {}".format(a, b, t2, b, t1, 2*c, dt, ret))
             return ret
         else:
@@ -133,6 +134,9 @@ class GCSolver:
         self._G = G
         return tuple(G_array)
 
+    @staticmethod
+    def normal(x, mu, sigma):
+        return 1 / np.sqrt(2 * np.pi * sigma) * np.exp(-(x - mu) * (x - mu) / (2 * sigma))
 
 
 def main(argv):

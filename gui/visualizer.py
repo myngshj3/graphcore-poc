@@ -14,6 +14,18 @@ from gui.Ui_Visualizer import Ui_visualizerDialog
 
 class GCVisualizerDialog(QDialog):
 
+    def __init__(self, parent, ui: Ui_visualizerDialog):
+        super().__init__(parent)
+        self._ui = ui
+        self.ui.setupUi(self)
+        self._Gs = None
+        self.ui.nodes.selectionModel().selectionChanged.connect(self.selected_node_changed)
+        self.ui.nodeProperties.itemDoubleClicked.connect(self.selected_node_property_double_clicked)
+        self.ui.selectedNodeProperties.customContextMenuRequested.connect(self.nodesContextMenuEvent)
+        self.ui.edges.selectionModel().selectionChanged.connect(self.selected_edge_changed)
+        self.ui.edgeProperties.itemDoubleClicked.connect(self.selected_edge_property_double_clicked)
+        self.ui.selectedEdgeProperties.customContextMenuRequested.connect(self.edgesContextMenuEvent)
+
     def selected_node_changed(self, selected: QItemSelection, deselected: QItemSelection):
         G: nx.DiGraph = self._Gs[0]
         row = selected.indexes()[0].row()
@@ -46,19 +58,6 @@ class GCVisualizerDialog(QDialog):
         prop_row = self.ui.edgeProperties.selectedIndexes()[0].row()
         edge_prop = self.ui.edgeProperties.item(prop_row).text()
         self.ui.selectedEdgeProperties.addItem(edge_prop)
-
-    def __init__(self, parent, ui: Ui_visualizerDialog):
-        super().__init__(parent)
-        self._ui = ui
-        self.ui.setupUi(self)
-        self._Gs = None
-        self.ui.nodes.selectionModel().selectionChanged.connect(self.selected_node_changed)
-
-        self.ui.nodeProperties.itemDoubleClicked.connect(self.selected_node_property_double_clicked)
-        self.ui.selectedNodeProperties.customContextMenuRequested.connect(self.nodesContextMenuEvent)
-        self.ui.edges.selectionModel().selectionChanged.connect(self.selected_edge_changed)
-        self.ui.edgeProperties.itemDoubleClicked.connect(self.selected_edge_property_double_clicked)
-        self.ui.selectedEdgeProperties.customContextMenuRequested.connect(self.edgesContextMenuEvent)
 
 
     @property
@@ -125,9 +124,11 @@ class GCVisualizerDialog(QDialog):
         p: PlotItem = self.ui.nodePlot
         p.clear()
         p.clearPlots()
+        p.setTitle("Node attribute's time series charts.")
         p = self.ui.edgePlot
         p.clear()
         p.clearPlots()
+        p.setTitle("Edge attribute's time series charts.")
 
         self.ui.animateButton.clicked.connect(self.plot)
         self.ui.closeButton.clicked.connect(self.close)
@@ -140,9 +141,7 @@ class GCVisualizerDialog(QDialog):
         x = [0.1*i for i in range(len(self._Gs))]
         plotItem: PlotItem = self.ui.nodePlot.plotItem
         plotItem.clear()
-        plotItem.setTitle("Node attribute's time series charts.")
         plotItem.addLegend(offset=(-30, 5))
-        # plotItem.getViewBox().autoRange()
         plotItem.getAxis('bottom').setLabel(text="time")
         ymin = 0
         ymax = 0
@@ -160,14 +159,13 @@ class GCVisualizerDialog(QDialog):
         plotItem.getViewBox().setXRange(x[0], x[len(x)-1])
         plotItem.getAxis('bottom').setRange(x[0], x[len(x)-1])
         plotItem.getAxis('left').setRange(ymin, ymax)
+        plotItem.removeItem(plotItem.getAxis('left'))
 
     def plotEdges(self):
         x = [0.1 * i for i, g in enumerate(self._Gs)]
         plotItem: PlotItem = self.ui.edgePlot.plotItem
         plotItem.clear()
-        plotItem.setTitle("Edge attribute's time series charts.")
         plotItem.addLegend(offset=(-30, 5))
-        # plotItem.getViewBox().setXRange(x[0], x[len(x)-1])
         plotItem.getAxis('bottom').setLabel(text="time")
         ymin = 0
         ymax = 0
@@ -186,6 +184,11 @@ class GCVisualizerDialog(QDialog):
         plotItem.getViewBox().setXRange(x[0], x[len(x)-1])
         plotItem.getAxis('bottom').setRange(x[0], x[len(x)-1])
         plotItem.getAxis('left').setRange(ymin, ymax)
+        # show viewports
+        # print(self.ui.edgePlot.boundingRect())
+        # print(plotItem.boundingRect())
+        # print(plotItem.getAxis('bottom').boundingRect())
+        # print(plotItem.getAxis('left').boundingRect())
 
     def decidePen(self, i: int):
         color = ((255,0,0), (0,255,0), (0,0,255), (255,255,0), (255,0,255), (0,255,255), (255,255,255))
