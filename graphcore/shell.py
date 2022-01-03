@@ -723,7 +723,7 @@ class GraphCoreContextHandler:
         self.do_reflection(GraphCoreContextHandler.AllDeselected, None)
 
     def select_node(self, n):
-        print("select_node", n)
+        # print("select_node", n)
         self.do_reflection(GraphCoreContextHandler.NodeSelected, n)
 
     def deselect_node(self, n):

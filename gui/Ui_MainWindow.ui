@@ -94,7 +94,7 @@
                 <item>
                  <widget class="QTabWidget" name="editorTabWidget">
                   <property name="currentIndex">
-                   <number>3</number>
+                   <number>2</number>
                   </property>
                   <widget class="QWidget" name="tab_7">
                    <attribute name="title">
@@ -102,7 +102,11 @@
                    </attribute>
                    <layout class="QVBoxLayout" name="verticalLayout_4">
                     <item>
-                     <widget class="QTableWidget" name="propertyWidget"/>
+                     <widget class="QTableWidget" name="propertyWidget">
+                      <property name="editTriggers">
+                       <set>QAbstractItemView::NoEditTriggers</set>
+                      </property>
+                     </widget>
                     </item>
                    </layout>
                   </widget>
@@ -118,6 +122,9 @@
                       </property>
                       <property name="horizontalScrollBarPolicy">
                        <enum>Qt::ScrollBarAlwaysOn</enum>
+                      </property>
+                      <property name="editTriggers">
+                       <set>QAbstractItemView::NoEditTriggers</set>
                       </property>
                       <property name="columnCount">
                        <number>4</number>
@@ -144,6 +151,9 @@
                         </property>
                         <property name="horizontalScrollBarPolicy">
                          <enum>Qt::ScrollBarAlwaysOn</enum>
+                        </property>
+                        <property name="editTriggers">
+                         <set>QAbstractItemView::NoEditTriggers</set>
                         </property>
                         <property name="columnCount">
                          <number>4</number>

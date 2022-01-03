@@ -136,7 +136,7 @@ class GraphCoreCircleNodeItem(QGraphicsEllipseItem, GraphCoreNodeItemInterface):
         self.setFlag(QGraphicsItem.ItemIsMovable, True)
 
     def mousePressEvent(self, event: QGraphicsSceneMouseEvent) -> None:
-         print("mouse pressed at {} of scene".format(event.pos()))
+         # ("mouse pressed at {} of scene".format(event.pos()))
          if event.button() == 1:  # Left button
             self.handler.deselect_all()
             self.handler.select_node(self.node)
@@ -316,7 +316,7 @@ class GraphCoreEdgeItem(QGraphicsPolygonItem, GraphCoreEdgeItemInterface):
         self._label.setPos((u['x']['value']+v['x']['value'])/2, (u['y']['value']+v['y']['value'])/2)
 
     def mousePressEvent(self, event: 'QGraphicsSceneMouseEvent') -> None:
-        print("mouse of {} pressed at {}".format(self, event.pos()))
+        # print("mouse of {} pressed at {}".format(self, event.pos()))
         if event.button() == 1:  # Left button
             self.handler.deselect_all()
             self.handler.select_edge(self.u, self.v)

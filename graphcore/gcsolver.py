@@ -97,8 +97,8 @@ class GCSolver:
             t1 = delay
         else:
             t1 = t
-        if duration <= t + dt:
-            t2 = duration
+        if t1 + duration <= t + dt:
+            t2 = t1 + duration
         else:
             t2 = t + dt
         if node['generator-type'] == 'step':
@@ -137,6 +137,78 @@ class GCSolver:
     @staticmethod
     def normal(x, mu, sigma):
         return 1 / np.sqrt(2 * np.pi * sigma) * np.exp(-(x - mu) * (x - mu) / (2 * sigma))
+
+
+class GCGeneralSolver(GCSolver):
+
+    def __init__(self, G, dt):
+        super().__init__(G, dt)
+
+    def calc_one_step(self, value_sym, max_value_sym, velocity_sym, max_velocity_sym, current_max_velocity_sym,
+                      distance_sym, t: float):
+        # symbol setup
+        w_sym = current_max_velocity_sym
+        x_sym = value_sym
+        H_sym = max_value_sym
+        V_sym = max_velocity_sym
+        v_sym = velocity_sym
+        l_sym = distance_sym
+        G: nx.DiGraph = self.clone_graph(self._G)
+        dt = self._dt
+        N = []
+        for i in G.nodes:
+            if G.nodes[i]['type'] not in ('folder', 'domain', 'note', 'memo'):
+                N.append(i)
+        for i in N:
+            D = tuple(G.successors(i))
+            for d in D:
+                delay = G.edges[i, d]['delay']
+                duration = G.edges[i, d]['duration']
+                if t < delay or delay + duration < t:
+                    G.edges[i, d][w_sym] = 0
+                else:
+                    # val = 1.0/len(D)*(G.nodes[d[1]][H_sym] - G.nodes[d[1]][x_sym])/(G.edges[d[0], d[1]][l_sym]*dt)
+                    val = 1.0/len(D)*(G.nodes[d][H_sym] - G.nodes[d][x_sym])/dt
+                    if val <= G.edges[i, d][V_sym]:
+                        G.edges[i, d][w_sym] = val
+                    else:
+                        G.edges[i, d][w_sym] = G.edges[i, d][V_sym]
+            # sum of w^d
+            sum_w = 0
+            for d in D:
+                sum_w += G.edges[i, d][w_sym]
+            for d in D:
+                if sum_w == 0:
+                    k = 0
+                else:
+                    k = G.edges[i, d][w_sym] / sum_w
+                if G.edges[i, d][w_sym] == 0:
+                    G.edges[i, d][v_sym] = G.edges[i, d][w_sym]
+                elif sum_w * dt <= G.nodes[i][x_sym]:
+                    G.edges[i, d][v_sym] = k * G.edges[i, d][w_sym]
+                elif G.nodes[i][x_sym] < sum_w * dt and k*G.nodes[i][x_sym] / dt <= G.edges[i, d][w_sym]:
+                    G.edges[i, d][v_sym] = k * G.nodes[i][x_sym] / dt
+                    if G.edges[i, d][w_sym] < G.edges[i, d][v_sym]:
+                        G.edges[i, d][v_sym] = G.edges[i, d][w_sym]
+                else:
+                    G.edges[i, d][v_sym] = G.edges[i, d][w_sym]
+                # print("edge[{},{}][velocity]={}".format(i,d,G.edges[i,d][v_sym]))
+
+        H: nx.DiGraph = self.clone_graph(G)
+        for i in N:
+            S = G.predecessors(i)
+            D = G.successors(i)
+            sum_v_s = 0
+            for s in S:
+                sum_v_s += G.edges[s, i][v_sym]
+            sum_v_d = 0
+            for d in D:
+                sum_v_d += G.edges[i, d][v_sym]
+            gen_value = self.generated_value(G, i, t, dt)
+            # print("genvaluje=", gen_value)
+            H.nodes[i][x_sym] = G.nodes[i][x_sym] + sum_v_s * dt - sum_v_d * dt + gen_value
+        self._G = H
+        return H
 
 
 def main(argv):

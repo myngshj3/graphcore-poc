@@ -3,7 +3,7 @@
 import networkx as nx
 import numpy as np
 from graphcore.shell import GraphCoreContextHandler
-from graphcore.gcsolver import GCSolver
+from graphcore.gcsolver import GCSolver, GCGeneralSolver
 from gui.Ui_SolverController import Ui_SolverControllerForm
 from PyQt5.QtWidgets import QDialog, QMenu
 from PyQt5.QtCore import QPoint
@@ -53,7 +53,7 @@ class SolverControllerDialog(QDialog):
             self.ui.closeButton.setEnabled(False)
             dt = self.ui.doubleSpinBox.value()
             steps = self.ui.spinBox.value()
-            solver: GCSolver = GCSolver(self.G, dt)
+            solver: GCSolver = GCGeneralSolver(self.G, dt)
             G = solver.clone_graph(self.G)
             solver.G = G
             G_array = [nx.node_link_data(G)]
@@ -65,10 +65,10 @@ class SolverControllerDialog(QDialog):
                 self.ui.progressBar.setValue(percentage)
                 if 0 == i:
                     self.ui.message.append(f'{i}')
-                    for n in G.nodes:
-                        self.ui.message.append(f'  n={n}, value={G.nodes[n][value_property]}, maxValue={G.nodes[n][max_value_property]}')
-                    for e in G.edges:
-                        self.ui.message.append(f'  e={e}, velocity={G.edges[e[0], e[1]][velocity_property]}, currentMaxVelocity={G.edges[e[0], e[1]][current_max_velocity_property]}, maxVelocity={G.edges[e[0], e[1]][max_velocity_property]}')
+                    # for n in G.nodes:
+                    #     self.ui.message.append(f'  n={n}, value={G.nodes[n][value_property]}, maxValue={G.nodes[n][max_value_property]}')
+                    # for e in G.edges:
+                    #     self.ui.message.append(f'  e={e}, velocity={G.edges[e[0], e[1]][velocity_property]}, currentMaxVelocity={G.edges[e[0], e[1]][current_max_velocity_property]}, maxVelocity={G.edges[e[0], e[1]][max_velocity_property]}')
                 G = solver.calc_one_step(value_property, max_value_property, velocity_property, max_velocity_property,
                                          current_max_velocity_property, distance_property, t)
                 t += dt
@@ -76,9 +76,11 @@ class SolverControllerDialog(QDialog):
                 if True:  # 0 < i and divmod(i, 100)[1] == 0:
                     self.ui.message.append(f'[{i}]')
                     for n in G.nodes:
-                        self.ui.message.append(f'  n={n}, value={G.nodes[n][value_property]}, maxValue={G.nodes[n][max_value_property]}')
+                        if G.nodes[n]['type'] not in ('note', 'domain', 'folder'):
+                            self.ui.message.append(f'  n={n}, value={G.nodes[n][value_property]}, maxValue={G.nodes[n][max_value_property]}')
                     for e in G.edges:
-                        self.ui.message.append(f'  e={e}, velocity={G.edges[e[0], e[1]][velocity_property]}, maxVelocity={G.edges[e[0], e[1]][max_velocity_property]}')
+                        if G.nodes[n]['type'] not in ('note', 'domain', 'folder'):
+                            self.ui.message.append(f'  e={e}, velocity={G.edges[e[0], e[1]][velocity_property]}, maxVelocity={G.edges[e[0], e[1]][max_velocity_property]}')
                 G_array.append(data)
                 self._G = G
             if not self._cancel:
