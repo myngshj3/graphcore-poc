@@ -359,12 +359,18 @@
                <item>
                 <widget class="QLabel" name="label_8">
                  <property name="text">
-                  <string>Duration:</string>
+                  <string>Step duration:</string>
                  </property>
                 </widget>
                </item>
                <item>
-                <widget class="QDoubleSpinBox" name="doubleSpinBox"/>
+                <widget class="QSpinBox" name="stepOffset">
+                 <property name="font">
+                  <font>
+                   <family>ＭＳ Ｐゴシック</family>
+                  </font>
+                 </property>
+                </widget>
                </item>
                <item>
                 <widget class="QLabel" name="label_9">
@@ -383,7 +389,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QDoubleSpinBox" name="doubleSpinBox_2"/>
+                <widget class="QSpinBox" name="steps"/>
                </item>
               </layout>
              </widget>
@@ -417,7 +423,11 @@
                 </widget>
                </item>
                <item>
-                <widget class="QDoubleSpinBox" name="doubleSpinBox_3"/>
+                <widget class="QDoubleSpinBox" name="dt">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                </widget>
                </item>
               </layout>
              </widget>

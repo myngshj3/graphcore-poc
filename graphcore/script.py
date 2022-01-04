@@ -2,6 +2,7 @@
 
 import ply.lex as lex
 import ply.yacc as yacc
+import numpy as np
 import sys
 from time import sleep
 import traceback
@@ -780,6 +781,33 @@ class GraphCoreScript:
                                                                             self.handler.context.G.predecessors(ca[0])],
                                                  globally=True)
         self._toplevel.declare_method(predecessors, globally=True)
+        m = ExtensibleWrappedAccessor(self._toplevel, "sin", None,
+                                      lambda ao, c, eo, ca, ea: np.sin(ca[0]))
+        self._toplevel.declare_method(m, globally=True)
+        m = ExtensibleWrappedAccessor(self._toplevel, "cos", None,
+                                      lambda ao, c, eo, ca, ea: np.cos(ca[0]))
+        self._toplevel.declare_method(m, globally=True)
+        m = ExtensibleWrappedAccessor(self._toplevel, "tan", None,
+                                      lambda ao, c, eo, ca, ea: np.tan(ca[0]))
+        self._toplevel.declare_method(m, globally=True)
+        m = ExtensibleWrappedAccessor(self._toplevel, "exp", None,
+                                      lambda ao, c, eo, ca, ea: np.exp(ca[0]))
+        self._toplevel.declare_method(m, globally=True)
+        m = ExtensibleWrappedAccessor(self._toplevel, "sqrt", None,
+                                      lambda ao, c, eo, ca, ea: np.sqrt(ca[0]))
+        self._toplevel.declare_method(m)
+        m = ExtensibleWrappedAccessor(self._toplevel, "log", None,
+                                      lambda ao, c, eo, ca, ea: np.log(ca[0]))
+        self._toplevel.declare_method(m, globally=True)
+        m = ExtensibleWrappedAccessor(self._toplevel, "log2", None,
+                                      lambda ao, c, eo, ca, ea: np.log2(ca[0]))
+        self._toplevel.declare_method(m, globally=True)
+        m = ExtensibleWrappedAccessor(self._toplevel, "log10", None,
+                                      lambda ao, c, eo, ca, ea: np.log10(ca[0]))
+        self._toplevel.declare_method(m, globally=True)
+        m = ExtensibleWrappedAccessor(self._toplevel, "uniform", None,
+                                      lambda ao, c, eo, ca, ea: np.random.uniform(ca[0], ca[1]))
+        self._toplevel.declare_method(m, globally=True)
 
     @property
     def handler(self) -> GraphCoreContextHandler:

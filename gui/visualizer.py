@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import networkx as nx
-from PyQt5.QtWidgets import QDialog, QTableWidgetItem, QTableWidget
+from PyQt5.QtWidgets import QDialog, QTableWidgetItem, QTableWidget, QWidget, QGraphicsWidget, QGraphicsGridLayout
 from PyQt5.QtGui import QContextMenuEvent
 from PyQt5.QtWidgets import QMenu
 from PyQt5.QtCore import QPoint
@@ -25,6 +25,11 @@ class GCVisualizerDialog(QDialog):
         self.ui.edges.selectionModel().selectionChanged.connect(self.selected_edge_changed)
         self.ui.edgeProperties.itemDoubleClicked.connect(self.selected_edge_property_double_clicked)
         self.ui.selectedEdgeProperties.customContextMenuRequested.connect(self.edgesContextMenuEvent)
+        self.ui.animateButton.clicked.connect(self.plot)
+        self.ui.closeButton.clicked.connect(self.close)
+        self.ui.nodePlot.plotItem.getAxis('bottom').setLabel(text="time")
+        self.ui.edgePlot.plotItem.getAxis('bottom').setLabel(text="time")
+
 
     def selected_node_changed(self, selected: QItemSelection, deselected: QItemSelection):
         G: nx.DiGraph = self._Gs[0]
@@ -122,27 +127,23 @@ class GCVisualizerDialog(QDialog):
         self.ui.selectedEdgeProperties.clear()
 
         p: PlotItem = self.ui.nodePlot
-        p.clear()
-        p.clearPlots()
+        # p.clear()
+        # p.clearPlots()
         p.setTitle("Node attribute's time series charts.")
         p = self.ui.edgePlot
-        p.clear()
-        p.clearPlots()
+        # p.clear()
+        # p.clearPlots()
         p.setTitle("Edge attribute's time series charts.")
-
-        self.ui.animateButton.clicked.connect(self.plot)
-        self.ui.closeButton.clicked.connect(self.close)
 
     def plot(self):
         self.plotNodes()
         self.plotEdges()
 
     def plotNodes(self):
-        x = [0.1*i for i in range(len(self._Gs))]
+        x = [self.ui.dt.value()*i for i in range(self.ui.stepOffset.value(), self.ui.steps.value()+1)]
         plotItem: PlotItem = self.ui.nodePlot.plotItem
         plotItem.clear()
-        plotItem.addLegend(offset=(-30, 5))
-        plotItem.getAxis('bottom').setLabel(text="time")
+        plotItem.addLegend(offset=(-30, -5))
         ymin = 0
         ymax = 0
         for i in range(self.ui.selectedNodeProperties.count()):
@@ -150,7 +151,7 @@ class GCVisualizerDialog(QDialog):
             text = prop_id.split(".")
             id = text[0]
             prop = text[1]
-            y = [_.nodes[id][prop] for _ in self._Gs]
+            y = [self._Gs[i].nodes[id][prop] for i in range(len(x))]
             plotItem.plot(x, y, pen=self.decidePen(i), name=prop_id)
             m1 = min(y)
             m2 = max(y)
@@ -162,11 +163,10 @@ class GCVisualizerDialog(QDialog):
         plotItem.removeItem(plotItem.getAxis('left'))
 
     def plotEdges(self):
-        x = [0.1 * i for i, g in enumerate(self._Gs)]
+        x = [self.ui.dt.value()*i for i in range(self.ui.stepOffset.value(), self.ui.steps.value()+1)]
         plotItem: PlotItem = self.ui.edgePlot.plotItem
         plotItem.clear()
-        plotItem.addLegend(offset=(-30, 5))
-        plotItem.getAxis('bottom').setLabel(text="time")
+        legend = plotItem.addLegend(offset=(-30, -5))
         ymin = 0
         ymax = 0
         for i in range(self.ui.selectedEdgeProperties.count()):
@@ -175,7 +175,7 @@ class GCVisualizerDialog(QDialog):
             id = text[0]
             uv = id[1:len(id)-1].split(",")
             prop = text[1]
-            y = [_.edges[uv[0], uv[1]][prop] for _ in self._Gs]
+            y = [self._Gs[i].edges[uv[0], uv[1]][prop] for i in range(len(x))]
             plotItem.plot(x, y, pen=self.decidePen(i), name=prop_id)
             m1 = min(y)
             m2 = max(y)
@@ -184,6 +184,24 @@ class GCVisualizerDialog(QDialog):
         plotItem.getViewBox().setXRange(x[0], x[len(x)-1])
         plotItem.getAxis('bottom').setRange(x[0], x[len(x)-1])
         plotItem.getAxis('left').setRange(ymin, ymax)
+        xaxis: pg.AxisItem = plotItem.getAxis('bottom')
+        yaxis: pg.AxisItem = plotItem.getAxis('left')
+        # xaxis.setWidth(plotItem.boundingRect().width() - xaxis.boundingRect().x() - legend.boundingRect().width())
+        # yaxis.setHeight(plotItem.boundingRect().height() - yaxis.boundingRect().y())
+        # yaxis: pg.AxisItem = plotItem.getAxis('left')
+        # plotItem.vb.setXRange(0, plotItem.getAxis('bottom').width(), padding=0)
+
+        print("edgePlot viewRect=", self.ui.edgePlot.viewRect())
+        print("plotItem viewRect=", plotItem.viewRect())
+        print("plotItem boundingRect=", plotItem.boundingRect())
+        print("plotItem pixelSize=", plotItem.pixelSize())
+        print("edgePlot pixelSize=", self.ui.edgePlot.pixelSize())
+        print("xaxis boundingRect=", xaxis.boundingRect())
+        print("yaxis boundingRect=", yaxis.boundingRect())
+        print("xaxis parentItem=", xaxis.parentItem())
+        print("plotItem=", plotItem)
+        print("yaxis parentItem=", yaxis.parentItem())
+
         # show viewports
         # print(self.ui.edgePlot.boundingRect())
         # print(plotItem.boundingRect())

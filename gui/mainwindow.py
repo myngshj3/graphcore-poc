@@ -1282,6 +1282,8 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
             self.solver_controller.exec_()
 
             # save post data within graph of current context.
+            self.handler.context.G.graph['dt'] = self.solver_controller.ui.doubleSpinBox.value()
+            self.handler.context.G.graph['steps'] = self.solver_controller.ui.spinBox.value()
             self.handler.context.G.graph['post-data'] = self.solver_controller.post_data
 
         except Exception as ex:
@@ -1293,15 +1295,14 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
     # Solver/Simulation menu Visualizer command
     def command_visualizer(self):
         try:
-            # data = nx.node_link_data(self.handler.context.G)
-            # G = nx.node_link_graph(data)
-            # for n in G.nodes:
-            #     for k in G.nodes[n].keys():
-            #         G.nodes[n][k] = G.nodes[n][k]['value']
-            # for e in G.edges:
-            #     for k in G.edges[e[0], e[1]].keys():
-            #         G.edges[e[0], e[1]][k] = G.edges[e[0], e[1]][k]['value']
             self.visualizer.setModal(True)
+            self.visualizer.ui.steps.setValue(self.handler.context.G.graph['steps'])
+            self.visualizer.ui.steps.setMaximum(self.handler.context.G.graph['steps'])
+            self.visualizer.ui.steps.setMinimum(0)
+            self.visualizer.ui.stepOffset.setValue(0)
+            self.visualizer.ui.stepOffset.setMinimum(0)
+            self.visualizer.ui.stepOffset.setMaximum(self.handler.context.G.graph['steps'])
+            self.visualizer.ui.dt.setValue(self.handler.context.G.graph['dt'])
             self.visualizer.setup(self.handler.context.G.graph['post-data'])
             self.visualizer.exec_()
         except Exception as ex:
