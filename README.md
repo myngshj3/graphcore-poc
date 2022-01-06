@@ -3,7 +3,7 @@ Graph and its attributes manipulation program !
 
 [Introduction]
 
-GraphCore is aiming to model the discrete component system and continuous physically performing system, simulate and visualize simulation result.
+GraphCore is aiming to model the discrete component system and continuous physically performing system, simulate them, and visualize simulation result.
 It was originally planned in 2019 and its draft was presented in the papers of APRIS2019 and FOSE2019.
 GraphCore is consist in the following modules:
 
@@ -45,4 +45,10 @@ An application is opened as GraphCore application suite. Current supports are th
   
   o Custmize component properties according to the user purposes.
   
-  o Basic solver is implemented and it supports simple dataflow model. See graphcore-example repository.
+  o Basic solver is implemented and it supports simple dataflow model. See graphcore-examples repository.
+
+  o Fundamental visualizer is implemented and it shows component attribute's transition on simulated time series.
+  
+  o Script which manipulates graph, components and their attributes is implementd.
+  
+  o Model constraints module is been implemented.
