@@ -771,6 +771,8 @@ class GraphCoreScript:
         m = ExtensibleWrappedAccessor(self._toplevel, "set_edge_value", None,
                                       lambda ao, c, eo, ca, ea: self.handler.change_edge_attr(ca[0], ca[1], ca[2], ca[3]))
         self._toplevel.declare_method(m, globally=True)
+
+        # networkx
         successors = ExtensibleWrappedAccessor(self._toplevel, "successors", None,
                                                lambda ao, c, eo, ca, ea: [_ for _ in
                                                                           self.handler.context.G.successors(ca[0])],
@@ -781,6 +783,8 @@ class GraphCoreScript:
                                                                             self.handler.context.G.predecessors(ca[0])],
                                                  globally=True)
         self._toplevel.declare_method(predecessors, globally=True)
+
+        # numpy
         m = ExtensibleWrappedAccessor(self._toplevel, "sin", None,
                                       lambda ao, c, eo, ca, ea: np.sin(ca[0]))
         self._toplevel.declare_method(m, globally=True)
@@ -789,6 +793,12 @@ class GraphCoreScript:
         self._toplevel.declare_method(m, globally=True)
         m = ExtensibleWrappedAccessor(self._toplevel, "tan", None,
                                       lambda ao, c, eo, ca, ea: np.tan(ca[0]))
+        self._toplevel.declare_method(m, globally=True)
+        m = ExtensibleWrappedAccessor(self._toplevel, "acos", None,
+                                      lambda ao, c, eo, ca, ea: np.arccos(ca[0]))
+        self._toplevel.declare_method(m, globally=True)
+        m = ExtensibleWrappedAccessor(self._toplevel, "asin", None,
+                                      lambda ao, c, eo, ca, ea: np.arcsin(ca[0]))
         self._toplevel.declare_method(m, globally=True)
         m = ExtensibleWrappedAccessor(self._toplevel, "exp", None,
                                       lambda ao, c, eo, ca, ea: np.exp(ca[0]))

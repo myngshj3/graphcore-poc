@@ -1034,8 +1034,9 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
     def property_init(self):
         property_widget = self.ui.propertyWidget
         property_widget.setRowCount(0)
-        property_widget.setColumnCount(2)
-        property_widget.setHorizontalHeaderLabels(('property', 'value'))
+        property_widget.setColumnCount(3)
+        property_widget.setHorizontalHeaderLabels(('property', 'property', 'value'))
+        property_widget.setColumnHidden(0, True)
 
     def property_clear(self):
         self.ui.propertyWidget.setRowCount(0)
@@ -1049,14 +1050,19 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
     def property_select_node(self, node):
         property_widget = self.ui.propertyWidget
         attrs = self.handler.context.nodes[node]
+        _type = attrs['type']['value']
+        node_properties = self.settings.setting('default-node-attrs')[_type].keys()
         property_widget.setRowCount(0)
         attr_count = 0
-        for i, k in enumerate(attrs.keys()):
-            if not attrs[k]['visible']:
+        for i, k in enumerate(node_properties):
+            if not self.settings.setting('default-node-attrs')[_type][k]['visible']:
                 continue
+            # if not attrs[k]['visible']:
+            #     continue
             attr_count += 1
             property_widget.setRowCount(attr_count)
             property_widget.setItem(attr_count - 1, 0, QTableWidgetItem(k))
+            property_widget.setItem(attr_count - 1, 1, QTableWidgetItem(self.settings.setting('default-node-attrs')[_type][k]['caption']))
             editor = None
             t = attrs[k]['type']
             if "list" in attrs[k].keys():
@@ -1077,20 +1083,25 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
                 editor = BoolEditor(attrs[k]['value'], k, apply=lambda x, y: self.handler.change_node_attr(node, x, y))
             else:
                 self.print("unsupported type:{}".format(t))
-            property_widget.setCellWidget(attr_count - 1, 1, editor)
+            property_widget.setCellWidget(attr_count - 1, 2, editor)
 
     # select edge
     def property_select_edge(self, edge):
         property_widget = self.ui.propertyWidget
         attrs = self.handler.context.edges[edge[0], edge[1]]
+        _type = attrs['type']['value']
+        edge_properties = self.settings.setting('default-edge-attrs')[_type].keys()
         property_widget.setRowCount(0)
         attr_count = 0
-        for i, k in enumerate(attrs.keys()):
-            if not attrs[k]['visible']:
+        for i, k in enumerate(edge_properties):
+            if not self.settings.setting('default-edge-attrs')[_type][k]['visible']:
                 continue
+            # if not attrs[k]['visible']:
+            #     continue
             attr_count += 1
             property_widget.setRowCount(attr_count)
             property_widget.setItem(attr_count - 1, 0, QTableWidgetItem(k))
+            property_widget.setItem(attr_count - 1, 1, QTableWidgetItem(self.settings.setting('default-edge-attrs')[_type][k]['caption']))
             editor = None
             t = attrs[k]['type']
             if "list" in attrs[k].keys():
@@ -1115,7 +1126,7 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
                                     apply=lambda x, y: self.handler.change_edge_attr(edge[0], edge[1], x, y))
             else:
                 self.print("unsupported type:{}".format(t))
-            property_widget.setCellWidget(attr_count - 1, 1, editor)
+            property_widget.setCellWidget(attr_count - 1, 2, editor)
 
     def system_constraints_init(self):
         header_labels = ('Enabled', 'Id', 'Constraint', 'Description')
@@ -1177,10 +1188,12 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
                 G.edges[e[0], e[1]][k] = G.edges[e[0], e[1]][k]['value']
         embedded = [("G", G)]
         args = ()
+        meta.set_running(True)
         clazz = meta(meta, (clazz_sig, embedded, args))
         sig = "{}.{}".format(clazz.signature, clazz.next_instance_id)
         initializer_args = ()
         embedded = ()
+        clazz.set_running(True)
         toplevel: NetworkInstance = clazz(clazz, (sig, embedded, initializer_args))
         toplevel.set_stack_enable(True)
         # validator/evaluator

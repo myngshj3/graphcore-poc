@@ -37,7 +37,7 @@ class GraphCoreSettings(object):
         self._settings = None
         self._settings_file = None
         try:
-            with open(settings_file, 'r') as f:
+            with open(settings_file, 'r', encoding='utf-8') as f:
                 self._settings = json.load(f)
                 self._settings_file = settings_file
                 self.tune_bool_initial_values()
@@ -47,7 +47,7 @@ class GraphCoreSettings(object):
 
     def save(self):
         try:
-            with open(self._settings_file, 'w') as f:
+            with open(self._settings_file, 'w', encoding='utf-8') as f:
                 json.dump(self._settings, f, indent=4)
         except Exception as ex:
             print("save settings failed.")

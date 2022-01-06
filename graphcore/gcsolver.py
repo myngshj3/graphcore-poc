@@ -2,6 +2,7 @@
 
 import sys
 import numpy as np
+from numpy import pi, sin, cos, tan, arcsin, arccos, arctan, exp, log, log2, log10
 import networkx as nx
 import json
 
@@ -119,6 +120,14 @@ class GCSolver:
         elif node['generator-type'] == 'cos':
             ret = a*(np.cos(np.pi/b*t2) + np.cos(np.pi/b*t1) + 2*c) / 2 * dt
             # print("{}(cos({}*{}) + cos({}*{}) + {}){}/2 = {}".format(a, b, t2, b, t1, 2*c, dt, ret))
+            return ret
+        elif node['generator-type'] == 'custom':
+            equation: str = node['generator-equation']
+            eq2 = equation.replace("{t}", "t2")
+            val2 = eval(eq2)
+            eq1 = equation.replace("{t}", "t1")
+            val1 = eval(eq1)
+            ret = (val2 + val1) / 2 * dt
             return ret
         else:
             return 0
