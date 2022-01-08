@@ -4,6 +4,7 @@ import networkx as nx
 from PyQt5.QtWidgets import QDialog, QTableWidgetItem, QTableWidget, QWidget, QGraphicsWidget, QGraphicsGridLayout
 from PyQt5.QtGui import QContextMenuEvent
 from PyQt5.QtWidgets import QMenu
+from PyQt5.QtCore import Qt
 from PyQt5.QtCore import QPoint
 from PyQt5.QtCore import QItemSelection
 import pyqtgraph as pg
@@ -29,6 +30,7 @@ class GCVisualizerDialog(QDialog):
         self.ui.closeButton.clicked.connect(self.close)
         self.ui.nodePlot.plotItem.getAxis('bottom').setLabel(text="time")
         self.ui.edgePlot.plotItem.getAxis('bottom').setLabel(text="time")
+        self.setWindowState(Qt.WindowMaximized)
 
 
     def selected_node_changed(self, selected: QItemSelection, deselected: QItemSelection):

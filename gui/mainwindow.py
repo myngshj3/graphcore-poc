@@ -15,7 +15,7 @@ from graphcore.propertyeditor import TextEditor, IntEditor, FloatEditor, BoolEdi
 # from GraphCore.graphcoreeditor import TextEditor, IntEditor, FloatEditor, ComboBoxEditor, CheckBoxEditor,\
 #     CheckBoxEditorEx, TextEditorEx
 from graphcore.constraint import GCConstraintParser
-from networkml.error import NetworkParserError
+from networkml.error import NetworkParserError, NetworkModelCheckError
 from networkml.network import NetworkClass, NetworkInstance
 from networkml.specnetwork import SpecValidator
 from gui.console import ConsoleDialog
@@ -181,6 +181,8 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
         self.handler.set_reflection(GraphCoreContextHandler.UserDefinedFunctionAdded, lambda x: print(x))
         self.handler.set_reflection(GraphCoreContextHandler.UserDefinedFunctionUpdated, lambda x: print(x))
         self.handler.set_reflection(GraphCoreContextHandler.UserDefinedFunctionRemoved, lambda x: print(x))
+        self.handler.set_reflection(GraphCoreContextHandler.UserScriptAdded, lambda x: self.user_script_add_to_widget(x))
+        self.handler.set_reflection(GraphCoreContextHandler.UserScriptDeleted, lambda x: self.user_script_delete(x))
 
         self.async_handler.set_reflection(GraphCoreContextHandler.NodeAdded, lambda x: self.new_node_item(x))
         self.async_handler.set_reflection(GraphCoreContextHandler.NodeUpdated, lambda x: self.redraw_node_item(x))
@@ -194,6 +196,8 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
         self.async_handler.set_reflection(GraphCoreContextHandler.EdgeSelected, lambda u, v: self.property_select_edge((u, v)))
         self.async_handler.set_reflection(GraphCoreContextHandler.ConstraintAdded, lambda x: self.constraint_add_to_widget(x))
         self.async_handler.set_reflection(GraphCoreContextHandler.ConstraintRemoved, lambda x: self.constraint_delete(x))
+        self.async_handler.set_reflection(GraphCoreContextHandler.UserScriptAdded, lambda x: self.user_script_add_to_widget(x))
+        self.async_handler.set_reflection(GraphCoreContextHandler.UserScriptDeleted, lambda x: self.user_script_delete(x))
         # FIXME
         self.async_handler.set_reflection(GraphCoreContextHandler.UserDefinedFunctionAdded, lambda x: print(x))
         self.async_handler.set_reflection(GraphCoreContextHandler.UserDefinedFunctionUpdated, lambda x: print(x))
@@ -225,12 +229,16 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
             self.ui.tabWidget.tabBar().setTabText(index, name)
 
     def handler_changed(self, handler, async_handler):
+        # self.print("handler_changed")
         self.property_clear()
         self.constraints_clear()
+        self.user_scripts_clear()
         self._handler = handler
         self._async_handler = async_handler
         self.update_node_list()
         self.update_edge_list()
+        self.constraint_add_all_to_widget()
+        self.user_scripts_add_all_to_widget()
 
     def handler_purged(self):
         for e in self.element_to_item.keys():
@@ -238,6 +246,7 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
             self.scene.removeItem(item)
         self.property_clear()
         self.constraints_clear()
+        self.user_scripts_clear()
         self.element_to_item.clear()
         self.ui.tabWidget.removeTab(self.ui.tabWidget.currentIndex())
         self._scene = None
@@ -378,7 +387,8 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
     def command_console(self):
         self.console.setModal(False)
         self.console.set_handler_pair(self.handler, self.async_handler)
-        self.console.show()
+        self.console.setModal(True)
+        self.console.exec_()
 
     # node label change command
     def command_set_node_label(self, attr_name):
@@ -508,7 +518,7 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
             self.print(traceback.format_exc())
         finally:
             self.setCommandEnabilities()
-        self.print('command_save_as')
+        # self.print('command_save_as')
 
     def update_node_list(self):
         self.ui.nodeTableWidget.clear()
@@ -822,26 +832,46 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
         try:
             ui: Ui_MainWindow = self.ui
             constraints = self.handler.context.constraints
+            meta = NetworkClass(None, "GCConstraintChecker")
+            clazz_sig = "{}[{}]".format("NetworkML", 1)
+            data = nx.node_link_data(self.handler.context.G)
+            G = nx.node_link_graph(data)
+            for n in G.nodes:
+                for k in G.nodes[n].keys():
+                    G.nodes[n][k] = G.nodes[n][k]['value']
+            for e in G.edges:
+                for k in G.edges[e[0], e[1]].keys():
+                    G.edges[e[0], e[1]][k] = G.edges[e[0], e[1]][k]['value']
+            embedded = [("G", G)]
+            args = ()
+            meta.set_running(True)
+            clazz = meta(meta, (clazz_sig, embedded, args))
+            sig = "{}.{}".format(clazz.signature, clazz.next_instance_id)
+            initializer_args = ()
+            embedded = ()
+            clazz.set_running(True)
+            toplevel: NetworkInstance = clazz(clazz, (sig, embedded, initializer_args))
+            toplevel.set_stack_enable(True)
+            # validator/evaluator
+            validator = SpecValidator(owner=toplevel)
+            toplevel.set_validator(validator)
+            toplevel.set_running(True)
+            parser = GCConstraintParser(toplevel, reporter=self.shell.default_reporter)
             has_error = False
+            ui.errorWidget.setRowCount(0)
             for cid in constraints.keys():
-                equation = constraints[cid]['equation']
+                eqn = constraints[cid]['equation']
                 # desc = constraints[cid]['description']
                 enabled = constraints[cid]['enabled']
                 if not enabled:
                     continue
-                result, error = (), ()
-                if len(error) != 0:
+                r = parser.parse(eqn)
+                rtn = r(toplevel)
+                if not rtn:
                     ui.errorWidget.setRowCount(ui.errorWidget.rowCount() + 1)
-                    item = QTableWidgetItem("Constraint Error: {}: {}".format(cid, error))
+                    item = QTableWidgetItem("Constraint Violation: {}: {}".format(cid, eqn))
                     ui.errorWidget.setItem(ui.errorWidget.rowCount() - 1, 0, item)
                     has_error = True
-                else:
-                    for r in result:
-                        if not r.evaluate():
-                            ui.errorWidget.setRowCount(ui.errorWidget.rowCount() + 1)
-                            item = QTableWidgetItem("Constraint Violation: {}: {}".format(cid, equation))
-                            ui.errorWidget.setItem(ui.errorWidget.rowCount() - 1, 0, item)
-                            has_error = True
             return has_error
         except Exception as ex:
             self.print(traceback.format_exc())
@@ -1246,7 +1276,7 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
     def constraints_add_new(self):
         self.handler.new_constraint()
 
-    # Add constraint
+    # Delete constraint
     def constraint_delete(self, cid):
         for i in self.ui.constraintWidget.selectedIndexes():
             item = self.ui.constraintWidget.item(i.row(), 1)
@@ -1323,3 +1353,100 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
             self.print(traceback.format_exc())
         finally:
             self.set_command_enable()
+
+    # add user script command
+    def command_add_user_script(self):
+        try:
+            self.print("command_add_user_script")
+            ix = []
+            for i in range(self.ui.userScriptTable.rowCount()):
+                item = self.ui.userScriptTable.item(i, 1)
+                ix.append(int(item.text()))
+            if len(ix) == 0:
+                sid = 1
+            else:
+                sid = max(ix) + 1
+            for i in range(1, len(ix)+1):
+                if i not in ix:
+                    sid = i
+                    break
+            sid = str(sid)
+            self.handler.context.scripts[sid] = {'id': sid, 'enabled': True, 'script': ''}
+            self.user_script_add_to_widget(sid)
+        except Exception as ex:
+            self.reporter.report(str(ex))
+        finally:
+            self.set_command_enable()
+
+    # delete user script command
+    def command_delete_user_script(self):
+        try:
+            self.print("command_delete_user_script")
+            ix = []
+            for i in self.ui.userScriptTable.selectedIndexes():
+                if i.row() not in ix:
+                    ix.append(i.row())
+            for i in ix:
+                self.ui.userScriptTable.removeRow(i.row())
+        except Exception as ex:
+            self.reporter.report(str(ex))
+        finally:
+            self.set_command_enable()
+
+    def user_scripts_init(self):
+        self.user_scripts_clear()
+
+    def user_scripts_clear(self):
+        self.ui.userScriptTable.setRowCount(0)
+
+    # Add all constraints to constraint_widget
+    def user_scripts_add_all_to_widget(self):
+        scripts = self.handler.context.scripts
+        for c in scripts.keys():
+            self.user_script_add_to_widget(c)
+
+    def user_script_delete(self, sid):
+        self.handler.context.scripts.pop(sid)
+        self.handler.context.dirty = True
+
+    def user_script_add_to_widget(self, sid):
+        scripts = self.handler.context.scripts
+        script = scripts[sid]
+        self.ui.userScriptTable.setRowCount(self.ui.userScriptTable.rowCount() + 1)
+
+        # set enabled
+        item = BoolEditor(script['enabled'], "enabled",
+                          apply=lambda x, y: self.handler.change_script(sid, x, y))
+        self.ui.userScriptTable.setCellWidget(self.ui.userScriptTable.rowCount() - 1, 0, item)
+
+        # set id
+        item = QTableWidgetItem(sid)
+        item.setFlags(Qt.ItemIsEditable)
+        self.ui.userScriptTable.setItem(self.ui.userScriptTable.rowCount() - 1, 1, item)
+
+        # set script
+        item = QTableWidgetItem(script['script'])
+        item.setFlags(Qt.ItemIsEditable)
+        self.ui.userScriptTable.setItem(self.ui.userScriptTable.rowCount() - 1, 2, item)
+
+        # set button
+        item = QPushButton("Edit")
+        self.ui.userScriptTable.setCellWidget(self.ui.userScriptTable.rowCount() - 1, 3, item)
+        item.clicked.connect(lambda: self.command_edit_on_script_editor(sid))
+
+    def command_edit_on_script_editor(self, sid):
+        script = self.handler.context.scripts[sid]['script']
+        self.script_editor.setModal(True)
+        self.script_editor.set_handler_pair(self.handler, self.async_handler)
+        self.script_editor.ui.scriptEdit.setPlainText(script)
+        self.script_editor.exec_()
+        if self.script_editor.ok:
+            text = self.script_editor.ui.scriptEdit.toPlainText()
+            self.handler.change_script(sid, 'script', text)
+            for i in range(self.ui.userScriptTable.rowCount()):
+                item = self.ui.userScriptTable.item(i, 1)
+                if sid == item.text():
+                    item = self.ui.userScriptTable.item(i, 2)
+                    item.setText(text)
+                    break
+        self.set_command_enable()

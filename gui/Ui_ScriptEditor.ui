@@ -71,12 +71,12 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="cancelButton">
+       <widget class="QPushButton" name="stopButton">
         <property name="enabled">
          <bool>false</bool>
         </property>
         <property name="text">
-         <string>Cancel</string>
+         <string>Stop</string>
         </property>
        </widget>
       </item>
@@ -94,12 +94,16 @@
        </spacer>
       </item>
       <item>
-       <widget class="QDialogButtonBox" name="buttonBox">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
+       <widget class="QPushButton" name="okButton">
+        <property name="text">
+         <string>OK</string>
         </property>
-        <property name="standardButtons">
-         <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="cancelButton">
+        <property name="text">
+         <string>Cancel</string>
         </property>
        </widget>
       </item>
@@ -109,72 +113,7 @@
   </layout>
  </widget>
  <resources/>
- <connections>
-  <connection>
-   <sender>buttonBox</sender>
-   <signal>accepted()</signal>
-   <receiver>ScriptEdior</receiver>
-   <slot>accept()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>248</x>
-     <y>254</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>157</x>
-     <y>274</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>buttonBox</sender>
-   <signal>rejected()</signal>
-   <receiver>ScriptEdior</receiver>
-   <slot>reject()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>316</x>
-     <y>260</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>286</x>
-     <y>274</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>testScriptButton</sender>
-   <signal>clicked()</signal>
-   <receiver>ScriptEdior</receiver>
-   <slot>test_script()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>69</x>
-     <y>602</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>340</x>
-     <y>319</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>cancelButton</sender>
-   <signal>clicked()</signal>
-   <receiver>ScriptEdior</receiver>
-   <slot>cancel_script()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>169</x>
-     <y>602</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>340</x>
-     <y>319</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
  <slots>
   <slot>test_script()</slot>
   <slot>cancel_script()</slot>

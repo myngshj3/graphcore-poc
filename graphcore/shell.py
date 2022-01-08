@@ -1,9 +1,18 @@
 # from GraphCore.model import GraphCoreModel
 from graphcore.settings import GraphCoreSettings
 from graphcore.thread_signal import GraphCoreThreadSignal
+from networkml.network import NetworkClass, NetworkClassInstance, NetworkInstance
+from networkml.network import ExtensibleWrappedAccessor
+from networkml.lexer import NetworkParser
+from networkml.interpreter import NetworkInterpreter
+from networkml.interpretermanager import arm_interpreter
+from networkml.network import MethodArmer
+from networkml.specnetwork import SpecValidator
 from graphcore.script_worker import get_script_worker
 from graphcore.script_worker import ScriptWorker
 import networkx as nx
+import numpy as np
+import time
 import yaml
 from graphcore.reporter import GraphCoreReporter
 from PyQt5.QtCore import QThread, QMutex, pyqtSignal
@@ -81,6 +90,13 @@ class GraphCoreContext(object):
     @property
     def constraints(self):
         return self._G.graph['constraints']
+
+    @property
+    def scripts(self):
+        if 'scripts' not in self._G.graph.keys():
+            self._G.graph['scripts'] = {}
+            self.dirty = True
+        return self._G.graph['scripts']
 
     @property
     def filename(self):
@@ -390,6 +406,8 @@ class GraphCoreContextHandler:
     UserDefinedFunctionAdded = 17
     UserDefinedFunctionUpdated = 18
     UserDefinedFunctionRemoved = 19
+    UserScriptAdded = 20
+    UserScriptDeleted = 21
 
     def __init__(self, ctx: GraphCoreContext, reporter: GraphCoreReporter, settings: GraphCoreSettings):
         self._context = ctx
@@ -399,7 +417,96 @@ class GraphCoreContextHandler:
         self._selection = {}
         self._selected_constraints = []
         self._extras = {}
+        self._meta = None
+        self._clazz = None
+        self._toplevel = None
+        self.setup_nml_objects()
         self.install_builtin_functions()
+
+    def setup_nml_objects(self):
+        self._meta: NetworkClassInstance = NetworkClass(None, "GraphCore")
+        clazz_sig = "{}[{}]".format("GraphCore", 1)
+        embedded = ()
+        args = ()
+        self._meta.set_running(True)
+        self._clazz: NetworkClassInstance = self._meta(self._meta, (clazz_sig, embedded, args))
+        self._meta.set_running(False)
+        sig = "{}.{}".format(self._clazz.signature, self._clazz.next_instance_id)
+        initializer_args = ()
+        embedded = [("G", self.context.G)]
+        self._clazz.set_running(True)
+        self._toplevel: NetworkInstance = self._clazz(self._clazz, (sig, embedded, initializer_args))
+        self._clazz.set_running(False)
+        self._toplevel.set_stack_enable(True)
+        # validator/evaluator
+        validator = SpecValidator(owner=self._toplevel)
+        self._toplevel.set_validator(validator)
+        arm_interpreter(self._toplevel)
+        self._toplevel.set_running(True)
+        # methods implementation
+        # methods
+        m = ExtensibleWrappedAccessor(self._toplevel, "sin", None,
+                                      lambda ao, c, eo, ca, ea: np.sin(ca[0]), globally=True)
+        self._toplevel.declare_method(m, globally=True)
+        m = ExtensibleWrappedAccessor(self._toplevel, "cos", None,
+                                      lambda ao, c, eo, ca, ea: np.cos(ca[0]), globally=True)
+        self._toplevel.declare_method(m, globally=True)
+        m = ExtensibleWrappedAccessor(self._toplevel, "tan", None,
+                                      lambda ao, c, eo, ca, ea: np.tan(ca[0]), globally=True)
+        self._toplevel.declare_method(m, globally=True)
+        m = ExtensibleWrappedAccessor(self._toplevel, "arcsin", None,
+                                      lambda ao, c, eo, ca, ea: np.arcsin(ca[0]), globally=True)
+        self._toplevel.declare_method(m, globally=True)
+        m = ExtensibleWrappedAccessor(self._toplevel, "arccos", None,
+                                      lambda ao, c, eo, ca, ea: np.arccos(ca[0]), globally=True)
+        self._toplevel.declare_method(m, globally=True)
+        m = ExtensibleWrappedAccessor(self._toplevel, "arctan", None,
+                                      lambda ao, c, eo, ca, ea: np.arctan(ca[0]), globally=True)
+        self._toplevel.declare_method(m, globally=True)
+        m = ExtensibleWrappedAccessor(self._toplevel, "exp", None,
+                                      lambda ao, c, eo, ca, ea: np.exp(ca[0]), globally=True)
+        self._toplevel.declare_method(m, globally=True)
+        m = ExtensibleWrappedAccessor(self._toplevel, "log", None,
+                                      lambda ao, c, eo, ca, ea: np.log(ca[0]), globally=True)
+        self._toplevel.declare_method(m, globally=True)
+        m = ExtensibleWrappedAccessor(self._toplevel, "pow", None,
+                                      lambda ao, c, eo, ca, ea: np.power(ca[0], ca[1]), globally=True)
+        self._toplevel.declare_method(m, globally=True)
+        m = ExtensibleWrappedAccessor(self._toplevel, "sleep", None,
+                                      lambda ao, c, eo, ca, ea: time.sleep(ca[0]), globally=True)
+        self._toplevel.declare_method(m, globally=True)
+        m = ExtensibleWrappedAccessor(self._toplevel, "print", self.reporter,
+                                      lambda ao, c, eo, ca, ea: eo.report(" ".join([str(_) for _ in ca])),
+                                      globally=True)
+        self._toplevel.declare_method(m, globally=True)
+        m = ExtensibleWrappedAccessor(self._toplevel, "append", None,
+                                      lambda ao, c, eo, ca, ea: ca[0].append(ca[1]),
+                                      globally=True)
+        self._toplevel.declare_method(m, globally=True)
+        m = ExtensibleWrappedAccessor(self._toplevel, "len", None,
+                                      lambda ao, c, eo, ca, ea: len(ca[0]),
+                                      globally=True)
+        self._toplevel.declare_method(m, globally=True)
+        m = ExtensibleWrappedAccessor(self._toplevel, "keys", None,
+                                      lambda ao, c, eo, ca, ea: ca[0].keys())
+        self._toplevel.declare_method(m, globally=True)
+        m = ExtensibleWrappedAccessor(self._toplevel, "nodes", None,
+                                      lambda ao, c, eo, ca, ea: [_ for _ in self.context.G.nodes],
+                                      globally=True)
+        self._toplevel.declare_method(m, globally=True)
+        m = ExtensibleWrappedAccessor(self._toplevel, "node_attr_keys", None,
+                                      lambda ao, c, eo, ca, ea: [_ for _ in self.context.G.nodes[ca[0]].keys()],
+                                      globally=True)
+        self._toplevel.declare_method(m, globally=True)
+        m = ExtensibleWrappedAccessor(self._toplevel, "get_node_value", None,
+                                      lambda ao, c, eo, ca, ea: self.node_attr(ca[0], ca[1]),
+                                      globally=True)
+        self._toplevel.declare_method(m, globally=True)
+
+        # armer = MethodArmer()
+        # methods_config = self.settings.setting("system-methods")
+        # for sig in methods_config.keys():
+        #     armer.arm_method(sig, self._toplevel, self._clazz, self._meta, methods_config[sig])
 
     def emit_main_window_command(self, command_id, *args):
         pass
@@ -435,6 +542,10 @@ class GraphCoreContextHandler:
     @property
     def extras(self):
         return self._extras
+
+    @property
+    def toplevel(self) -> NetworkInstance:
+        return self._toplevel
 
     # save context
     def save(self, filename=None):
@@ -572,6 +683,10 @@ class GraphCoreContextHandler:
         self.context.change_view(x, y, w, h)
         self.context.dirty = True
         self.do_reflection(GraphCoreContextHandler.ViewUpdated, (x, y, w, h))
+
+    def change_script(self, sid, attr, value):
+        self.context.scripts[sid][attr] = value
+        self.context.dirty = True
 
     def loaded(self):
         for n in self.context.nodes:

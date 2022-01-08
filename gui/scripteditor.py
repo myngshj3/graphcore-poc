@@ -35,6 +35,23 @@ class ScriptEditorDialog(QDialog, GraphCoreContextHandlerInterface):
         self._script_handler = GraphCoreScript(self.async_handler, self.reporter)
         self._thread = None
         self._worker = None
+        self._ok = False
+        self.ui.testScriptButton.clicked.connect(self.test_script)
+        self.ui.stopButton.clicked.connect(self.cancel_script)
+        self.ui.cancelButton.clicked.connect(self.cancel_clicked)
+        self.ui.okButton.clicked.connect(self.ok_clicked)
+
+    @property
+    def ok(self):
+        return self._ok
+
+    def cancel_clicked(self):
+        self._ok = False
+        self.close()
+
+    def ok_clicked(self):
+        self._ok = True
+        self.close()
 
     @property
     def script_handler(self) -> GraphCoreScript:
@@ -73,9 +90,9 @@ class ScriptEditorDialog(QDialog, GraphCoreContextHandlerInterface):
         self._thread.start()
 
         self.ui.testScriptButton.setEnabled(False)
-        self.ui.cancelButton.setEnabled(True)
+        self.ui.stopButton.setEnabled(True)
         self._thread.finished.connect(lambda: self.ui.testScriptButton.setEnabled(True))
-        self._thread.finished.connect(lambda: self.ui.cancelButton.setEnabled(False))
+        self._thread.finished.connect(lambda: self.ui.stopButton.setEnabled(False))
 
     def clear_message(self):
         self.ui.messages.clear()

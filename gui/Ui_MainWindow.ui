@@ -124,7 +124,7 @@
                 <item>
                  <widget class="QTabWidget" name="editorTabWidget">
                   <property name="currentIndex">
-                   <number>2</number>
+                   <number>4</number>
                   </property>
                   <widget class="QWidget" name="tab_7">
                    <attribute name="title">
@@ -386,6 +386,176 @@
                     </item>
                    </layout>
                   </widget>
+                  <widget class="QWidget" name="tab_3">
+                   <attribute name="title">
+                    <string>Scripts</string>
+                   </attribute>
+                   <layout class="QVBoxLayout" name="verticalLayout_13">
+                    <item>
+                     <widget class="QSplitter" name="splitter_7">
+                      <property name="orientation">
+                       <enum>Qt::Vertical</enum>
+                      </property>
+                      <widget class="QWidget" name="">
+                       <layout class="QVBoxLayout" name="verticalLayout_11">
+                        <item>
+                         <layout class="QHBoxLayout" name="horizontalLayout_4">
+                          <item>
+                           <widget class="QLabel" name="label_7">
+                            <property name="text">
+                             <string>System Scripts</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <spacer name="horizontalSpacer_3">
+                            <property name="orientation">
+                             <enum>Qt::Horizontal</enum>
+                            </property>
+                            <property name="sizeHint" stdset="0">
+                             <size>
+                              <width>40</width>
+                              <height>20</height>
+                             </size>
+                            </property>
+                           </spacer>
+                          </item>
+                          <item>
+                           <widget class="QPushButton" name="addSystemScriptButton">
+                            <property name="text">
+                             <string>Add</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QPushButton" name="deleteSystemScriptButton">
+                            <property name="text">
+                             <string>Delete</string>
+                            </property>
+                           </widget>
+                          </item>
+                         </layout>
+                        </item>
+                        <item>
+                         <widget class="QTableWidget" name="systemScriptTable">
+                          <property name="selectionMode">
+                           <enum>QAbstractItemView::MultiSelection</enum>
+                          </property>
+                          <property name="selectionBehavior">
+                           <enum>QAbstractItemView::SelectRows</enum>
+                          </property>
+                          <attribute name="verticalHeaderVisible">
+                           <bool>false</bool>
+                          </attribute>
+                          <attribute name="verticalHeaderHighlightSections">
+                           <bool>false</bool>
+                          </attribute>
+                          <column>
+                           <property name="text">
+                            <string>enabled</string>
+                           </property>
+                          </column>
+                          <column>
+                           <property name="text">
+                            <string>id</string>
+                           </property>
+                          </column>
+                          <column>
+                           <property name="text">
+                            <string>script</string>
+                           </property>
+                          </column>
+                          <column>
+                           <property name="text">
+                            <string/>
+                           </property>
+                          </column>
+                         </widget>
+                        </item>
+                       </layout>
+                      </widget>
+                      <widget class="QWidget" name="">
+                       <layout class="QVBoxLayout" name="verticalLayout_10">
+                        <item>
+                         <layout class="QHBoxLayout" name="horizontalLayout_3">
+                          <item>
+                           <widget class="QLabel" name="label_6">
+                            <property name="text">
+                             <string>User Scripts</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <spacer name="horizontalSpacer_2">
+                            <property name="orientation">
+                             <enum>Qt::Horizontal</enum>
+                            </property>
+                            <property name="sizeHint" stdset="0">
+                             <size>
+                              <width>40</width>
+                              <height>20</height>
+                             </size>
+                            </property>
+                           </spacer>
+                          </item>
+                          <item>
+                           <widget class="QPushButton" name="addUserScriptButton">
+                            <property name="text">
+                             <string>Add</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QPushButton" name="deleteUserScriptButton">
+                            <property name="text">
+                             <string>Delete</string>
+                            </property>
+                           </widget>
+                          </item>
+                         </layout>
+                        </item>
+                        <item>
+                         <widget class="QTableWidget" name="userScriptTable">
+                          <property name="selectionMode">
+                           <enum>QAbstractItemView::MultiSelection</enum>
+                          </property>
+                          <property name="selectionBehavior">
+                           <enum>QAbstractItemView::SelectRows</enum>
+                          </property>
+                          <attribute name="verticalHeaderVisible">
+                           <bool>false</bool>
+                          </attribute>
+                          <attribute name="verticalHeaderHighlightSections">
+                           <bool>false</bool>
+                          </attribute>
+                          <column>
+                           <property name="text">
+                            <string>enabled</string>
+                           </property>
+                          </column>
+                          <column>
+                           <property name="text">
+                            <string>id</string>
+                           </property>
+                          </column>
+                          <column>
+                           <property name="text">
+                            <string>script</string>
+                           </property>
+                          </column>
+                          <column>
+                           <property name="text">
+                            <string/>
+                           </property>
+                          </column>
+                         </widget>
+                        </item>
+                       </layout>
+                      </widget>
+                     </widget>
+                    </item>
+                   </layout>
+                  </widget>
                  </widget>
                 </item>
                </layout>
@@ -592,7 +762,7 @@
      <x>0</x>
      <y>0</y>
      <width>1167</width>
-     <height>24</height>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -763,7 +933,7 @@
   </action>
   <action name="actionModelCheck">
    <property name="enabled">
-    <bool>false</bool>
+    <bool>true</bool>
    </property>
    <property name="text">
     <string>Model Check</string>
@@ -1310,6 +1480,38 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>addUserScriptButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>command_add_user_script()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>559</x>
+     <y>349</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>583</x>
+     <y>401</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>deleteUserScriptButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>command_delete_user_script()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>659</x>
+     <y>349</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>583</x>
+     <y>401</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>command_open()</slot>
@@ -1349,5 +1551,7 @@
   <slot>command_change_current(int)</slot>
   <slot>command_start_solver()</slot>
   <slot>command_visualizer()</slot>
+  <slot>command_add_user_script()</slot>
+  <slot>command_delete_user_script()</slot>
  </slots>
 </ui>

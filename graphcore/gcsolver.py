@@ -39,7 +39,10 @@ class GCSolver:
         G: nx.DiGraph = self.clone_graph(self._G)
         dt = self._dt
         for i in G.nodes:
-            F = tuple(G.successors(i))
+            F = []
+            for d in G.successors(i):
+                if G.edges[i, d]['type'] == 'dataflow':
+                    F.append(d)
             D = tuple([(i, _) for _ in F])
             for d in D:
                 # val = 1.0/len(D)*(G.nodes[d[1]][H_sym] - G.nodes[d[1]][x_sym])/(G.edges[d[0], d[1]][l_sym]*dt)
@@ -68,8 +71,14 @@ class GCSolver:
 
         H: nx.DiGraph = self.clone_graph(G)
         for i in G.nodes:
-            S = G.predecessors(i)
-            D = G.successors(i)
+            S = []
+            for s in G.predecessors(i):
+                if G.edges[s, i]['type'] == 'dataflow':
+                    S.append(s)
+            D = []
+            for d in G.successors(i):
+                if G.edges[i, d]['type'] == 'dataflow':
+                    D.append(d)
             sum_v_s = 0
             for s in S:
                 sum_v_s += G.edges[s, i][v_sym] / G.edges[s, i][l_sym]

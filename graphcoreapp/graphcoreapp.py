@@ -16,6 +16,7 @@ def main():
     from gui.coordfinderwidget import CoordFinderWidget
     from gui.CoordinationFinderWidget import Ui_CoordFinderForm
     from gui.console import ConsoleDialog
+    from gui.console import Console
     from gui.Ui_ScriptEditor import Ui_ScriptEdior
     from gui.Ui_ConsoleWidget import Ui_ConsoleForm
     from gui.scripteditor import ScriptEditorDialog
@@ -91,15 +92,17 @@ def main():
     main_window.coord_finder = layout_manager
 
     # setup console
-    console_ui = Ui_ConsoleForm()
-    console = ConsoleDialog(ui=console_ui, handler=handler, async_handler=async_handler)
-    console.move(settings.setting_value(['console', 'x']), settings.setting_value(['console', 'y']))
-    console.resize(settings.setting_value(['console', 'width']), settings.setting_value(['console', 'height']))
+    console = Console(main_window, handler=handler, async_handler=async_handler)
     main_window.console = console
-    main_window.serializers.append(lambda: settings.set_setting_value(['console', 'x'], console.frameGeometry().x()))
-    main_window.serializers.append(lambda: settings.set_setting_value(['console', 'y'], console.frameGeometry().y()))
-    main_window.serializers.append(lambda: settings.set_setting_value(['console', 'width'], console.frameGeometry().width()))
-    main_window.serializers.append(lambda: settings.set_setting_value(['console', 'height'], console.frameGeometry().height()))
+    # console_ui = Ui_ConsoleForm()
+    # console = ConsoleDialog(ui=console_ui, handler=handler, async_handler=async_handler)
+    # console.move(settings.setting_value(['console', 'x']), settings.setting_value(['console', 'y']))
+    # console.resize(settings.setting_value(['console', 'width']), settings.setting_value(['console', 'height']))
+    # main_window.console = console
+    # main_window.serializers.append(lambda: settings.set_setting_value(['console', 'x'], console.frameGeometry().x()))
+    # main_window.serializers.append(lambda: settings.set_setting_value(['console', 'y'], console.frameGeometry().y()))
+    # main_window.serializers.append(lambda: settings.set_setting_value(['console', 'width'], console.frameGeometry().width()))
+    # main_window.serializers.append(lambda: settings.set_setting_value(['console', 'height'], console.frameGeometry().height()))
 
     # setup script editor
     script_editor_ui = Ui_ScriptEdior()
