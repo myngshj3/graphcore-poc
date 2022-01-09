@@ -612,7 +612,7 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
         self.setCommandEnabilities()
 
     # File / Quit command
-    def command_quit(self) -> bool:
+    def command_quit(self):
         try:
             self.print('command_quit')
             while True:
@@ -721,7 +721,7 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
     # remove node
     def command_remove_node(self, n) -> None:
         try:
-            self.print('command_remove_node({})'.format(n))
+            # self.print('command_remove_node({})'.format(n))
             edges = self.handler.collect_edges(n, node_is_source=True, node_is_target=True)
             for e in edges:
                 self.handler.remove_edge(e[0], e[1])
@@ -1037,7 +1037,7 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
         self.set_edge_creating(True)
 
     def popup_menu_do_remove(self, item):
-        self.print("popup_menu_do_remove({})".format(item))
+        # self.print("popup_menu_do_remove({})".format(item))
         if isinstance(item, GraphCoreNodeItemInterface):
             self.command_remove_node(item.node)
         elif isinstance(item, GraphCoreEdgeItem):
@@ -1095,8 +1095,8 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
             property_widget.setItem(attr_count - 1, 1, QTableWidgetItem(self.settings.setting('default-node-attrs')[_type][k]['caption']))
             editor = None
             t = attrs[k]['type']
-            if "list" in attrs[k].keys():
-                value_list = attrs[k]['list']
+            if "list" in self.settings.setting('default-node-attrs')[_type][k].keys():
+                value_list = self.settings.setting('default-node-attrs')[_type][k]['list']
                 entries = []
                 for idx, n in enumerate(value_list):
                     entries.append((n, n))  # FIXME
@@ -1134,8 +1134,8 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
             property_widget.setItem(attr_count - 1, 1, QTableWidgetItem(self.settings.setting('default-edge-attrs')[_type][k]['caption']))
             editor = None
             t = attrs[k]['type']
-            if "list" in attrs[k].keys():
-                value_list = attrs[k]['list']
+            if "list" in self.settings.setting('default-edge-attrs')[_type][k].keys():
+                value_list = self.settings.setting('default-edge-attrs')[_type][k]['list']
                 entries = []
                 for idx, n in enumerate(value_list):
                     entries.append((n, n))  # FIXME
@@ -1395,6 +1395,8 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
 
     def user_scripts_init(self):
         self.user_scripts_clear()
+        self.ui.userScriptTable.setColumnWidth(0, 20)
+        self.ui.userScriptTable.setColumnWidth(1, 20)
 
     def user_scripts_clear(self):
         self.ui.userScriptTable.setRowCount(0)
@@ -1450,3 +1452,29 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
                     item.setText(text)
                     break
         self.set_command_enable()
+
+    def system_scripts_init(self):
+        header_labels = ('Enabled', 'Id', 'Script')
+        scripts_widget = self.ui.systemScriptTable
+        scripts_widget.setColumnCount(3)
+        scripts_widget.setHorizontalHeaderLabels(header_labels)
+        scripts_widget.setColumnWidth(0, 20)
+        scripts_widget.setColumnWidth(1, 20)
+        scripts = self.settings.setting('system-scripts')
+        scripts_widget.setRowCount(len(scripts.keys()))
+        for i, k in enumerate(scripts.keys()):
+            script = scripts[k]['script']
+            enabled = scripts[k]['enabled']
+            item = QTableWidgetItem(enabled)
+            if enabled:
+                item.setCheckState(Qt.CheckState.Checked)
+            else:
+                item.setCheckState(Qt.CheckState.Unchecked)
+            item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEditable)
+            scripts_widget.setItem(i, 0, item)
+            item = QTableWidgetItem(k)
+            item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEditable)
+            scripts_widget.setItem(i, 1, item)
+            item = QTableWidgetItem(script)
+            item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEditable)
+            scripts_widget.setItem(i, 2, item)

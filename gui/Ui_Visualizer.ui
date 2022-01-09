@@ -36,7 +36,7 @@
   </property>
   <layout class="QGridLayout" name="gridLayout_2">
    <item row="2" column="0">
-    <widget class="QGroupBox" name="groupBox_11">
+    <widget class="QGroupBox" name="edgePlotArea">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
        <horstretch>0</horstretch>
@@ -46,7 +46,7 @@
      <property name="title">
       <string>Edge results</string>
      </property>
-     <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <layout class="QHBoxLayout" name="edgePlotAreaHorizontalLayout">
       <item>
        <widget class="QFrame" name="frame_13">
         <property name="sizePolicy">
@@ -256,14 +256,7 @@
        </widget>
       </item>
       <item>
-       <widget class="PlotWidget" name="edgePlot">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-       </widget>
+       <widget class="PlotWidget" name="edgePlot"/>
       </item>
      </layout>
     </widget>
@@ -592,11 +585,11 @@
     </widget>
    </item>
    <item row="1" column="0">
-    <widget class="QGroupBox" name="groupBox_10">
+    <widget class="QGroupBox" name="nodePlotArea">
      <property name="title">
       <string>Node results</string>
      </property>
-     <layout class="QHBoxLayout" name="horizontalLayout_9">
+     <layout class="QHBoxLayout" name="nodePlotAreaHorizontalLayout">
       <item>
        <widget class="QFrame" name="frame_5">
         <property name="sizePolicy">

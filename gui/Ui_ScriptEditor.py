@@ -67,7 +67,7 @@ class Ui_ScriptEdior(object):
 
     def retranslateUi(self, ScriptEdior):
         _translate = QtCore.QCoreApplication.translate
-        ScriptEdior.setWindowTitle(_translate("ScriptEdior", "Dialog"))
+        ScriptEdior.setWindowTitle(_translate("ScriptEdior", "ScriptEditor"))
         self.testScriptButton.setText(_translate("ScriptEdior", "Test"))
         self.stopButton.setText(_translate("ScriptEdior", "Stop"))
         self.okButton.setText(_translate("ScriptEdior", "OK"))

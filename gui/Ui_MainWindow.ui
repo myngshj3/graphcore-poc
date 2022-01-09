@@ -438,8 +438,11 @@
                         </item>
                         <item>
                          <widget class="QTableWidget" name="systemScriptTable">
+                          <property name="editTriggers">
+                           <set>QAbstractItemView::NoEditTriggers</set>
+                          </property>
                           <property name="selectionMode">
-                           <enum>QAbstractItemView::MultiSelection</enum>
+                           <enum>QAbstractItemView::SingleSelection</enum>
                           </property>
                           <property name="selectionBehavior">
                            <enum>QAbstractItemView::SelectRows</enum>
@@ -516,8 +519,11 @@
                         </item>
                         <item>
                          <widget class="QTableWidget" name="userScriptTable">
+                          <property name="editTriggers">
+                           <set>QAbstractItemView::NoEditTriggers</set>
+                          </property>
                           <property name="selectionMode">
-                           <enum>QAbstractItemView::MultiSelection</enum>
+                           <enum>QAbstractItemView::SingleSelection</enum>
                           </property>
                           <property name="selectionBehavior">
                            <enum>QAbstractItemView::SelectRows</enum>
@@ -801,15 +807,11 @@
     </property>
     <addaction name="actionFitToScene"/>
     <addaction name="actionConsole"/>
-    <addaction name="actionScript_Editor"/>
    </widget>
    <widget class="QMenu" name="menuModel">
     <property name="title">
      <string>Model</string>
     </property>
-    <addaction name="actionAddConstraint"/>
-    <addaction name="actionDeleteConstraint"/>
-    <addaction name="separator"/>
     <addaction name="actionModelCheck"/>
     <addaction name="actionLayout_Manager"/>
    </widget>
@@ -966,12 +968,12 @@
   </action>
   <action name="actionEdge_Description_to_Label">
    <property name="text">
-    <string>Edge Description to Label</string>
+    <string>Edge Caption to Label</string>
    </property>
   </action>
   <action name="actionNode_Description_to_Label">
    <property name="text">
-    <string>Node Description to Label</string>
+    <string>Node Caption to Label</string>
    </property>
   </action>
   <action name="actionNode_Tooltips">

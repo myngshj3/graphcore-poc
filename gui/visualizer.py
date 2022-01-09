@@ -2,6 +2,7 @@
 
 import networkx as nx
 from PyQt5.QtWidgets import QDialog, QTableWidgetItem, QTableWidget, QWidget, QGraphicsWidget, QGraphicsGridLayout
+from PyQt5.QtWidgets import QStyle
 from PyQt5.QtGui import QContextMenuEvent
 from PyQt5.QtWidgets import QMenu
 from PyQt5.QtCore import Qt
@@ -71,6 +72,30 @@ class GCVisualizerDialog(QDialog):
     def ui(self) -> Ui_visualizerDialog:
         return self._ui
 
+    @property
+    def nodePlot(self) -> pg.PlotWidget:
+        return self.ui.nodePlot
+
+    @property
+    def nodePlotXAxis(self) -> pg.AxisItem:
+        return self.ui.nodePlot.getAxis('bottom')
+
+    @property
+    def nodePlotYAxis(self) -> pg.AxisItem:
+        return self.ui.nodePlot.getAxis('left')
+
+    @property
+    def edgePlot(self) -> pg.PlotWidget:
+        return self.ui.edgePlot
+
+    @property
+    def edgePlotXAxis(self) -> pg.AxisItem:
+        return self.ui.edgePlot.getAxis('bottom')
+
+    @property
+    def edgePlotYAxis(self) -> pg.AxisItem:
+        return self.ui.edgePlot.getAxis('left')
+
     def setup(self, Gs):
         self._Gs = [nx.node_link_graph(_) for _ in Gs]
         G: nx.DiGraph = self._Gs[0]
@@ -128,14 +153,8 @@ class GCVisualizerDialog(QDialog):
         self.ui.edgeProperties.clear()
         self.ui.selectedEdgeProperties.clear()
 
-        p: PlotItem = self.ui.nodePlot
-        # p.clear()
-        # p.clearPlots()
-        p.setTitle("Node attribute's time series charts.")
-        p = self.ui.edgePlot
-        # p.clear()
-        # p.clearPlots()
-        p.setTitle("Edge attribute's time series charts.")
+        self.nodePlot.setTitle("Node attribute's time series charts.")
+        self.edgePlot.setTitle("Edge attribute's time series charts.")
 
     def plot(self):
         self.plotNodes()
@@ -162,11 +181,11 @@ class GCVisualizerDialog(QDialog):
         plotItem.getViewBox().setXRange(x[0], x[len(x)-1])
         plotItem.getAxis('bottom').setRange(x[0], x[len(x)-1])
         plotItem.getAxis('left').setRange(ymin, ymax)
-        plotItem.removeItem(plotItem.getAxis('left'))
+        print("linkedView:", self.nodePlotYAxis.linkedView())
 
     def plotEdges(self):
         x = [self.ui.dt.value()*i for i in range(self.ui.stepOffset.value(), self.ui.steps.value()+1)]
-        plotItem: PlotItem = self.ui.edgePlot.plotItem
+        plotItem: PlotItem = self.edgePlot.plotItem
         plotItem.clear()
         legend = plotItem.addLegend(offset=(-30, -5))
         ymin = 0
@@ -186,29 +205,7 @@ class GCVisualizerDialog(QDialog):
         plotItem.getViewBox().setXRange(x[0], x[len(x)-1])
         plotItem.getAxis('bottom').setRange(x[0], x[len(x)-1])
         plotItem.getAxis('left').setRange(ymin, ymax)
-        xaxis: pg.AxisItem = plotItem.getAxis('bottom')
-        yaxis: pg.AxisItem = plotItem.getAxis('left')
-        # xaxis.setWidth(plotItem.boundingRect().width() - xaxis.boundingRect().x() - legend.boundingRect().width())
-        # yaxis.setHeight(plotItem.boundingRect().height() - yaxis.boundingRect().y())
-        # yaxis: pg.AxisItem = plotItem.getAxis('left')
-        # plotItem.vb.setXRange(0, plotItem.getAxis('bottom').width(), padding=0)
 
-        print("edgePlot viewRect=", self.ui.edgePlot.viewRect())
-        print("plotItem viewRect=", plotItem.viewRect())
-        print("plotItem boundingRect=", plotItem.boundingRect())
-        print("plotItem pixelSize=", plotItem.pixelSize())
-        print("edgePlot pixelSize=", self.ui.edgePlot.pixelSize())
-        print("xaxis boundingRect=", xaxis.boundingRect())
-        print("yaxis boundingRect=", yaxis.boundingRect())
-        print("xaxis parentItem=", xaxis.parentItem())
-        print("plotItem=", plotItem)
-        print("yaxis parentItem=", yaxis.parentItem())
-
-        # show viewports
-        # print(self.ui.edgePlot.boundingRect())
-        # print(plotItem.boundingRect())
-        # print(plotItem.getAxis('bottom').boundingRect())
-        # print(plotItem.getAxis('left').boundingRect())
 
     def decidePen(self, i: int):
         color = ((255,0,0), (0,255,0), (0,0,255), (255,255,0), (255,0,255), (0,255,255), (255,255,255))

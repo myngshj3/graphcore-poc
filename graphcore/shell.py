@@ -502,6 +502,14 @@ class GraphCoreContextHandler:
                                       lambda ao, c, eo, ca, ea: self.node_attr(ca[0], ca[1]),
                                       globally=True)
         self._toplevel.declare_method(m, globally=True)
+        m = ExtensibleWrappedAccessor(self.toplevel, "run_system_script", None,
+                                      lambda ao, c, eo, ca, ea: self.run_system_script(ca[0]),
+                                      globally=True)
+        self.toplevel.declare_method(m, globally=True)
+        m = ExtensibleWrappedAccessor(self.toplevel, "run_user_script", None,
+                                      lambda ao, c, eo, ca, ea: self.run_user_script(ca[0]),
+                                      globally=True)
+        self.toplevel.declare_method(m, globally=True)
 
         # armer = MethodArmer()
         # methods_config = self.settings.setting("system-methods")
@@ -853,6 +861,26 @@ class GraphCoreContextHandler:
     def select_constraint(self, cid):
         if cid not in self.selected_constraints:
             self.selected_constraints.append(cid)
+
+    def run_system_script(self, sid):
+        scripts = self.settings.setting('system-scripts')
+        if sid not in scripts.keys():
+            return
+        enabled = scripts[sid]['enabled']
+        if enabled:
+            script = scripts[sid]['script']
+            interpret = self.toplevel.get_method(self.toplevel, "interpret")
+            interpret(self.toplevel, (script, "--safe=False"))
+
+    def run_user_script(self, sid):
+        scripts = self.context.graph['scripts']
+        if sid not in scripts.keys():
+            return
+        enabled = scripts[sid]['enabled']
+        if enabled:
+            script = scripts[sid]['script']
+            interpret = self.toplevel.get_method(self.toplevel, "interpret")
+            interpret(self.toplevel, (script, "--safe=False"))
 
     def run(self, command):
         command()

@@ -82,6 +82,7 @@ def main():
 
     main_window.property_init()
     main_window.error_message_init()
+    main_window.system_scripts_init()
     main_window.system_constraints_init()
     main_window.constraints_init()
 
