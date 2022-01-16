@@ -1,5 +1,5 @@
 # GraphCore
-Graph and its attributes manipulation program !
+Graph and its attributes dynamic manipulation program for simulation !
 
 [Introduction]
 
@@ -45,7 +45,7 @@ An application is opened as GraphCore application suite. Current supports are th
   
   o Custmize component properties according to the user purposes.
   
-  o Basic solver is implemented and it supports simple dataflow model. See graphcore-examples repository.
+  o Basic solver is implemented and it supports basic dataflow model. See graphcore-examples repository.
 
   o Fundamental visualizer is implemented and it shows component attribute's transition on simulated time series.
   
