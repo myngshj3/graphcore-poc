@@ -926,3 +926,6 @@ class GraphCoreScript(QObject):
         m = ExtensibleWrappedAccessor(self._toplevel, "concat", None,
                                       lambda ao, c, eo, ca, ea: "".join([str(_) for _ in ca]))
         self._toplevel.declare_method(m, globally=True)
+        m = ExtensibleWrappedAccessor(self._toplevel, "replace", None,
+                                      lambda ao, c, eo, ca, ea: ca[0].replace(ca[1], ca[2]))
+        self._toplevel.declare_method(m, globally=True)

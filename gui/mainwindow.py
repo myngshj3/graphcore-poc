@@ -300,7 +300,7 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
         scene.settings = self.settings
         handler.extras['scene'] = scene
         view = GraphCoreView()  # QGraphicsView(scene)
-        view.setBackgroundBrush(QBrush(QPixmap("grid-square.png")))
+        view.setBackgroundBrush(QBrush(QPixmap("images/grid-square.png")))
         view.setScene(scene)
         view.set_main_window(self)
         view.set_shell(self.shell)

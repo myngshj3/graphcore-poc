@@ -14,7 +14,12 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
-        Dialog.resize(986, 363)
+        Dialog.resize(625, 684)
+        font = QtGui.QFont()
+        font.setFamily("ＭＳ ゴシック")
+        font.setPointSize(10)
+        Dialog.setFont(font)
+        Dialog.setModal(True)
         self.verticalLayout_2 = QtWidgets.QVBoxLayout(Dialog)
         self.verticalLayout_2.setObjectName("verticalLayout_2")
         self.verticalLayout = QtWidgets.QVBoxLayout()
@@ -25,7 +30,7 @@ class Ui_Dialog(object):
         self.textBrowser.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
         self.textBrowser.setObjectName("textBrowser")
         self.verticalLayout.addWidget(self.textBrowser)
-        self.lineEdit = QtWidgets.QLineEdit(Dialog)
+        self.lineEdit = ConsoleLineEdit(Dialog)
         self.lineEdit.setFrame(True)
         self.lineEdit.setObjectName("lineEdit")
         self.verticalLayout.addWidget(self.lineEdit)
@@ -37,3 +42,4 @@ class Ui_Dialog(object):
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
         Dialog.setWindowTitle(_translate("Dialog", "Console"))
+from gui.widgets import ConsoleLineEdit

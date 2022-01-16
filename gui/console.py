@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 
 import traceback
+from PyQt5 import QtGui
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QDialog
+from PyQt5.QtWidgets import QDialog, QLineEdit
 from PyQt5.Qt import QKeyEvent
 from graphcore.shell import GraphCoreContextHandler, GraphCoreAsyncContextHandler
 from graphcore.reporter import GraphCoreReporter
@@ -59,7 +60,9 @@ class Console(QDialog):
         self._script_handler = handler
         self._ui = Ui_Dialog()
         self.ui.setupUi(self)
-        self.ui.lineEdit.returnPressed.connect(self.enter_pressed)
+        self.ui.lineEdit.set_return_func(self.enter_pressed)
+        self.ui.lineEdit.set_cancel_func(self.ctrl_c_pressed)
+        # self.ui.lineEdit.returnPressed.connect(self.enter_pressed)
 
     @property
     def ui(self) -> Ui_Dialog:
@@ -75,6 +78,10 @@ class Console(QDialog):
     def print(self, *args):
         text = " ".join([str(_) for _ in args])
         self.ui.textBrowser.append(text)
+
+    def ctrl_c_pressed(self):
+        self.ui.textBrowser.append('^C')
+        self.handler.toplevel.set_running(False)
 
     def enter_pressed(self):
         script = self.ui.lineEdit.text()

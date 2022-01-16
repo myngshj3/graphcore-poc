@@ -6,12 +6,21 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>986</width>
-    <height>363</height>
+    <width>625</width>
+    <height>684</height>
    </rect>
+  </property>
+  <property name="font">
+   <font>
+    <family>ＭＳ ゴシック</family>
+    <pointsize>10</pointsize>
+   </font>
   </property>
   <property name="windowTitle">
    <string>Console</string>
+  </property>
+  <property name="modal">
+   <bool>true</bool>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
@@ -30,7 +39,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="lineEdit">
+      <widget class="ConsoleLineEdit" name="lineEdit">
        <property name="frame">
         <bool>true</bool>
        </property>
@@ -40,6 +49,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ConsoleLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>gui.widgets</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>
