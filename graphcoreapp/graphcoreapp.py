@@ -93,8 +93,10 @@ def main():
     main_window.coord_finder = layout_manager
 
     # setup console
-    console = Console(main_window, handler=handler, async_handler=async_handler)
+    console = Console(None, handler=main_window.script_handler)
     main_window.console = console
+    main_window.construct_script_handler()
+    console.set_handler(main_window.script_worker)
     # console_ui = Ui_ConsoleForm()
     # console = ConsoleDialog(ui=console_ui, handler=handler, async_handler=async_handler)
     # console.move(settings.setting_value(['console', 'x']), settings.setting_value(['console', 'y']))

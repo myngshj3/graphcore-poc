@@ -7,15 +7,16 @@ import sys
 from time import sleep
 import traceback
 import networkx as nx
-from graphcore.shell import GraphCoreContextHandler
 from graphcore.reporter import GraphCoreReporter
 from graphcore.terms import Variable, Function, BuiltinFunction, Constant, IfStatement, WhileStatement, ForStatement, \
                              ForallEquation, ExistsEquation, GraphObject, NodesObject, EdgesObject, AssignmentStatement, \
                              PrintFunction
-from networkml.network import NetworkClass, NetworkClassInstance, NetworkMethod, NetworkCallable
+from networkml.network import NetworkInstance, NetworkClassInstance, NetworkMethod, NetworkCallable
+from networkml.interpreter import NetworkInterpreter
 from networkml.lexer import NetworkParser
 from networkml.specnetwork import SpecValidator
 from networkml.error import NetworkScriptInterruptionException
+from PyQt5.QtCore import QObject
 
 
 # Global data FIXME
@@ -690,14 +691,14 @@ def graphcore_parse_script(handler, text, reporter):
     return result, error_info
 
 
-class GraphCoreScript:
-    def __init__(self, handler: GraphCoreContextHandler, reporter: GraphCoreReporter):
+class GraphCoreScript(QObject):
+    def __init__(self, handler, reporter: GraphCoreReporter):
+        super().__init__()
         from graphcore.shell import GraphCoreThreadSignal
         from graphcore.script_worker import get_script_worker
         self._handler = handler
         self._reporter = reporter
         from networkml.network import NetworkClass, NetworkInstance
-        from networkml.network import ExtensibleWrappedAccessor
         meta = NetworkClass(None, "GCScriptClass")
         clazz_sig = "{}[{}]".format("GCScriptClass", 1)
         embedded = ()
@@ -716,26 +717,115 @@ class GraphCoreScript:
         self._toplevel.set_validator(validator)
         # parse
         self._parser = NetworkParser(self._toplevel)
+        #
+        self._interpreter = NetworkInterpreter(self._toplevel)
+        self._toplevel.declare_method(self._interpreter, globally=True)
 
         # methods
-        sleeper = ExtensibleWrappedAccessor(self._toplevel, "sleep", None,
-                                            lambda ao, c, eo, ca, ea: sleep(ca[0]), globally=True)
-        self._toplevel.declare_method(sleeper, globally=True)
-        printer = ExtensibleWrappedAccessor(self._toplevel, "print", self.reporter,
-                                            lambda ao, c, eo, ca, ea: eo.report(" ".join([str(_) for _ in ca])),
-                                            globally=True)
-        self._toplevel.declare_method(printer, globally=True)
-        append = ExtensibleWrappedAccessor(self._toplevel, "append", None,
-                                           lambda ao, c, eo, ca, ea: ca[0].append(ca[1]),
-                                           globally=True)
-        self._toplevel.declare_method(append, globally=True)
-        length = ExtensibleWrappedAccessor(self._toplevel, "len", None,
-                                           lambda ao, c, eo, ca, ea: len(ca[0]),
-                                           globally=True)
-        self._toplevel.declare_method(length, globally=True)
-        keys = ExtensibleWrappedAccessor(self._toplevel, "keys", None,
-                                         lambda ao, c, eo, ca, ea: ca[0].keys())
-        self._toplevel.declare_method(keys, globally=True)
+        self.install_builtin_methods()
+
+    @property
+    def toplevel(self) -> NetworkInstance:
+        return self._toplevel
+
+    @property
+    def handler(self):
+        return self._handler
+
+    @handler.setter
+    def handler(self, handler):
+        self._handler = handler
+
+    @property
+    def reporter(self) -> GraphCoreReporter:
+        return self._reporter
+
+    @reporter.setter
+    def reporter(self, reporter: GraphCoreReporter):
+        self._reporter = reporter
+
+    def execute_script(self, script: str) -> bool:
+        try:
+            # parse
+            parser = self._parser
+            self._toplevel.set_running(True)
+            ret = parser.parse_script(script)
+            for r in ret:
+                if isinstance(r, NetworkClassInstance):
+                    self._toplevel.declare_class(r, globally=True)
+                    self.reporter.report('class {} declared.'.format(r))
+                elif isinstance(r, NetworkMethod):
+                    self._toplevel.declare_method(r, globally=True)
+                    self.reporter.report('method {} declared.'.format(r.signature))
+                elif isinstance(r, NetworkCallable):
+                    # rtn = r(toplevel)
+                    # self.reporter.report(str(rtn))
+                    r(self._toplevel)
+                else:
+                    pass
+            self._toplevel.set_running(False)
+        except NetworkScriptInterruptionException as ex:
+            self._toplevel.set_running(False)
+        except Exception as ex:
+            self.reporter.report(traceback.format_exc())
+            self._toplevel.set_running(False)
+
+    def cancel_script(self):
+        self._toplevel.set_running(False)
+
+    def run_user_scripts(self, *args):
+        scripts = self.handler.context.graph['scripts']
+        for sid in args:
+            sid = str(sid)
+            if sid not in scripts.keys():
+                continue
+            enabled = scripts[sid]['enabled']
+            if enabled:
+                script = scripts[sid]['script']
+                interpret = self.toplevel.get_method(self.toplevel, "interpret")
+                interpret(self.toplevel, (script, "--safe=False"))
+
+    def run_system_scripts(self, *args):
+        scripts = self.main_window.settings.setting('system-scripts')
+        for sid in args:
+            sid = str(sid)
+            if sid not in scripts.keys():
+                continue
+            enabled = scripts[sid]['enabled']
+            if enabled:
+                script = scripts[sid]['script']
+                interpret = self.toplevel.get_method(self.toplevel, "interpret")
+                interpret(self.toplevel, (script, "--safe=False"))
+
+    def read(self, filename):
+        with open(filename, "r") as f:
+            return f.read()
+
+    def write(self, filename, text):
+        with open(filename, "w") as f:
+            f.write(text)
+
+    def install_builtin_methods(self):
+        from networkml.network import ExtensibleWrappedAccessor
+        # system
+        m = ExtensibleWrappedAccessor(self._toplevel, "sleep", None,
+                                      lambda ao, c, eo, ca, ea: sleep(ca[0]), globally=True)
+        self._toplevel.declare_method(m, globally=True)
+        m = ExtensibleWrappedAccessor(self._toplevel, "print", self.toplevel,
+                                      lambda ao, c, eo, ca, ea: eo.print(" ".join([str(_) for _ in ca])),
+                                      globally=True)
+        self._toplevel.declare_method(m, globally=True)
+        m = ExtensibleWrappedAccessor(self._toplevel, "append", None,
+                                      lambda ao, c, eo, ca, ea: ca[0].append(ca[1]),
+                                      globally=True)
+        self._toplevel.declare_method(m, globally=True)
+        m = ExtensibleWrappedAccessor(self._toplevel, "len", None,
+                                      lambda ao, c, eo, ca, ea: len(ca[0]),
+                                      globally=True)
+        self._toplevel.declare_method(m, globally=True)
+        m = ExtensibleWrappedAccessor(self._toplevel, "keys", None,
+                                      lambda ao, c, eo, ca, ea: ca[0].keys())
+        self._toplevel.declare_method(m, globally=True)
         m = ExtensibleWrappedAccessor(self._toplevel, "nodes", None,
                                       lambda ao, c, eo, ca, ea: [_ for _ in self.handler.context.G.nodes],
                                       globally=True)
@@ -748,12 +838,8 @@ class GraphCoreScript:
                                       lambda ao, c, eo, ca, ea: self.handler.node_attr(ca[0], ca[1]),
                                       globally=True)
         self._toplevel.declare_method(m, globally=True)
-        def set_node_value(n, a, v):
-            self.handler.context.nodes[n][a]['value'] = v
-            self.handler.context.dirty = True
-            get_script_worker().main_window_command.emit(GraphCoreThreadSignal(GraphCoreContextHandler.NodeUpdated, n, None))
         m = ExtensibleWrappedAccessor(self._toplevel, "set_node_value", None,
-                                      lambda ao, c, eo, ca, ea: set_node_value(ca[0], ca[1], ca[2]))
+                                      lambda ao, c, eo, ca, ea: self.handler.change_node_attr(ca[0], *ca[1:]))
         self._toplevel.declare_method(m, globally=True)
         edges = ExtensibleWrappedAccessor(self._toplevel, "edges", None,
                                           lambda ao, c, eo, ca, ea: [_ for _ in self.handler.context.G.edges],
@@ -770,6 +856,12 @@ class GraphCoreScript:
         self._toplevel.declare_method(m, globally=True)
         m = ExtensibleWrappedAccessor(self._toplevel, "set_edge_value", None,
                                       lambda ao, c, eo, ca, ea: self.handler.change_edge_attr(ca[0], ca[1], ca[2], ca[3]))
+        self._toplevel.declare_method(m, globally=True)
+        m = ExtensibleWrappedAccessor(self._toplevel, "run_user_script", None,
+                                      lambda ao, c, eo, ca, ea: self.handler.run_user_script(ca[0]))
+        self._toplevel.declare_method(m, globally=True)
+        m = ExtensibleWrappedAccessor(self._toplevel, "run_system_script", None,
+                                      lambda ao, c, eo, ca, ea: self.handler.run_system_script(ca[0]))
         self._toplevel.declare_method(m, globally=True)
 
         # networkx
@@ -818,48 +910,19 @@ class GraphCoreScript:
         m = ExtensibleWrappedAccessor(self._toplevel, "uniform", None,
                                       lambda ao, c, eo, ca, ea: np.random.uniform(ca[0], ca[1]))
         self._toplevel.declare_method(m, globally=True)
-
-    @property
-    def handler(self) -> GraphCoreContextHandler:
-        return self._handler
-
-    @handler.setter
-    def handler(self, handler: GraphCoreContextHandler):
-        self._handler = handler
-
-    @property
-    def reporter(self) -> GraphCoreReporter:
-        return self._reporter
-
-    @reporter.setter
-    def reporter(self, reporter: GraphCoreReporter):
-        self._reporter = reporter
-
-    def execute_script(self, script: str) -> bool:
-        try:
-            # parse
-            parser = self._parser
-            self._toplevel.set_running(True)
-            ret = parser.parse_script(script)
-            for r in ret:
-                if isinstance(r, NetworkClassInstance):
-                    self._toplevel.declare_class(r, globally=True)
-                    self.reporter.report('class {} declared.'.format(r))
-                elif isinstance(r, NetworkMethod):
-                    self._toplevel.declare_method(r, globally=True)
-                    self.reporter.report('method {} declared.'.format(r.signature))
-                elif isinstance(r, NetworkCallable):
-                    # rtn = r(toplevel)
-                    # self.reporter.report(str(rtn))
-                    r(self._toplevel)
-                else:
-                    pass
-            self._toplevel.set_running(False)
-        except NetworkScriptInterruptionException as ex:
-            self._toplevel.set_running(False)
-        except Exception as ex:
-            self.reporter.report(traceback.format_exc())
-            self._toplevel.set_running(False)
-
-    def cancel_script(self):
-        self._toplevel.set_running(False)
+        # custom
+        m = ExtensibleWrappedAccessor(self._toplevel, "run_user_scripts", None,
+                                      lambda ao,c,eo,ca,ea: self.run_user_scripts(*ca))
+        self._toplevel.declare_method(m, globally=True)
+        m = ExtensibleWrappedAccessor(self._toplevel, "run_system_scripts", None,
+                                      lambda ao, c, eo, ca, ea: self.run_system_scripts(*ca))
+        self._toplevel.declare_method(m, globally=True)
+        m = ExtensibleWrappedAccessor(self._toplevel, "read_file", None,
+                                      lambda ao, c, eo, ca, ea: self.read(ca[0]))
+        self._toplevel.declare_method(m, globally=True)
+        m = ExtensibleWrappedAccessor(self._toplevel, "write_file", None,
+                                      lambda ao, c, eo, ca, ea: self.write(ca[0], ca[1]))
+        self._toplevel.declare_method(m, globally=True)
+        m = ExtensibleWrappedAccessor(self._toplevel, "concat", None,
+                                      lambda ao, c, eo, ca, ea: "".join([str(_) for _ in ca]))
+        self._toplevel.declare_method(m, globally=True)

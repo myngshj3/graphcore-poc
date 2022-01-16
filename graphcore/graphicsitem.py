@@ -4,6 +4,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.Qt import *
+from PyQt5 import QtCore, QtGui
 import typing
 import sys
 import networkx as nx
@@ -13,6 +14,154 @@ from graphcore.drawutil import *
 from graphcore.shell import GraphCoreContext, GraphCoreContextHandler
 
 
+class GCItemGroup(QGraphicsItemGroup):
+
+    def __init__(self, context, handler):
+        super().__init__()
+        self.setFlag(QGraphicsItem.ItemIsMovable, True)
+        self._context = context
+        self._handler = handler
+        self._selected = False
+        self._left_top_bound = QGraphicsRectItem()
+        self._left_center_bound = QGraphicsRectItem()
+        self._left_bottom_bound = QGraphicsRectItem()
+        self._center_top_bound = QGraphicsRectItem()
+        self._center_bottom_bound = QGraphicsRectItem()
+        self._right_top_bound = QGraphicsRectItem()
+        self._right_center_bound = QGraphicsRectItem()
+        self._right_bottom_bound = QGraphicsRectItem()
+        self._left_top_bound.setVisible(False)
+        self._left_center_bound.setVisible(False)
+        self._left_bottom_bound.setVisible(False)
+        self._center_top_bound.setVisible(False)
+        self._center_bottom_bound.setVisible(False)
+        self._right_top_bound.setVisible(False)
+        self._right_center_bound.setVisible(False)
+        self._right_bottom_bound.setVisible(False)
+
+    def boundingRect(self) -> QtCore.QRectF:
+        return self.childrenBoundingRect()
+
+    def paint(self, painter: QtGui.QPainter, option: 'QStyleOptionGraphicsItem', widget: typing.Optional[QWidget] = ...) -> None:
+        boundingRect = self.boundingRect()
+        painter.setPen(QtCore.Qt.PenStyle.DashLine)
+        painter.drawRect(boundingRect)
+        if self.is_selected:
+            w, h = 4, 4
+            rect = QRectF(boundingRect.x(), boundingRect.y(), w, h)
+            painter.drawRect(rect)
+            rect = QRectF(boundingRect.x(), boundingRect.y()+boundingRect.height()-h, w, h)
+            painter.drawRect(rect)
+            rect = QRectF(boundingRect.x()+boundingRect.width()-w, boundingRect.y(), w, h)
+            painter.drawRect(rect)
+            rect = QRectF(boundingRect.x() + boundingRect.width() - w, boundingRect.y()+boundingRect.height()-h, w, h)
+            painter.drawRect(rect)
+
+    @property
+    def is_selected(self):
+        return self._selected
+
+    def select(self):
+        self._selected = True
+        self.show_bound_points(True)
+
+    def deselect(self):
+        self._selected = False
+        self.show_bound_points(False)
+
+    def show_bound_points(self, flag=True):
+        self._left_top_bound.setVisible(flag)
+        self._left_center_bound.setVisible(flag)
+        self._left_bottom_bound.setVisible(flag)
+        self._center_top_bound.setVisible(flag)
+        self._center_bottom_bound.setVisible(flag)
+        self._right_top_bound.setVisible(flag)
+        self._right_center_bound.setVisible(flag)
+        self._right_bottom_bound.setVisible(flag)
+
+    def paint_bound_points(self, boundingRect):
+        w, h = 4, 4
+        x, y = boundingRect.x(), boundingRect.y()
+        self._left_top_bound.setRect(x, y, w, h)
+        x = boundingRect.x() + boundingRect.width()/2 - w/2
+        self._center_top_bound.setRect(x, y, w, h)
+        x = boundingRect.x() + boundingRect.width() - w
+        self._right_top_bound.setRect(x, y, w, h)
+        x, y = boundingRect.x(), boundingRect.y() + boundingRect.height()/2 - h/2
+        self._left_center_bound.setRect(x, y, w, h)
+        x = boundingRect.x() + boundingRect.width() - w
+        self._right_center_bound.setRect(x, y, w, h)
+        x, y = boundingRect.x(), boundingRect.y() + boundingRect.height() - h
+        self._left_bottom_bound.setRect(x, y, w, h)
+        x = boundingRect.x() + boundingRect.width() / 2 - w / 2
+        self._center_bottom_bound.setRect(x, y, w, h)
+        x = boundingRect.x() + boundingRect.width() - w
+        self._right_bottom_bound.setRect(x, y, w, h)
+
+    def move_bound_points_by(self, dx, dy):
+        x, y = self._left_top_bound.x() + dx, self._left_top_bound.y() + dy
+        self._left_top_bound.setX(x)
+        self._left_top_bound.setY(y)
+        x, y = self._center_top_bound.x() + dx, self._center_top_bound.y() + dy
+        self._center_top_bound.setX(x)
+        self._center_top_bound.setY(y)
+        x, y = self._right_top_bound.x() + dx, self._right_top_bound.y() + dy
+        self._right_top_bound.setX(x)
+        self._right_top_bound.setY(y)
+        x, y = self._left_center_bound.x() + dx, self._left_center_bound.y() + dy
+        self._left_center_bound.setX(x)
+        self._left_center_bound.setY(y)
+        x, y = self._right_center_bound.x() + dx, self._right_center_bound.y() + dy
+        self._right_center_bound.setX(x)
+        self._right_center_bound.setY(y)
+        x, y = self._left_bottom_bound.x() + dx, self._left_bottom_bound.y() + dy
+        self._left_bottom_bound.setX(x)
+        self._left_bottom_bound.setY(y)
+        x, y = self._center_bottom_bound.x() + dx, self._center_bottom_bound.y() + dy
+        self._center_bottom_bound.setX(x)
+        self._center_bottom_bound.setY(y)
+        x, y = self._right_bottom_bound.x() + dx, self._right_bottom_bound.y() + dy
+        self._right_bottom_bound.setX(x)
+        self._right_bottom_bound.setY(y)
+
+    def draw(self):
+        self.redraw()
+
+    def redraw(self):
+        self.paint_bound_points(self.boundingRect())
+
+    def mouseMoveEvent(self, event: 'QGraphicsSceneMouseEvent') -> None:
+        # print("mouseMoveEvent pos:{}, scenePos:{}".format(event.pos(), event.scenePos()))
+        super().mouseMoveEvent(event)
+        dx, dy = event.scenePos().x() - event.lastScenePos().x(), event.scenePos().y() - event.lastScenePos().y()
+        dx, dy = event.pos().x() - event.lastPos().x(), event.pos().y() - event.lastPos().y()
+        if dx != 0 or dy != 0:
+            for c in self.childItems():
+                pass # c.moveBy(dx, dy)
+            # for g in self._handler.element_to_item.keys():
+            #     if self == self._handler.element_to_item[g]:
+            #         self._handler.move_group_by(g, dx, dy)
+            #         break
+                    # for e in self._handler.collect_edges(n):
+                    #     i: GraphCoreEdgeItemInterface = items[e]
+                    #     if i.parentItem() != self and e not in edges:
+                    #         edges.append(e)
+                    #self._handler.change_node_attr(n, 'x', x, 'y', y)
+            # for e in edges:
+            #     self._handler.update_edge(e[0], e[1])
+
+    def mousePressEvent(self, event: 'QGraphicsSceneMouseEvent') -> None:
+        #print("mousePressEvent pos:{}, scenePos:{}".format(event.pos(), event.scenePos()))
+        super().mousePressEvent(event)
+
+    def mouseReleaseEvent(self, event: 'QGraphicsSceneMouseEvent') -> None:
+        #print("mouseReleseEvent pos:{}, scenePos:{}".format(event.pos(), event.scenePos()))
+        super().mouseReleaseEvent(event)
+
+    def mouseDoubleClickEvent(self, event: 'QGraphicsSceneMouseEvent') -> None:
+        super().mouseDoubleClickEvent(event)
+
+
 # GraphCore Item Interafce class
 class GraphCoreItemInterface(QGraphicsItem):
     def __init__(self, context=None, handler=None):
@@ -20,6 +169,7 @@ class GraphCoreItemInterface(QGraphicsItem):
         self._context = context
         self._handler = handler
         self._label = None
+        self._selected = False
 
     @property
     def context(self) -> GraphCoreContext:
@@ -45,6 +195,15 @@ class GraphCoreItemInterface(QGraphicsItem):
     def label(self, _label: QGraphicsTextItem):
         self._label = _label
 
+    @property
+    def is_selected(self):
+        return self._selected
+
+    def select(self):
+        self._selected = True
+
+    def deselect(self):
+        self._selected = False
 
 # GraphCore Node Item Interface class
 class GraphCoreNodeItemInterface(GraphCoreItemInterface):
@@ -55,6 +214,37 @@ class GraphCoreNodeItemInterface(GraphCoreItemInterface):
         self.handler = handler
         self._label = QGraphicsTextItem(context.nodes[node]['label']['value'])
         self._label.setParentItem(self)
+        self._left_top_bound = QGraphicsRectItem()
+        self._left_center_bound = QGraphicsRectItem()
+        self._left_bottom_bound = QGraphicsRectItem()
+        self._center_top_bound = QGraphicsRectItem()
+        self._center_bottom_bound = QGraphicsRectItem()
+        self._right_top_bound = QGraphicsRectItem()
+        self._right_center_bound = QGraphicsRectItem()
+        self._right_bottom_bound = QGraphicsRectItem()
+        self._left_top_bound.setVisible(False)
+        self._left_top_bound.setParentItem(self)
+        self._left_top_bound.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsMovable, True)
+        self._left_center_bound.setVisible(False)
+        self._left_center_bound.setParentItem(self)
+        self._left_center_bound.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsMovable, True)
+        self._left_bottom_bound.setVisible(False)
+        self._left_bottom_bound.setParentItem(self)
+        self._center_top_bound.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsMovable, True)
+        self._center_top_bound.setVisible(False)
+        self._center_top_bound.setParentItem(self)
+        self._center_bottom_bound.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsMovable, True)
+        self._center_bottom_bound.setVisible(False)
+        self._center_bottom_bound.setParentItem(self)
+        self._right_top_bound.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsMovable, True)
+        self._right_top_bound.setVisible(False)
+        self._right_top_bound.setParentItem(self)
+        self._right_center_bound.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsMovable, True)
+        self._right_center_bound.setVisible(False)
+        self._right_center_bound.setParentItem(self)
+        self._right_bottom_bound.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsMovable, True)
+        self._right_bottom_bound.setVisible(False)
+        self._right_bottom_bound.setParentItem(self)
 
     @property
     def node(self):
@@ -72,15 +262,48 @@ class GraphCoreNodeItemInterface(GraphCoreItemInterface):
         else:
             self.label.hide()
 
-    # def move_by(self, dx, dy):
-    #     super().moveBy(dx, dy)
+    def show_bound_points(self, flag=True):
+        self._left_top_bound.setVisible(flag)
+        self._left_center_bound.setVisible(flag)
+        self._left_bottom_bound.setVisible(flag)
+        self._center_top_bound.setVisible(flag)
+        self._center_bottom_bound.setVisible(flag)
+        self._right_top_bound.setVisible(flag)
+        self._right_center_bound.setVisible(flag)
+        self._right_bottom_bound.setVisible(flag)
 
+    def paint_bound_points(self):
+        w, h = 4, 4
+        x, y = self.boundingRect().x() - w/2, self.boundingRect().y() - h/2
+        self._left_top_bound.setRect(x, y, w, h)
+        x = self.boundingRect().x() + self.boundingRect().width()/2 - w/2
+        self._center_top_bound.setRect(x, y, w, h)
+        x = self.boundingRect().x() + self.boundingRect().width() - w/2
+        self._right_top_bound.setRect(x, y, w, h)
+        x, y = self.boundingRect().x() - w/2, self.boundingRect().y() + self.boundingRect().height()/2 - h/2
+        self._left_center_bound.setRect(x, y, w, h)
+        x = self.boundingRect().x() + self.boundingRect().width() - w / 2
+        self._right_center_bound.setRect(x, y, w, h)
+        x, y = self.boundingRect().x() - w / 2, self.boundingRect().y() + self.boundingRect().height() - h / 2
+        self._left_bottom_bound.setRect(x, y, w, h)
+        x = self.boundingRect().x() + self.boundingRect().width() / 2 - w / 2
+        self._center_bottom_bound.setRect(x, y, w, h)
+        x = self.boundingRect().x() + self.boundingRect().width() - w / 2
+        self._right_bottom_bound.setRect(x, y, w, h)
+
+    def select(self):
+        self.show_bound_points(True)
+        super().select()
+
+    def deselect(self):
+        self.show_bound_points(False)
+        super().deselect()
 
 # GraphCore's circle shaped node graphics item class
 class GraphCoreCircleNodeItem(QGraphicsEllipseItem, GraphCoreNodeItemInterface):
     def __init__(self, node, context: GraphCoreContext, handler: GraphCoreContextHandler):
         super().__init__(node, context, handler)
-        self.setFlag(QGraphicsItem.ItemIsSelectable)
+        # self.setFlag(QGraphicsItem.ItemIsSelectable)
         self.setPen(QPen())
         self.draw()
 
@@ -133,16 +356,18 @@ class GraphCoreCircleNodeItem(QGraphicsEllipseItem, GraphCoreNodeItemInterface):
         self.setRect(x - w/2, y - h/2, w, h)
         rect = label.sceneBoundingRect()
         label.setPos(x - rect.width()/2, y - rect.height()/2)
+        self.paint_bound_points()
         self.setFlag(QGraphicsItem.ItemIsMovable, True)
 
     def mousePressEvent(self, event: QGraphicsSceneMouseEvent) -> None:
          # ("mouse pressed at {} of scene".format(event.pos()))
-         if event.button() == 1:  # Left button
-            self.handler.deselect_all()
-            self.handler.select_node(self.node)
-        # super().mousePressEvent(event)
+         # if event.button() == 1:  # Left button
+         #    self.handler.deselect_all()
+         #    self.handler.select_node(self.node)
+        super().mousePressEvent(event)
 
     def mouseMoveEvent(self, event: QGraphicsSceneMouseEvent):
+        #print("mouseMoveEvent", type(self), event)
         dx, dy = event.scenePos().x() - event.lastScenePos().x(), event.scenePos().y() - event.lastScenePos().y()
         # dx, dy = event.pos().x() - event.lastPos().x(), event.pos().y() - event.lastPos().y()
         if dx != 0 or dy != 0:
@@ -155,7 +380,7 @@ class GraphCoreCircleNodeItem(QGraphicsEllipseItem, GraphCoreNodeItemInterface):
 class GraphCoreRectNodeItem(QGraphicsRectItem, GraphCoreNodeItemInterface):
     def __init__(self, node, context: GraphCoreContext, handler: GraphCoreContextHandler):
         super().__init__(node, context, handler)
-        self.setFlag(QGraphicsItem.ItemIsSelectable)
+        # self.setFlag(QGraphicsItem.ItemIsSelectable)
         self.setFlag(QGraphicsItem.ItemIsMovable, True)
         self.setPen(QPen())
         self.draw()
@@ -207,15 +432,17 @@ class GraphCoreRectNodeItem(QGraphicsRectItem, GraphCoreNodeItemInterface):
         rect = label.sceneBoundingRect()
         # label.setPos(x + w/2 - rect.width()/2, y + h/2 - rect.height()/2)
         label.setPos(x - rect.width()/2, y - rect.height()/2)
+        self.paint_bound_points()
 
     def mousePressEvent(self, event: 'QGraphicsSceneMouseEvent') -> None:
         # print("mouse pressed at {} of scene".format(event.pos()))
-        if event.button() == 1:  # Left button
-            self.handler.deselect_all()
-            self.handler.select_node(self.node)
-        # super().mousePressEvent(event)
+        # if event.button() == 1:  # Left button
+        #     self.handler.deselect_all()
+        #     self.handler.select_node(self.node)
+        super().mousePressEvent(event)
 
     def mouseMoveEvent(self, event: QGraphicsSceneMouseEvent):
+        print("mouseMoveEvent", type(self), event)
         dx, dy = event.scenePos().x() - event.lastScenePos().x(), event.scenePos().y() - event.lastScenePos().y()
         # dx, dy = event.pos().x() - event.lastPos().x(), event.pos().y() - event.lastPos().y()
         if dx != 0 or dy != 0:
@@ -234,6 +461,8 @@ class GraphCoreEdgeItemInterface(GraphCoreItemInterface):
         self.handler = handler
         self.label = QGraphicsTextItem(context.edges[u, v]['label']['value'])
         self.label.setParentItem(self)
+        self._start_bound = QGraphicsRectItem(self)
+        self._target_bound = QGraphicsRectItem(self)
 
     @property
     def u(self):
@@ -243,13 +472,49 @@ class GraphCoreEdgeItemInterface(GraphCoreItemInterface):
     def v(self):
         return self._v
 
+    def show_bound_rects(self, flag=True):
+        self._start_bound.setVisible(flag)
+        self._target_bound.setVisible(flag)
+
+    def paint_bound_rects(self):
+        w,h = 4, 4
+        u = self.context.nodes[self.u]
+        if u['w']['value'] < u['h']['value']:
+            r_u = u['h']['value']/2
+        else:
+            r_u = u['w']['value']/2
+        v = self.context.nodes[self.v]
+        if v['w']['value'] < v['h']['value']:
+            r_v = v['h']['value']/2
+        else:
+            r_v = v['w']['value']/2
+        x_u, y_u = u['x']['value'], u['y']['value']
+        x_v, y_v = v['x']['value'], v['y']['value']
+        vec = (x_v - x_u, y_v - y_u)
+        len_vec = math.sqrt(vec[0] * vec[0] + vec[1] * vec[1])
+        vec = (vec[0] / len_vec, vec[1] / len_vec)
+        x_s, y_s = vec[0] * r_u + x_u, vec[1] * r_u + y_u
+        x_d, y_d = x_v - vec[0] * r_v, y_v - vec[1] * r_v
+        x, y = x_s - w/2, y_s - h/2
+        self._start_bound.setRect(x, y, w, h)
+        x, y = x_d - w/2, y_d - h/2
+        self._target_bound.setRect(x, y, w, h)
+
+    def select(self):
+        self.show_bound_rects(True)
+        super().select()
+
+    def deselect(self):
+        self.show_bound_rects(False)
+        super().deselect()
+
 
 # GraphCore's edge item
 class GraphCoreEdgeItem(QGraphicsPolygonItem, GraphCoreEdgeItemInterface):
     def __init__(self, u, v, context: GraphCoreContext, handler: GraphCoreContextHandler):
         super().__init__(u, v, context=context, handler=handler)
         # super().__init__()
-        self.setFlag(QGraphicsItem.ItemIsSelectable)
+        # self.setFlag(QGraphicsItem.ItemIsSelectable)
         self.setFlag(QGraphicsItem.ItemIsMovable, False)
         self.setPen(QPen())
         self.draw()
@@ -314,17 +579,21 @@ class GraphCoreEdgeItem(QGraphicsPolygonItem, GraphCoreEdgeItemInterface):
         v = self.context.nodes[self.v]
         self._label.setPlainText(e['label']['value'])
         self._label.setPos((u['x']['value']+v['x']['value'])/2, (u['y']['value']+v['y']['value'])/2)
+        self.paint_bound_rects()
+
 
     def mousePressEvent(self, event: 'QGraphicsSceneMouseEvent') -> None:
         # print("mouse of {} pressed at {}".format(self, event.pos()))
-        if event.button() == 1:  # Left button
-            self.handler.deselect_all()
-            self.handler.select_edge(self.u, self.v)
+        # if event.button() == 1:  # Left button
+        #     self.handler.deselect_all()
+        #     self.handler.select_edge(self.u, self.v)
+        super().mousePressEvent(event)
 
     def mouseDoubleClickEvent(self, event: 'QGraphicsSceneMouseEvent') -> None:
-        if event.button() == 1:  # Left button
-            self.handler.deselect_all()
-            self.handler.select_edge(self.u, self.v)
+        # if event.button() == 1:  # Left button
+        #     self.handler.deselect_all()
+        #     self.handler.select_edge(self.u, self.v)
+        super().mouseDoubleClickEvent(event)
 
 
 def gcore_create_node_item(n, context: GraphCoreContext, handler: GraphCoreContextHandler):

@@ -14,6 +14,9 @@ class GraphCoreReporter:
         else:
             self._report_func(expression)
 
+    def __call__(self, *args, **kwargs):
+        self.report(" ".join([str(_) for _ in args]))
+
     @property
     def report_func(self):
         return self._report_func

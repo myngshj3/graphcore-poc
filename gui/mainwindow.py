@@ -6,11 +6,13 @@ from graphcore.shell import GraphCoreThreadSignal
 from graphcore.shell import GraphCoreShell, GraphCoreContext, GraphCoreContextHandler, GraphCoreAsyncContextHandler
 from gui.Ui_MainWindow import Ui_MainWindow
 from graphcore.graphicsitem import GraphCoreCircleNodeItem, GraphCoreRectNodeItem, GraphCoreEdgeItem, \
-    GraphCoreNodeItemInterface
-from PyQt5.QtCore import *
+    GraphCoreNodeItemInterface, GraphCoreItemInterface
+from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import *
 from PyQt5.Qt import *
 from PyQt5.QtCore import *
+from PyQt5.QtGui import QPixmap
+from graphcore.graphicsitem import GCItemGroup
 from graphcore.propertyeditor import TextEditor, IntEditor, FloatEditor, BoolEditor, ComboBoxEditor
 # from GraphCore.graphcoreeditor import TextEditor, IntEditor, FloatEditor, ComboBoxEditor, CheckBoxEditor,\
 #     CheckBoxEditorEx, TextEditorEx
@@ -26,7 +28,10 @@ from gui.visualizer import GCVisualizerDialog
 from gui.postscreen import PostScreenDialog
 from graphcore.settings import GraphCoreSettings
 from graphcore.graphicsscene import GraphCoreScene
+from graphcore.graphicsview import GraphCoreView
 from graphcore.reporter import GraphCoreReporter
+from graphcore.script import GraphCoreScript
+from graphcore.script_worker import GCScriptWorker, GraphCoreThreadSignal
 import os
 from graphcore.solver import GraphCoreGenericSolver
 from gui.geomserializable import GeometrySerializer
@@ -54,7 +59,73 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
         self._scene = None
         self._serializers = []
         self._reporter = GraphCoreReporter(lambda x: self.ui.messages.append(str(x)))
+        self._copy_buf = {"nodes": {}, "edges": {}, "groups": {}}
+        self._script_worker = None
+        self._script_thread = None
         self.install_shell_actions()
+
+    @property
+    def script_handler(self) -> GCScriptWorker:
+        return self._script_worker
+
+    @property
+    def script_worker(self) -> GCScriptWorker:
+        return self._script_worker
+
+    @property
+    def script_thread(self) -> QThread:
+        return self._script_thread
+
+    def construct_script_handler(self):
+        # print("construct_script_handler")
+        self._script_handler = GraphCoreScript(self.handler, self.reporter)
+        self._script_thread = QThread()
+        self._script_worker = GCScriptWorker(self, self.script_thread)
+        self.script_worker.main_thread_command.connect(self.process_thread_request)
+        self.script_worker.moveToThread(self.script_thread)
+        self.script_thread.started.connect(self.script_worker.run)
+        self.script_worker.finished.connect(self.script_thread.quit)
+        #self.script_worker.finished.connect(self.script_worker.deleteLater)
+        #self.script_thread.finished.connect(self.script_thread.deleteLater)
+        # self._worker.progress.connect(self.reportProgress)
+        #self._thread.start()
+
+    def process_thread_request(self, sig: GraphCoreThreadSignal):
+        func = sig.func
+        args = sig.args
+        data = sig.data
+        func(data)
+
+    @property
+    def node_copy_buf(self):
+        return self._copy_buf["nodes"]
+
+    @property
+    def edge_copy_buf(self):
+        return self._copy_buf["edges"]
+
+    @property
+    def group_copy_buf(self):
+        return self._copy_buf["groups"]
+
+    def clear_copy_buf(self):
+        self._copy_buf = {"nodes": {}, "edges": {}, "groups": {}}
+
+    @property
+    def is_copy_buf_empty(self):
+        return len(self.node_copy_buf) == 0 and len(self.edge_copy_buf) == 0 and len(self.group_copy_buf) == 0
+
+    @property
+    def is_grouping_enabled(self):
+        return len(self.handler.selected_nodes) + len(self.handler.selected_edges) > 1
+
+    @property
+    def is_ungrouping_enabled(self):
+        return len(self.handler.selected_groups) > 0
+
+    @property
+    def selected_elements(self) -> tuple:
+        return tuple(self.handler.selected_elements)
 
     @property
     def reporter(self) -> GraphCoreReporter:
@@ -173,8 +244,10 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
         self.handler.set_reflection(GraphCoreContextHandler.EdgeRemoved, lambda x: self.remove_edge_item(x))
         self.handler.set_reflection(GraphCoreContextHandler.ViewUpdated, lambda x: self.change_view(x[0], x[1], x[2], x[3]))
         self.handler.set_reflection(GraphCoreContextHandler.AllDeselected, lambda x: self.property_deselect_all())
-        self.handler.set_reflection(GraphCoreContextHandler.NodeSelected, lambda x: self.property_select_node(x))
-        self.handler.set_reflection(GraphCoreContextHandler.EdgeSelected, lambda x: self.property_select_edge(x))
+        self.handler.set_reflection(GraphCoreContextHandler.NodeSelected, lambda x: self.select_node(x))
+        self.handler.set_reflection(GraphCoreContextHandler.EdgeSelected, lambda x: self.select_edge(x))
+        self.handler.set_reflection(GraphCoreContextHandler.ElementsSelected, lambda x: self.select_elements(x))
+        self.handler.set_reflection(GraphCoreContextHandler.ElementsAddSelect, lambda x: self.add_select_elements(x))
         self.handler.set_reflection(GraphCoreContextHandler.ConstraintAdded, lambda x: self.constraint_add_to_widget(x))
         self.handler.set_reflection(GraphCoreContextHandler.ConstraintRemoved, lambda x: self.constraint_delete(x))
         # FIXME
@@ -183,6 +256,9 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
         self.handler.set_reflection(GraphCoreContextHandler.UserDefinedFunctionRemoved, lambda x: print(x))
         self.handler.set_reflection(GraphCoreContextHandler.UserScriptAdded, lambda x: self.user_script_add_to_widget(x))
         self.handler.set_reflection(GraphCoreContextHandler.UserScriptDeleted, lambda x: self.user_script_delete(x))
+        self.handler.set_reflection(GraphCoreContextHandler.GroupCreated, lambda x: self.group_create(x))
+        self.handler.set_reflection(GraphCoreContextHandler.GroupPurged, lambda x: self.group_purge(x))
+        self.handler.set_reflection(GraphCoreContextHandler.GroupRemoved, lambda x: self.group_remove(x))
 
         self.async_handler.set_reflection(GraphCoreContextHandler.NodeAdded, lambda x: self.new_node_item(x))
         self.async_handler.set_reflection(GraphCoreContextHandler.NodeUpdated, lambda x: self.redraw_node_item(x))
@@ -192,8 +268,10 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
         self.async_handler.set_reflection(GraphCoreContextHandler.EdgeRemoved, lambda x: self.remove_edge_item(x))
         self.async_handler.set_reflection(GraphCoreContextHandler.ViewUpdated, lambda x: self.change_view(x[0], x[1], x[2], x[3]))
         self.async_handler.set_reflection(GraphCoreContextHandler.AllDeselected, lambda x: self.property_deselect_all())
-        self.async_handler.set_reflection(GraphCoreContextHandler.NodeSelected, lambda x: self.property_select_node(x))
-        self.async_handler.set_reflection(GraphCoreContextHandler.EdgeSelected, lambda u, v: self.property_select_edge((u, v)))
+        self.async_handler.set_reflection(GraphCoreContextHandler.NodeSelected, lambda x: self.select_node(x))
+        self.async_handler.set_reflection(GraphCoreContextHandler.EdgeSelected, lambda u, v: self.select_edge((u, v)))
+        self.async_handler.set_reflection(GraphCoreContextHandler.ElementsSelected, lambda x: self.select_elements(x))
+        self.async_handler.set_reflection(GraphCoreContextHandler.ElementsAddSelect, lambda x: self.add_select_elements(x))
         self.async_handler.set_reflection(GraphCoreContextHandler.ConstraintAdded, lambda x: self.constraint_add_to_widget(x))
         self.async_handler.set_reflection(GraphCoreContextHandler.ConstraintRemoved, lambda x: self.constraint_delete(x))
         self.async_handler.set_reflection(GraphCoreContextHandler.UserScriptAdded, lambda x: self.user_script_add_to_widget(x))
@@ -202,6 +280,15 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
         self.async_handler.set_reflection(GraphCoreContextHandler.UserDefinedFunctionAdded, lambda x: print(x))
         self.async_handler.set_reflection(GraphCoreContextHandler.UserDefinedFunctionUpdated, lambda x: print(x))
         self.async_handler.set_reflection(GraphCoreContextHandler.UserDefinedFunctionRemoved, lambda x: print(x))
+        self.async_handler.set_reflection(GraphCoreContextHandler.GroupCreated, lambda x: self.group_create(x))
+        self.async_handler.set_reflection(GraphCoreContextHandler.GroupPurged, lambda x: self.group_purge(x))
+        self.async_handler.set_reflection(GraphCoreContextHandler.GroupRemoved, lambda x: self.group_remove(x))
+
+    def item_to_element(self, i):
+        for k in self.handler.extras["element_to_item"].keys():
+            if i == self.handler.extras["element_to_item"][k]:
+                return k
+        return None
 
     def handler_new(self, handler, async_handler):
         handler.extras['element_to_item'] = {}
@@ -212,7 +299,14 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
         scene.shell = self.shell
         scene.settings = self.settings
         handler.extras['scene'] = scene
-        view = QGraphicsView(scene)
+        view = GraphCoreView()  # QGraphicsView(scene)
+        view.setBackgroundBrush(QBrush(QPixmap("grid-square.png")))
+        view.setScene(scene)
+        view.set_main_window(self)
+        view.set_shell(self.shell)
+        view.setRubberBandSelectionMode(Qt.ContainsItemBoundingRect)
+        view.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+        view.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         view.setContextMenuPolicy(Qt.CustomContextMenu)
         view.customContextMenuRequested['QPoint'].connect(self.command_show_context_menu)
         # view.setBackgroundBrush(QBrush(QColor("pink")))
@@ -235,6 +329,7 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
         self.user_scripts_clear()
         self._handler = handler
         self._async_handler = async_handler
+        self.handler.set_script_handler(self.script_handler)
         self.update_node_list()
         self.update_edge_list()
         self.constraint_add_all_to_widget()
@@ -318,9 +413,35 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
         self.update_edge_list()
         self.set_modified(True)
 
+    def new_item_group(self, gid):
+        SG = self.handler.context.G.graph["groups"][gid]
+        g = GCItemGroup(self.handler.context, self.handler)
+        for n in SG.nodes:
+            node = self.element_to_item[n]
+            node.setSelected(False)
+            g.addToGroup(node)
+        for e in SG.edges:
+            edge = self.element_to_item[e]
+            edge.setSelected(False)
+            g.addToGroup(edge)
+        self.scene.addItem(g)
+        self.element_to_item[gid] = g
+        self.set_modified(True)
+
+    def remove_item_group(self, gid):
+        self.print("remove_item_group: {}".format(gid))
+        g: QGraphicsItemGroup = self.element_to_item[gid]
+        self.element_to_item.pop(gid)
+        for c in g.childItems():
+            g.removeFromGroup(c)
+            c.setSelected(False)
+        self.scene.destroyItemGroup(g)
+
     # change view
     def change_view(self, x, y, w, h):
         self.scene.setSceneRect(x, y, w, h)
+        view: QGraphicsView = self.ui.tabWidget.currentWidget()
+        view.setSceneRect(x, y, w, h)
         self.ui.actionSave.setEnabled(True)
 
     # modified action
@@ -385,10 +506,14 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
 
     # View/Scene / Console command
     def command_console(self):
-        self.console.setModal(False)
-        self.console.set_handler_pair(self.handler, self.async_handler)
+        # if self._script_worker is None:
+        #     self.construct_script_handler()
+        # self.console.setModal(False)
         self.console.setModal(True)
-        self.console.exec_()
+        self.script_handler.handler = self.handler
+        self.console.set_handler(self.script_handler)
+        # self.console.exec_()
+        self.console.show()
 
     # node label change command
     def command_set_node_label(self, attr_name):
@@ -414,6 +539,8 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
             self.shell.new_handler()
         except Exception as ex:
             self.print(traceback.format_exc())
+        finally:
+            self.set_command_enable()
 
     # Hidden Commands / Change Current command
     def command_change_current(self, index) -> None:
@@ -472,7 +599,7 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
             self.print(traceback.format_exc())
             return False
         finally:
-            self.setCommandEnabilities()
+            self.set_command_enable()
 
     # File / Save command
     def command_save(self) -> None:
@@ -556,7 +683,7 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
 
     def command_new_node(self, x=None, y=None, node_type=None):
         try:
-            # self.print('command_new_node')
+            self.print(f'command_new_node({x}, {y}, {node_type})')
             if x is None or y is None:
                 rect = self.scene.sceneRect()
                 x = rect.x() + rect.width() / 2
@@ -672,10 +799,21 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
             attrs['w'] = xmax - xmin
             attrs['h'] = ymax - ymin
             self.handler.change_view(xmin, ymin, xmax - xmin, ymax - ymin)
+            view: QGraphicsView = self.ui.tabWidget.currentWidget()
+            view.scale(1, 1)
         except Exception as ex:
             self.print(traceback.format_exc())
         finally:
             self.setCommandEnabilities()
+
+    def select_elements(self, es):
+        self.command_deselect_all()
+        self.property_clear()
+        for e in es:
+            item = self.element_to_item[e]
+            item.select()
+        # self.set_selected_elements(es)
+        self.set_command_enable()
 
     # deselect all selected objects
     def command_deselect_all(self) -> None:
@@ -686,6 +824,34 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
         finally:
             self.setCommandEnabilities()
 
+    def add_select_elements(self, es):
+        for e in es:
+            item = self.element_to_item[e]
+            item.select()
+        self.property_clear()
+
+    def add_select_node(self, n):
+        item: GraphCoreItemInterface = self.element_to_item[n]
+        item.select()
+        self.property_clear()
+
+    def select_node(self, n):
+        self.command_deselect_all()
+        item: GraphCoreItemInterface = self.element_to_item[n]
+        item.select()
+        self.property_select_node(n)
+
+    def add_select_edge(self, e):
+        item: GraphCoreItemInterface = self.element_to_item[e]
+        item.select()
+        self.property_clear()
+
+    def select_edge(self, n):
+        self.command_deselect_all()
+        item: GraphCoreItemInterface = self.element_to_item[n]
+        item.select()
+        self.property_select_edge(n)
+
     # selected node
     def command_select_node(self, n) -> None:
         try:
@@ -694,7 +860,7 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
         except Exception as ex:
             self.print(traceback.format_exc())
         finally:
-            self.setCommandEnabilities()
+            self.set_command_enable()
 
     # deselect selected node
     def command_deselect_node(self, n) -> None:
@@ -755,10 +921,19 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
         finally:
             self.setCommandEnabilities()
 
+    def command_select_group(self, g) -> None:
+        try:
+            self.print("command_select_group {}".format(g))
+            self.handler.select_group(g)
+        except Exception as ex:
+            self.print(traceback.format_exc())
+        finally:
+            self.set_command_enable()
+
     # select edge
     def command_select_edge(self, e) -> None:
         try:
-            self.print('command_select_edge')
+            self.print('command_select_edge {}'.format(e))
             self.handler.select_edge(e[0], e[1])
         except Exception as ex:
             self.print(traceback.format_exc())
@@ -815,7 +990,7 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
     # remove edge
     def command_remove_edge(self, e) -> None:
         try:
-            self.print('command_remove_edge')
+            # self.print('command_remove_edge')
             self.handler.remove_edge(e[0], e[1])
         except Exception as ex:
             self.print(traceback.format_exc())
@@ -979,9 +1154,10 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
 
     def command_show_context_menu(self, p):
         try:
-            # self.print("context menu at {}".format(p))
             view: QGraphicsView = self.ui.tabWidget.currentWidget()
             global_pos = view.mapToGlobal(p)
+            scene_pos = view.mapToScene(int(p.x()), int(p.y()))
+            # self.print("context menu at view pos:{}, scene pos:{}, global pos:{}".format(p, scene_pos, global_pos))
             item = view.itemAt(p)
             item = self.to_graph_element_item(item)
             if item is not None:
@@ -994,6 +1170,7 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
                     menu.addAction("Property").triggered.connect(lambda: self.command_select_edge((item.u, item.v)))
                 # New Edge menu
                 if isinstance(item, GraphCoreNodeItemInterface):
+                    item.select()
                     enabled_edge_types = self.settings.setting('enabled-edge-types')
                     menu_node = menu.addMenu("New Edge")
 
@@ -1015,8 +1192,8 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
 
                 for t in enabled_node_types:
                     action = menu_node.addAction(t)
-                    action.setData([p.x(), p.y()])
-                    action.triggered.connect(new_node_call(p.x(), p.y(), t))
+                    action.setData([scene_pos.x(), scene_pos.y(), t])
+                    action.triggered.connect(new_node_call(scene_pos.x(), scene_pos.y(), t))
                 menu.popup(global_pos)
         except Exception as ex:
             self.print(traceback.format_exc())
@@ -1025,7 +1202,7 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
 
     # begin edge
     def popup_menu_do_begin_edge(self, source, edge_type):
-        self.print("popup_menu_do_begin_edge({})".format(source))
+        # self.print("popup_menu_do_begin_edge({})".format(source))
         s = self.handler.context.nodes[source]
         self.command_deselect_all()
         sx, sy, w = s['x']['value'], s['y']['value'], s['w']['value']
@@ -1047,14 +1224,38 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
         return self._edge_creating
 
     def set_command_enable(self):
+        # File menu
         self.ui.actionNew.setEnabled(True)
         self.ui.actionOpen.setEnabled(True)
         self.ui.actionClose.setEnabled(self.ui.tabWidget.currentIndex() >= 0)
-        enabled = False
         if self.handler is not None and self.handler.context.dirty:
             enabled = True
+        else:
+            enabled = False
         self.ui.actionSave.setEnabled(enabled)
         self.ui.actionSaveAs.setEnabled(True)
+        # Edit menu
+        if self.handler is not None and len(self.selected_elements) > 0:
+            enabled = True
+        else:
+            enabled = False
+        self.ui.actionCopy.setEnabled(enabled)
+        self.ui.actionCut.setEnabled(enabled)
+        if self.handler is not None and not self.is_copy_buf_empty:
+            enabled = True
+        else:
+            enabled = False
+        self.ui.actionPaste.setEnabled(enabled)
+        if self.handler is not None and self.is_grouping_enabled:
+            enabled = True
+        else:
+            enabled = False
+        self.ui.actionGroup.setEnabled(enabled)
+        if self.handler is not None and self.is_ungrouping_enabled:
+            enabled = True
+        else:
+            enabled = False
+        self.ui.actionUngroup.setEnabled(enabled)
 
     def setCommandEnabilities(self):
         self.set_command_enable()
@@ -1075,6 +1276,10 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
     def property_deselect_all(self):
         property_widget = self.ui.propertyWidget
         property_widget.setRowCount(0)
+        for k in self.element_to_item.keys():
+            item = self.element_to_item[k]
+            item.deselect()
+        self.set_command_enable()
 
     # select node
     def property_select_node(self, node):
@@ -1308,6 +1513,9 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
                 cb.clear()
                 for k in node_properties:
                     cb.addItem(k)
+            self.solver_controller.ui.valuePropertyNameComboBox.setCurrentText("value")
+            self.solver_controller.ui.maxValuePropertyComboBox.setCurrentText("maxValue")
+
             # initialize edge property combobox
             edge_properties = self.settings.setting('default-edge-attrs')['dataflow'].keys()
             combo_boxes = (
@@ -1320,6 +1528,10 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
                 cb.clear()
                 for k in edge_properties:
                     cb.addItem(k)
+            self.solver_controller.ui.velocityPropertyComboBox.setCurrentText("velocity")
+            self.solver_controller.ui.maxVelocityPropertyComboBox.setCurrentText("maxVelocity")
+            self.solver_controller.ui.currentMaxVelocityPropertyComboBox.setCurrentText("currentMaxVelocity")
+            self.solver_controller.ui.distancePropertyComboBox.setCurrentText("distance")
 
             # open dialog
             self.solver_controller.exec_()
@@ -1478,3 +1690,121 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
             item = QTableWidgetItem(script)
             item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEditable)
             scripts_widget.setItem(i, 2, item)
+
+    def copy_impl(self):
+        nodes = {}
+        edges = {}
+        groups = {}
+        # copy nodes
+        for n in self.handler.selected_nodes:
+            nodes[n] = {}
+            for k in self.handler.context.G.nodes[n].keys():
+                nodes[n][k] = self.handler.context.G.nodes[n][k]
+        # copy edges
+        for e in self.handler.selected_edges:
+            edges[e] = {}
+            for k in self.handler.context.G.edges[e[0], e[1]].keys():
+                edges[e][k] = self.handler.context.G.edges[e[0], e[1]][k]
+        # copy groups
+        for g in self.handler.selected_groups:
+            groups[g] = {"nodes": [], "edges": []}
+            for c in self.handler.context.graph["groups"][g]:
+                if isinstance(c, str):  # node
+                    nodes[c] = {}
+                    for k in self.handler.context.nodes[c].keys():
+                        nodes[c][k] = self.handler.context.nodes[c][k]
+                    groups[g]["nodes"].append(c)
+                else:  # edge
+                    edges[c] = {}
+                    for k in self.handler.context.edges[c[0], c[1]].keys():
+                        edges[c][k] = self.handler.context.edges[c[0], c[1]][k]
+                    groups[g]["edges"].append(c)
+        self.clear_copy_buf()
+        for k in nodes.keys():
+            self.node_copy_buf[k] = nodes[k]
+        for k in edges.keys():
+            self.edge_copy_buf[k] = edges[k]
+        for k in groups.keys():
+            self.group_copy_buf[k] = groups[k]
+
+    def paste_impl(self):
+        node_map = {}
+        for v in self.node_copy_buf:
+            node_map[v] = v
+        for e in self.edge_copy_buf.keys():
+            node_map[e[0]] = e[0]
+            node_map[e[1]] = e[1]
+        for v in self.node_copy_buf.keys():
+            n = self.handler.new_node(self.node_copy_buf[v])
+            node_map[v] = n
+        for e in self.edge_copy_buf.keys():
+            u = node_map[e[0]]
+            v = node_map[e[1]]
+            self.handler.add_edge(u, v, self.edge_copy_buf[e])
+        for g in self.group_copy_buf.keys():
+            nodes = [node_map[_] for _ in self.group_copy_buf[g]["nodes"]]
+            edges = [(node_map[_[0]], node_map[_[1]]) for _ in self.group_copy_buf[g]["edges"]]
+            nodes.extend(edges)
+            self.handler.add_group(nodes)
+
+    def command_copy(self):
+        try:
+            self.print("command_copy")
+            self.copy_impl()
+
+        except Exception as ex:
+            self.print(traceback.format_exc())
+        finally:
+            self.set_command_enable()
+
+    def command_cut(self):
+        try:
+            self.print("command_cut")
+            self.copy_impl()
+            for n in self.handler.selected_nodes:
+                self.handler.remove_node(n)
+            for e in self.handler.selected_edges:
+                self.handler.remove_edge(e[0], e[1])
+            for g in self.handler.selected_groups:
+                self.handler.remove_group(g)
+
+        except Exception as ex:
+            self.print(traceback.format_exc())
+        finally:
+            self.set_command_enable()
+
+    def command_paste(self):
+        try:
+            self.print("command_paste")
+            self.paste_impl()
+        except Exception as ex:
+            self.print(traceback.format_exc())
+        finally:
+            self.set_command_enable()
+
+    def group_create(self, gid):
+        self.new_item_group(gid)
+
+    def group_purge(self, gid):
+        self.remove_item_group(gid)
+
+    def group_remove(self, gid):
+        self.remove_item_group(gid)
+
+    def command_group(self):
+        try:
+            self.print("command_group")
+            self.handler.create_group()
+        except Exception as ex:
+            self.print(traceback.format_exc())
+        finally:
+            self.set_command_enable()
+
+    def command_ungroup(self):
+        try:
+            self.print("command_ungroup")
+            self.handler.purge_group()
+        except Exception as ex:
+            self.print(traceback.format_exc())
+        finally:
+            self.set_command_enable()

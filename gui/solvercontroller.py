@@ -74,13 +74,13 @@ class SolverControllerDialog(QDialog):
                 t += dt
                 data = nx.node_link_data(G)
                 if True:  # 0 < i and divmod(i, 100)[1] == 0:
-                    self.ui.message.append(f'[{i}]')
-                    for n in G.nodes:
-                        if G.nodes[n]['type'] not in ('note', 'domain', 'folder'):
-                            self.ui.message.append(f'  n={n}, value={G.nodes[n][value_property]}, maxValue={G.nodes[n][max_value_property]}')
-                    for e in G.edges:
-                        if G.nodes[n]['type'] not in ('note', 'domain', 'folder'):
-                            self.ui.message.append(f'  e={e}, velocity={G.edges[e[0], e[1]][velocity_property]}, maxVelocity={G.edges[e[0], e[1]][max_velocity_property]}')
+                    self.ui.message.append(f'[{i}] Step done')
+                    # for n in G.nodes:
+                    #     if G.nodes[n]['type'] not in ('note', 'domain', 'folder'):
+                    #         self.ui.message.append(f'  n={n}, value={G.nodes[n][value_property]}, maxValue={G.nodes[n][max_value_property]}')
+                    # for e in G.edges:
+                    #     if G.edges[e[0], e[1]]['type'] not in ('amplitude-flow',):
+                    #         self.ui.message.append(f'  e={e}, velocity={G.edges[e[0], e[1]][velocity_property]}, maxVelocity={G.edges[e[0], e[1]][max_velocity_property]}')
                 G_array.append(data)
                 self._G = G
             if not self._cancel:

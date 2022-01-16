@@ -2,12 +2,11 @@
 
 from graphcore.reporter import GraphCoreReporter
 # from GraphCore.error import GraphCoreError
-from graphcore.shell import GraphCoreContextHandler
 
 
 # Term class
 class Term(object):
-    def __init__(self, handler: GraphCoreContextHandler, name=None, value=None, attr=None, reference=None, reporter=None):
+    def __init__(self, handler, name=None, value=None, attr=None, reference=None, reporter=None):
         super().__init__()
         self._handler = handler
         self._name = name
@@ -17,7 +16,7 @@ class Term(object):
         self._reporter = reporter
 
     @property
-    def handler(self) -> GraphCoreContextHandler:
+    def handler(self):
         return self._handler
 
     @property
@@ -346,7 +345,7 @@ class ExistsEquation(Term):
 
 # Assignment Statement class
 class AssignmentStatement(Term):
-    def __init__(self, handler: GraphCoreContextHandler, variable=None, value=None, reporter=None):
+    def __init__(self, handler, variable=None, value=None, reporter=None):
         super().__init__(handler, value=value, reporter=reporter)
         # self.report("AssignmentStatement variable={}, value={}".format(variable, value))
         self._variable = variable

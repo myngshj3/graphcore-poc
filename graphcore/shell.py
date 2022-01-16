@@ -92,6 +92,12 @@ class GraphCoreContext(object):
         return self._G.graph['constraints']
 
     @property
+    def groups(self):
+        if 'groups' not in self._G.graph.keys():
+            self._G.graph['groups'] = {}
+        return self._G.graph['groups']
+
+    @property
     def scripts(self):
         if 'scripts' not in self._G.graph.keys():
             self._G.graph['scripts'] = {}
@@ -379,6 +385,10 @@ class GraphCoreShell(object):
     def open(self, filename) -> None:
         context = GraphCoreContext(nx.DiGraph(), settings=self.settings, reporter=self.default_reporter)
         context.open(filename)
+        groups = context.groups
+        for gid in groups.keys():
+            SG = context.G.subgraph(groups[gid])
+            groups[gid] = SG
         handler = GraphCoreContextHandler(context, settings=self.settings, reporter=self.default_reporter)
         async_handler = GraphCoreAsyncContextHandler(context, settings=self.settings, reporter=self.default_reporter)
         self.handlers.append((handler, async_handler))
@@ -408,6 +418,13 @@ class GraphCoreContextHandler:
     UserDefinedFunctionRemoved = 19
     UserScriptAdded = 20
     UserScriptDeleted = 21
+    ElementsSelected = 22
+    GroupCreated = 23
+    GroupPurged = 24
+    GroupRemoved = 25
+    GroupSelected = 26
+    GroupDeselected = 27
+    ElementsAddSelect = 28
 
     def __init__(self, ctx: GraphCoreContext, reporter: GraphCoreReporter, settings: GraphCoreSettings):
         self._context = ctx
@@ -420,8 +437,148 @@ class GraphCoreContextHandler:
         self._meta = None
         self._clazz = None
         self._toplevel = None
+        self._selected_elements = ()
+        self._copy_buf = {"nodes": {}, "edges": {}, "groups": {}}
+        self._script_handler = None
         self.setup_nml_objects()
         self.install_builtin_functions()
+
+    @property
+    def script_handler(self):
+        return self._script_handler
+
+    def set_script_handler(self, sh):
+        self._script_handler = sh
+
+    @property
+    def element_to_item(self):
+        return self.extras['element_to_item']
+
+    def set_selected_elements(self, elems):
+        self._selected_elements = elems
+
+    @property
+    def selected_elements(self):
+        elems = []
+        for e in self.element_to_item.keys():
+            i = self.element_to_item[e]
+            if i.is_selected:
+                elems.append(e)
+        return tuple(elems)
+
+    @property
+    def selected_nodes(self):
+        from graphcore.graphicsitem import GraphCoreNodeItemInterface
+        nodes = []
+        for e in self.element_to_item.keys():
+            i = self.element_to_item[e]
+            if isinstance(i, GraphCoreNodeItemInterface) and i.is_selected:
+                nodes.append(e)
+        return tuple(nodes)
+
+    @property
+    def selected_edges(self):
+        from graphcore.graphicsitem import GraphCoreEdgeItemInterface
+        edges = []
+        for e in self.element_to_item.keys():
+            i = self.element_to_item[e]
+            if isinstance(i, GraphCoreEdgeItemInterface) and i.is_selected:
+                edges.append(e)
+        return tuple(edges)
+
+    @property
+    def selected_groups(self):
+        from graphcore.graphicsitem import GCItemGroup
+        groups = []
+        for e in self.element_to_item.keys():
+            i = self.element_to_item[e]
+            if isinstance(i, GCItemGroup):
+                groups.append(e)
+        return tuple(groups)
+
+    @property
+    def copy_buf(self) -> dict:
+        return self._copy_buf
+
+    def create_group(self):
+        members = [_ for _ in self.selected_nodes]
+        members.extend(self.selected_edges)
+        self.add_group(members)
+
+    def add_group(self, members):
+        SG = self.context.G.subgraph(members)
+        groups = self.context.groups
+        gid = 1
+        for i in range(len(groups.keys())):
+            if str(i) not in groups.keys():
+                gid = i
+                break
+        gid = "g{}".format(gid)
+        groups[gid] = SG
+        self.context.dirty = True
+        self.do_reflection(GraphCoreContextHandler.GroupCreated, gid)
+
+    def remove_group(self, gid):
+        SG = self.context.G.graph['groups'][gid]
+        self.context.G.graph['groups'].pop(gid)
+        nodes = SG.nodes
+        edges = SG.edges
+        for n in nodes:
+            self.remove_node(n)
+        for e in edges:
+            self.remove_edge(e[0], e[1])
+        self.do_reflection(GraphCoreContextHandler.GroupRemoved, gid)
+
+    def purge_group(self, gid=None):
+        if gid is None:
+            gids = self.selected_groups
+        else:
+            gids = (gid,)
+        for g in gids:
+            SG = self.context.groups[g]
+            self.context.groups.pop(g)
+            self.context.dirty = True
+            self.do_reflection(GraphCoreContextHandler.GroupPurged, g)
+
+    def copy(self):
+        nodes = {}
+        edges = {}
+        for n in self.selected_nodes:
+            if isinstance(n, str):
+                nodes[n] = {}
+                for k in self.context.G.nodes[n].keys():
+                    nodes[n][k] = self.context.G.nodes[n][k]
+            else:
+                edges[n] = {}
+                for k in self.context.G.edges[n[0], n[1]].keys():
+                    edges[n][k] = self.context.G.edges[n[0], n[1]][k]
+        self.copy_buf["nodes"] = nodes
+        self.copy_buf["edges"] = edges
+
+    def cut(self):
+        self.copy()
+        selected_elements = self.selected_elements
+        self.set_selected_elements(())
+        for n in selected_elements:
+            if n is not tuple:
+                self.remove_node(n)
+            else:
+                self.remove_edge(n[0], n[1])
+
+    def paste(self):
+        node_map = {}
+        for v in self.copy_buf["nodes"].keys():
+            node_map[v] = v
+        for e in self.copy_buf["edges"].keys():
+            node_map[e[0]] = e[0]
+            node_map[e[1]] = e[1]
+        for v in self.copy_buf["nodes"].keys():
+            n = self.new_node(self.copy_buf["nodes"][v])
+            node_map[v] = n
+        for e in self.copy_buf["edges"].keys():
+            u = node_map[e[0]]
+            v = node_map[e[1]]
+            self.add_edge(u, v, self.copy_buf["edges"][e])
 
     def setup_nml_objects(self):
         self._meta: NetworkClassInstance = NetworkClass(None, "GraphCore")
@@ -444,7 +601,9 @@ class GraphCoreContextHandler:
         arm_interpreter(self._toplevel)
         self._toplevel.set_running(True)
         # methods implementation
-        # methods
+        self.implement_toplevel_methods()
+
+    def implement_toplevel_methods(self):
         m = ExtensibleWrappedAccessor(self._toplevel, "sin", None,
                                       lambda ao, c, eo, ca, ea: np.sin(ca[0]), globally=True)
         self._toplevel.declare_method(m, globally=True)
@@ -493,6 +652,9 @@ class GraphCoreContextHandler:
         m = ExtensibleWrappedAccessor(self._toplevel, "nodes", None,
                                       lambda ao, c, eo, ca, ea: [_ for _ in self.context.G.nodes],
                                       globally=True)
+        m = ExtensibleWrappedAccessor(self._toplevel, "edges", None,
+                                      lambda ao, c, eo, ca, ea: [_ for _ in self.context.G.edges],
+                                      globally=True)
         self._toplevel.declare_method(m, globally=True)
         m = ExtensibleWrappedAccessor(self._toplevel, "node_attr_keys", None,
                                       lambda ao, c, eo, ca, ea: [_ for _ in self.context.G.nodes[ca[0]].keys()],
@@ -500,6 +662,18 @@ class GraphCoreContextHandler:
         self._toplevel.declare_method(m, globally=True)
         m = ExtensibleWrappedAccessor(self._toplevel, "get_node_value", None,
                                       lambda ao, c, eo, ca, ea: self.node_attr(ca[0], ca[1]),
+                                      globally=True)
+        self._toplevel.declare_method(m, globally=True)
+        m = ExtensibleWrappedAccessor(self._toplevel, "set_node_value", None,
+                                      lambda ao, c, eo, ca, ea: self.change_node_attr(ca[0], *ca[1:]),
+                                      globally=True)
+        self._toplevel.declare_method(m, globally=True)
+        m = ExtensibleWrappedAccessor(self._toplevel, "get_edge_value", None,
+                                      lambda ao, c, eo, ca, ea: self.edge_attr(ca[0], ca[1], ca[2]),
+                                      globally=True)
+        self._toplevel.declare_method(m, globally=True)
+        m = ExtensibleWrappedAccessor(self._toplevel, "set_edge_value", None,
+                                      lambda ao, c, eo, ca, ea: self.change_edge_attr(ca[0], ca[1], ca[2], ca[3]),
                                       globally=True)
         self._toplevel.declare_method(m, globally=True)
         m = ExtensibleWrappedAccessor(self.toplevel, "run_system_script", None,
@@ -510,7 +684,6 @@ class GraphCoreContextHandler:
                                       lambda ao, c, eo, ca, ea: self.run_user_script(ca[0]),
                                       globally=True)
         self.toplevel.declare_method(m, globally=True)
-
         # armer = MethodArmer()
         # methods_config = self.settings.setting("system-methods")
         # for sig in methods_config.keys():
@@ -557,7 +730,18 @@ class GraphCoreContextHandler:
 
     # save context
     def save(self, filename=None):
+        groups = self.context.groups
+        gr = {}
+        for gid in groups.keys():
+            gr[gid] = groups[gid]
+            groups[gid] = []
+            for n in gr[gid].nodes:
+                groups[gid].append(n)
+            for e in gr[gid].edges:
+                groups[gid].append(e)
         self.context.save(filename)
+        for gid in groups.keys():
+            groups[gid] = gr[gid]
 
     # clear user-defined variables and functions
     def clear_user_defined(self):
@@ -579,8 +763,14 @@ class GraphCoreContextHandler:
 
     # do event action
     def do_reflection(self, event, obj):
+        from graphcore.script_worker import GCScriptWorker
+        script_handler: GCScriptWorker = self.script_handler
         if event in self.reflection_map.keys():
-            self.reflection_map[event](obj)
+            # FIXME
+            func = lambda x: self.reflection_map[event](obj)
+            sig = GraphCoreThreadSignal(event, None, func, None)
+            script_handler.main_thread_command.emit(sig)
+            #self.reflection_map[event](obj)
 
     def node_id_to_data(self, n):
         return self.context.nodes[n]
@@ -673,8 +863,12 @@ class GraphCoreContextHandler:
     def node_attr(self, n, a):
         return self.context.nodes[n][a]['value']
 
-    def change_node_attr(self, n, a, v):
-        self.context.nodes[n][a]['value'] = v
+    def change_node_attr(self, n, *args):
+        attrs_len = int(len(args)/2)
+        for i in range(attrs_len):
+            a = args[i*2]
+            v = args[i*2+1]
+            self.context.nodes[n][a]['value'] = v
         self.context.dirty = True
         # get_script_worker().main_window_command.emit(GraphCoreThreadSignal(GraphCoreContextHandler.NodeUpdated, n, None))
         self.do_reflection(GraphCoreContextHandler.NodeUpdated, n)
@@ -703,6 +897,8 @@ class GraphCoreContextHandler:
             self.do_reflection(GraphCoreContextHandler.EdgeAdded, e)
         for c in self.context.constraints:
             self.do_reflection(GraphCoreContextHandler.ConstraintAdded, c)
+        for gid in self.context.groups.keys():
+            self.do_reflection(GraphCoreContextHandler.GroupCreated, gid)
         x = self.context.graph['x']
         y = self.context.graph['y']
         w = self.context.graph['w']
@@ -842,21 +1038,53 @@ class GraphCoreContextHandler:
         self.context.dirty = True
         self.do_reflection(GraphCoreContextHandler.NodeUpdated, n)
 
+    def move_group_by(self, g, dx, dy):
+        edges = []
+        sg = self.context.groups[g]
+        for n in sg.nodes:
+            self.context.nodes[n]['x']['value'] += dx
+            self.context.nodes[n]['y']['value'] += dy
+            self.context.dirty = True
+            for v in self.context.G.successors(n):
+                if (n, v) not in edges:
+                    edges.append((n, v))
+            for v in self.context.G.predecessors(n):
+                if (v, n) not in edges:
+                    edges.append((v, n))
+            # self.do_reflection(GraphCoreContextHandler.NodeUpdated, n)
+        for e in edges:
+            self.do_reflection(GraphCoreContextHandler.EdgeUpdated, e)
+
     def deselect_all(self):
         self.do_reflection(GraphCoreContextHandler.AllDeselected, None)
+
+    def select_elements(self, es):
+        self.do_reflection(GraphCoreContextHandler.ElementsSelected, es)
+
+    def add_select_elements(self, es):
+        self.do_reflection(GraphCoreContextHandler.ElementsAddSelect, es)
 
     def select_node(self, n):
         # print("select_node", n)
         self.do_reflection(GraphCoreContextHandler.NodeSelected, n)
 
     def deselect_node(self, n):
+        self.set_selected_elements(())
         self.do_reflection(GraphCoreContextHandler.NodeDeselected, n)
 
     def select_edge(self, u, v):
         self.do_reflection(GraphCoreContextHandler.EdgeSelected, (u, v))
 
     def deselect_edge(self, u, v):
+        self.set_selected_elements(())
         self.do_reflection(GraphCoreContextHandler.EdgeDeselected, (u, v))
+
+    def select_group(self, g):
+        self.do_reflection(GraphCoreContextHandler.ElementsSelected, (g))
+
+    def deselect_group(self, g):
+        self.set_selected_elements(())
+        self.do_reflection(GraphCoreContextHandler.GroupDeselected, g)
 
     def select_constraint(self, cid):
         if cid not in self.selected_constraints:

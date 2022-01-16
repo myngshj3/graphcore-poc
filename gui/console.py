@@ -11,6 +11,7 @@ from gui.Ui_ConsoleWidget import Ui_ConsoleForm
 from gui.Ui_ConsoleDialog import Ui_Dialog
 from gui.geomserializable import GeometrySerializableDialog
 from gui.widgetutil import GraphCoreContextHandlerInterface  # , GraphCoreReporterUser
+from graphcore.script_worker import GCScriptWorker
 from networkml.network import ExtensibleWrappedAccessor
 
 
@@ -53,10 +54,9 @@ class ConsoleDialog(ContextHandlableDialog):
 
 class Console(QDialog):
 
-    def __init__(self, parent, handler, async_handler):
+    def __init__(self, parent, handler):
         super().__init__(parent)
-        self._handler = handler
-        self._async_handler = async_handler
+        self._script_handler = handler
         self._ui = Ui_Dialog()
         self.ui.setupUi(self)
         self.ui.lineEdit.returnPressed.connect(self.enter_pressed)
@@ -66,20 +66,15 @@ class Console(QDialog):
         return self._ui
 
     @property
-    def handler(self) -> GraphCoreContextHandler:
-        return self._handler
+    def handler(self) -> GCScriptWorker:
+        return self._script_handler
 
-    @property
-    def async_handler(self) -> GraphCoreAsyncContextHandler:
-        return self._async_handler
+    def set_handler(self, sh):
+        self._script_handler = sh
 
     def print(self, *args):
         text = " ".join([str(_) for _ in args])
         self.ui.textBrowser.append(text)
-
-    def set_handler_pair(self, handler, async_handler):
-        self._handler = handler
-        self._async_handler = async_handler
 
     def enter_pressed(self):
         script = self.ui.lineEdit.text()
@@ -87,13 +82,24 @@ class Console(QDialog):
         self.ui.lineEdit.clear()
         # execute script
         try:
-            interpret = self.handler.toplevel.get_method(self.handler.toplevel, "interpret")
-            self.handler.toplevel.set_print_func(lambda x: self.ui.textBrowser.append(str(x)))
+            from gui.mainwindow import GraphCoreEditorMainWindow
+            from graphcore.thread_signal import GraphCoreThreadSignal
+            def print(*args):
+                arg = " ".join([str(_) for _ in args])
+                sig = GraphCoreThreadSignal("update console.textBrowser", arg,
+                                            lambda x: self.ui.textBrowser.append(x), None)
+                self.handler.main_thread_command.emit(sig)
+            self.handler.toplevel.set_print_func(print)
             self.handler.toplevel.auto_flush = True
+            def report_func(arg):
+                sig = GraphCoreThreadSignal("update console.textBrowser", arg,
+                                            lambda x: self.ui.textBrowser.append(x), None)
+                self.handler.main_thread_command.emit(sig)
+            self._script_handler.reporter.report_func = report_func
             m = ExtensibleWrappedAccessor(self.handler.toplevel, "print", self,
-                                          lambda ao, c, eo, ca, ea: self.print(*ca))
+                                          lambda ao, c, eo, ca, ea: print(*ca))
             self.handler.toplevel.declare_method(m, globally=True)
-            interpret(self.handler.toplevel, [script, "--safe=False"])
+            self.handler.run_script(script)
         except Exception as ex:
             self.print(ex)
             self.print(traceback.format_exc())

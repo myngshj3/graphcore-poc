@@ -177,8 +177,14 @@ class GCGeneralSolver(GCSolver):
         for i in G.nodes:
             if G.nodes[i]['type'] not in ('folder', 'domain', 'note', 'memo'):
                 N.append(i)
+        N = tuple(N)
         for i in N:
-            D = tuple(G.successors(i))
+            ### dataflow edge
+            D = []
+            for _ in G.successors(i):
+                if G.edges[i, _]['type'] in ('dataflow', 'amplitude-flow'):
+                    D.append(_)
+            D = tuple(D)
             for d in D:
                 delay = G.edges[i, d]['delay']
                 duration = G.edges[i, d]['duration']
@@ -210,21 +216,68 @@ class GCGeneralSolver(GCSolver):
                         G.edges[i, d][v_sym] = G.edges[i, d][w_sym]
                 else:
                     G.edges[i, d][v_sym] = G.edges[i, d][w_sym]
-                # print("edge[{},{}][velocity]={}".format(i,d,G.edges[i,d][v_sym]))
+
+            # ### amplitude-flow edge
+            # D = []
+            # for _ in G.successors(i):
+            #     if G.edges[i, _]['type'] == 'amplitude-flow':
+            #         D.append(_)
+            # D = tuple(D)
+            # for d in D:
+            #     delay = G.edges[i, d]['delay']
+            #     duration = G.edges[i, d]['duration']
+            #     if delay <= t and t <= delay + duration:
+            #         if G.edges[i, d][x_sym] == 0:
+            #             G.edges[i, d][x_sym] = G.nodes[i][x_sym]
 
         H: nx.DiGraph = self.clone_graph(G)
         for i in N:
-            S = G.predecessors(i)
-            D = G.successors(i)
+            ### dataflow edge
+            S = []
+            for _ in G.predecessors(i):
+                if G.edges[_, i]['type'] in ('dataflow', 'amplitude-flow'):
+                    S.append(_)
+            S = tuple(S)
+            D = []
+            for _ in G.successors(i):
+                if G.edges[i, _]['type'] in ('dataflow', 'amplitude-flow'):
+                    D.append(_)
+            D = tuple(D)
             sum_v_s = 0
             for s in S:
-                sum_v_s += G.edges[s, i][v_sym]
+                v = G.edges[s, i][v_sym]
+                if G.edges[s, i]['type'] == 'amplitude-flow':
+                    amplitude = G.edges[s, i]['amplitude']
+                    amplitude.replace("{t}", str(t))
+                    amplitude = eval(amplitude)
+                    v *= amplitude
+                sum_v_s += v
             sum_v_d = 0
             for d in D:
                 sum_v_d += G.edges[i, d][v_sym]
             gen_value = self.generated_value(G, i, t, dt)
-            # print("genvaluje=", gen_value)
             H.nodes[i][x_sym] = G.nodes[i][x_sym] + sum_v_s * dt - sum_v_d * dt + gen_value
+
+            # ### amplitude-flow edge
+            # S = []
+            # for _ in G.predecessors(i):
+            #     if G.edges[_, i]['type'] == 'amplitude-flow':
+            #         S.append(_)
+            # S = tuple(S)
+            # sum_x_s = 0
+            # for s in S:
+            #     v = G.edges[s, i][v_sym]
+            #     # print(v, type(v), dt, type(dt))
+            #     dx = v * dt
+            #     if G.edges[s, i][x_sym] < dx:
+            #         dx = G.edges[s, i][x_sym]
+            #     amplitude = G.edges[s, i]['amplitude']
+            #     amplitude.replace("{t}", str(t))
+            #     amplitude = eval(amplitude)
+            #     G.edges[s, i][x_sym] -= dx
+            #     sum_x_s += dx * amplitude
+            # H.nodes[i][x_sym] += sum_x_s
+
         self._G = H
         return H
 

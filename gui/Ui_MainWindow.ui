@@ -123,8 +123,11 @@
                 </item>
                 <item>
                  <widget class="QTabWidget" name="editorTabWidget">
+                  <property name="enabled">
+                   <bool>true</bool>
+                  </property>
                   <property name="currentIndex">
-                   <number>4</number>
+                   <number>0</number>
                   </property>
                   <widget class="QWidget" name="tab_7">
                    <attribute name="title">
@@ -150,6 +153,9 @@
                    </layout>
                   </widget>
                   <widget class="QWidget" name="tab">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
                    <attribute name="title">
                     <string>Nodes</string>
                    </attribute>
@@ -186,6 +192,9 @@
                    </layout>
                   </widget>
                   <widget class="QWidget" name="tab_2">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
                    <attribute name="title">
                     <string>Edges</string>
                    </attribute>
@@ -396,7 +405,7 @@
                       <property name="orientation">
                        <enum>Qt::Vertical</enum>
                       </property>
-                      <widget class="QWidget" name="">
+                      <widget class="QWidget" name="layoutWidget">
                        <layout class="QVBoxLayout" name="verticalLayout_11">
                         <item>
                          <layout class="QHBoxLayout" name="horizontalLayout_4">
@@ -477,7 +486,7 @@
                         </item>
                        </layout>
                       </widget>
-                      <widget class="QWidget" name="">
+                      <widget class="QWidget" name="layoutWidget">
                        <layout class="QVBoxLayout" name="verticalLayout_10">
                         <item>
                          <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -800,6 +809,9 @@
     <addaction name="actionCut"/>
     <addaction name="actionCopy"/>
     <addaction name="actionPaste"/>
+    <addaction name="separator"/>
+    <addaction name="actionGroup"/>
+    <addaction name="actionUngroup"/>
    </widget>
    <widget class="QMenu" name="menuView_Scene">
     <property name="title">
@@ -1025,7 +1037,7 @@
   </action>
   <action name="actionCut">
    <property name="enabled">
-    <bool>false</bool>
+    <bool>true</bool>
    </property>
    <property name="text">
     <string>Cut</string>
@@ -1033,7 +1045,7 @@
   </action>
   <action name="actionCopy">
    <property name="enabled">
-    <bool>false</bool>
+    <bool>true</bool>
    </property>
    <property name="text">
     <string>Copy</string>
@@ -1041,7 +1053,7 @@
   </action>
   <action name="actionPaste">
    <property name="enabled">
-    <bool>false</bool>
+    <bool>true</bool>
    </property>
    <property name="text">
     <string>Paste</string>
@@ -1053,6 +1065,22 @@
    </property>
    <property name="text">
     <string>Visualizer</string>
+   </property>
+  </action>
+  <action name="actionGroup">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Group</string>
+   </property>
+  </action>
+  <action name="actionUngroup">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Ungroup</string>
    </property>
   </action>
  </widget>
@@ -1514,6 +1542,86 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>actionCopy</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>command_copy()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>583</x>
+     <y>401</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionCut</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>command_cut()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>583</x>
+     <y>401</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionPaste</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>command_paste()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>583</x>
+     <y>401</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionGroup</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>command_group()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>583</x>
+     <y>401</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionUngroup</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>command_ungroup()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>583</x>
+     <y>401</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>command_open()</slot>
@@ -1555,5 +1663,10 @@
   <slot>command_visualizer()</slot>
   <slot>command_add_user_script()</slot>
   <slot>command_delete_user_script()</slot>
+  <slot>command_copy()</slot>
+  <slot>command_cut()</slot>
+  <slot>command_paste()</slot>
+  <slot>command_group()</slot>
+  <slot>command_ungroup()</slot>
  </slots>
 </ui>
