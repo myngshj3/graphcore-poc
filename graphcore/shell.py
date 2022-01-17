@@ -126,11 +126,15 @@ class GraphCoreContext(object):
 
     # aid attributes
     def aid_attributes(self):
+        if 'version' not in self.graph.keys():
+            self.graph['version'] = "0.1.0"
+            self.dirty = True
         attrs = self.settings.setting('default-scene-attrs')
         # types = sets.setting('scene-attr-types')
         for k in attrs.keys():
             if k not in self.graph.keys():
                 self.graph[k] = attrs[k]
+                self.dirty = True
         attrs = self.settings.setting('default-node-attrs')
         for n in self.nodes:
             t = self.nodes[n]['type']['value']
@@ -143,6 +147,7 @@ class GraphCoreContext(object):
                     self.nodes[n][k]['visible'] = a[k]['visible']
                     if 'list' in a[k].keys():
                         self.nodes[n][k]['list'] = a[k]['list']
+                    self.dirty = True
 
         attrs = self.settings.setting('default-edge-attrs')
         for e in self.edges:
@@ -156,14 +161,19 @@ class GraphCoreContext(object):
                     self.edges[e[0], e[1]][k]['visible'] = a[k]['visible']
                     if 'list' in a[k].keys():
                         self.edges[e[0], e[1]]['list'] = a[k]['list']
+                self.dirty = True
         if 'variables' not in self.graph.keys():
             self.graph['variables'] = {}
+            self.dirty = True
         if 'functions' not in self.graph.keys():
             self.graph['functions'] = {}
+            self.dirty = True
         if 'constraints' not in self.graph.keys():
             self.graph['constraints'] = {}
+            self.dirty = True
         if 'user-defined-functions' not in self.graph.keys():
             self.graph['user-defined-functions'] = {}
+            self.dirty = True
 
     # read_file
     def read_file(self, filename) -> None:
@@ -876,9 +886,13 @@ class GraphCoreContextHandler:
     def edge_attr(self, u, v, a):
         return self.context.edges[u, v][a]['value']
 
-    def change_edge_attr(self, u, v, a, value):
-        self.context.edges[u, v][a]['value'] = value
-        self.context.dirty = True
+    def change_edge_attr(self, u, v, *args):
+        arg_len = int(len(args)/2)
+        for i in range(arg_len):
+            a = args[i*2]
+            v = args[i*2+1]
+            self.context.edges[u, v][a]['value'] = v
+            self.context.dirty = True
         self.do_reflection(GraphCoreContextHandler.EdgeUpdated, (u, v))
 
     def change_view(self, x, y, w, h):

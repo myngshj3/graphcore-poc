@@ -9,18 +9,31 @@ from graphcore.settings import GraphCoreSettings, gcore_settings
 from graphcore.graphicsitem import GraphCoreNodeItemInterface
 from graphcore.graphicsitem import GraphCoreEdgeItemInterface
 from graphcore.shell import GraphCoreContextHandler, GraphCoreShell
-
+from graphcore.graphicsitem import GCGridItem
 
 # scene to manipulate graph
 class GraphCoreScene(QGraphicsScene):
     # initializer
-    def __init__(self, handler=None):
-        super().__init__()
+    def __init__(self, handler=None, x=0, y=0, width=800, height=600):
+        super().__init__(x, y, width, height)
         self.lines = []
         self._handler = handler
         self._settings = None
-        self.setup_scene_rect()
-        # self.draw_grid()
+        #self.setup_scene_rect()
+        self._text = QGraphicsSimpleTextItem()
+        self._text.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsSelectable, False)
+        self._text.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsMovable, False)
+        self.addItem(self._text)
+        self._grid = GCGridItem(x=self.sceneRect().x(), y=self.sceneRect().y(), width=self.sceneRect().width(), height=self.sceneRect().height())
+        self.addItem(self._grid)
+
+    @property
+    def text_item(self) -> QGraphicsSimpleTextItem:
+        return self._text
+
+    @property
+    def grid_item(self) -> GCGridItem:
+        return self._grid
 
     @property
     def handler(self) -> GraphCoreContextHandler:
@@ -44,12 +57,13 @@ class GraphCoreScene(QGraphicsScene):
         rect = sets.setting('default-scene-attrs')
         self.setSceneRect(rect['x'], rect['y'], rect['w'], rect['h'])
 
+    def set_coord(self, x, y):
+        text = "({:.2f}, {:.2f})".format(x, y)
+        self.text_item.setText(text)
+        self.text_item.setPos(self.grid_item.boundingRect().x() + 5, self.grid_item.boundingRect().y() + 5)
+
     # mouseMoveEvent
-    def mouseMoveEvent(self, event):
-        # if self.handler.extras['edge_creating']:
-        #     (source, sx, sy, r, item, edge_type) = self.handler.extras['temp_coords']
-        #     poly = gcore_arrow_polygon(sx, sy, r, event.scenePos().x(), event.scenePos().y(), 0, 10, np.pi/6.0)
-        #     item.setPolygon(poly)
+    def mouseMoveEvent(self, event: 'QGraphicsSceneMouseEvent') -> None:
         super().mouseMoveEvent(event)
 
     def to_node(self, i):

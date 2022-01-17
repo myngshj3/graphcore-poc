@@ -291,17 +291,20 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
         return None
 
     def handler_new(self, handler, async_handler):
+        scene = GraphCoreScene()
+        scene.handler = handler
+        view = GraphCoreView()  # QGraphicsView(scene)
+        view.setScene(scene)
         handler.extras['element_to_item'] = {}
         handler.extras['edge_creating'] = False
         handler.extras['temp_coords'] = None
-        scene = GraphCoreScene()
-        scene.handler = handler
+        self.ui.tabWidget.addTab(view, 'untitled')
+        self.ui.tabWidget.setCurrentWidget(view)
+        view.setBackgroundBrush(QBrush(QPixmap("images/grid-square.png")))
+        scene.setSceneRect(0, 0, view.width(), view.height())
         scene.shell = self.shell
         scene.settings = self.settings
         handler.extras['scene'] = scene
-        view = GraphCoreView()  # QGraphicsView(scene)
-        view.setBackgroundBrush(QBrush(QPixmap("images/grid-square.png")))
-        view.setScene(scene)
         view.set_main_window(self)
         view.set_shell(self.shell)
         view.setRubberBandSelectionMode(Qt.ContainsItemBoundingRect)
@@ -309,12 +312,10 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
         view.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         view.setContextMenuPolicy(Qt.CustomContextMenu)
         view.customContextMenuRequested['QPoint'].connect(self.command_show_context_menu)
-        # view.setBackgroundBrush(QBrush(QColor("pink")))
-        self.ui.tabWidget.addTab(view, 'untitled')
-        self.ui.tabWidget.setCurrentWidget(view)
-        self.install_handler_actions()
         self.handler_changed(handler, async_handler)
+        self.install_handler_actions()
         self.handler.loaded()
+        view.fitInView(scene.sceneRect(), Qt.AspectRatioMode.KeepAspectRatioByExpanding)
         index = self.ui.tabWidget.currentIndex()
         if self.handler.context.filename is None:
             self.ui.tabWidget.tabBar().setTabText(index, "untitled")
@@ -476,9 +477,9 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
         self.handler.extras['temp_coords'] = coords
 
     # print message
-    def print(self, text: object) -> None:
-        # print(text)
-        self.ui.messages.append(str(text))
+    def print(self, *args) -> None:
+        text = " ".join([str(_) for _ in args])
+        self.ui.messages.append(text)
 
     # Label menu command
     # setup label menu

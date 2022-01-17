@@ -308,17 +308,15 @@ class GraphCoreCircleNodeItem(QGraphicsEllipseItem, GraphCoreNodeItemInterface):
         self.draw()
 
     def paint(self, painter: QPainter, option: QStyleOptionGraphicsItem, widget: typing.Optional[QWidget] = ...) -> None:
-        super().paint(painter, option, widget)
+        # super().paint(painter, option, widget)
         attrs = self.context.nodes[self.node]
-        # draw image
-        image_path = attrs['image-path']['value']
-        if len(image_path) != 0:
-            pixmap = gcore_get_pixmap(image_path)
-            x = attrs['x']['value']
-            y = attrs['y']['value']
-            w = attrs['w']['value']
-            h = attrs['h']['value']
-            painter.drawPixmap(x-w/2, y-h/2, w, h, pixmap)
+
+        if self.handler.context.nodes[self.node]['filled']['value']:
+            color = self.handler.context.nodes[self.node]['fill-color']['value']
+            painter.setBrush(QColor(color))
+            painter.drawEllipse(self.rect())
+        painter.brush().setStyle(Qt.NoBrush)
+        painter.drawEllipse(self.rect())
         # draw double line
         if self.handler.context.nodes[self.node]['shape']['value'] == "doublecircle":
             margin = 4
@@ -328,6 +326,22 @@ class GraphCoreCircleNodeItem(QGraphicsEllipseItem, GraphCoreNodeItemInterface):
             w = rect.width() - margin * 2
             h = rect.height() - margin * 2
             painter.drawEllipse(QRectF(x, y, w, h))
+
+        # draw image
+        image_path = attrs['image-path']['value']
+        if len(image_path) != 0:
+            x = attrs['x']['value']
+            y = attrs['y']['value']
+            w = attrs['w']['value']
+            h = attrs['h']['value']
+            extension = image_path.split(".")[1]
+            if extension in ('png', 'bmp', 'jpeg', 'jpg'):
+                pixmap = QPixmap(image_path)
+                painter.drawPixmap(QRectF(x-w/2, y-h/2, w, h), pixmap, QRectF(0, 0, pixmap.width(), pixmap.height()))
+            elif extension == 'svg':
+                svg = QSvgRenderer(image_path)
+                svg.render(painter, QRectF(x-w/2, y-h/2, w, h))
+
 
     def draw(self):
         self.redraw()
@@ -346,7 +360,8 @@ class GraphCoreCircleNodeItem(QGraphicsEllipseItem, GraphCoreNodeItemInterface):
             brush = QBrush(QColor(n['fill-color']['value']))
             self.setBrush(brush)
         else:
-            self.setBrush(QColor())
+            self.setBrush(QBrush())
+            self.brush().setStyle(Qt.NoBrush)
         x = n['x']['value']
         y = n['y']['value']
         w = n['w']['value']
@@ -355,7 +370,27 @@ class GraphCoreCircleNodeItem(QGraphicsEllipseItem, GraphCoreNodeItemInterface):
         # print("  sceneRect ({}, {}, {}, {}) of {}".format(sceneRect.x() + sceneRect.width()/2, sceneRect.y() + sceneRect.height()/2, sceneRect.width(), sceneRect.height(), self))
         self.setRect(x - w/2, y - h/2, w, h)
         rect = label.sceneBoundingRect()
-        label.setPos(x - rect.width()/2, y - rect.height()/2)
+        text_align = n['text-align']['value']
+        if text_align == 'top-left':
+            label.setPos(x - w/2, y - h/2 - rect.height())
+        elif text_align == 'center-left':
+            label.setPos(x - w/2, y - rect.height()/2)
+        elif text_align == 'bottom-left':
+            label.setPos(x - w/2, y + h/2)
+        elif text_align == 'top-center':
+            label.setPos(x - rect.width()/2, y - h/2 - rect.height())
+        elif text_align == 'center-center':
+            label.setPos(x - rect.width()/2, y - rect.height()/2)
+        elif text_align == 'bottom-center':
+            label.setPos(x - rect.width() / 2, y + h/2)
+        elif text_align == 'top-right':
+            label.setPos(x + w/2 - rect.width(), y - h/2 - rect.height())
+        elif text_align == 'center-right':
+            label.setPos(x + w/2 - rect.width(), y - rect.height()/2)
+        elif text_align == 'bottom-right':
+            label.setPos(x + w/2 - rect.width(), y + h/2)
+        else:
+            label.setPos(x - rect.width() / 2, y - rect.height() / 2)
         self.paint_bound_points()
         self.setFlag(QGraphicsItem.ItemIsMovable, True)
 
@@ -386,17 +421,13 @@ class GraphCoreRectNodeItem(QGraphicsRectItem, GraphCoreNodeItemInterface):
         self.draw()
 
     def paint(self, painter: QPainter, option: QStyleOptionGraphicsItem, widget: typing.Optional[QWidget] = ...) -> None:
-        super().paint(painter, option, widget)
+        # super().paint(painter, option, widget)
         attrs = self.context.nodes[self.node]
-        # draw image
-        image_path = attrs['image-path']['value']
-        if len(image_path) != 0:
-            pixmap = gcore_get_pixmap(image_path)
-            x = attrs['x']['value']
-            y = attrs['y']['value']
-            w = attrs['w']['value']
-            h = attrs['h']['value']
-            painter.drawPixmap(x-w/2, y-h/2, w, h, pixmap)
+
+        if self.handler.context.nodes[self.node]['filled']['value']:
+            color = self.handler.context.nodes[self.node]['fill-color']['value']
+            painter.fillRect(self.rect(), QColor(color))
+        painter.drawRect(self.rect())
         if self.handler.context.nodes[self.node]['shape']['value'] == "doublebox":
             margin = 4
             rect = self.rect()
@@ -405,6 +436,21 @@ class GraphCoreRectNodeItem(QGraphicsRectItem, GraphCoreNodeItemInterface):
             w = rect.width() - margin * 2
             h = rect.height() - margin * 2
             painter.drawRect(QRectF(x, y, w, h))
+
+        # draw image
+        image_path = attrs['image-path']['value']
+        if len(image_path) != 0:
+            x = attrs['x']['value']
+            y = attrs['y']['value']
+            w = attrs['w']['value']
+            h = attrs['h']['value']
+            extension = image_path.split(".")[1]
+            if extension in ('png', 'bmp', 'jpeg', 'jpg'):
+                pixmap = QPixmap(image_path)
+                painter.drawPixmap(QRectF(x-w/2, y-h/2, w, h), pixmap, QRectF(0, 0, pixmap.width(), pixmap.height()))
+            elif extension == 'svg':
+                svg = QSvgRenderer(image_path)
+                svg.render(painter, QRectF(x-w/2, y-h/2, w, h))
 
     def draw(self):
         self.redraw()
@@ -423,15 +469,36 @@ class GraphCoreRectNodeItem(QGraphicsRectItem, GraphCoreNodeItemInterface):
             brush = QBrush(QColor(n['fill-color']['value']))
             self.setBrush(brush)
         else:
-            self.setBrush(QColor())
+            self.setBrush(QBrush())
+            self.brush().setStyle(Qt.NoBrush)
         x = n['x']['value']
         y = n['y']['value']
         w = n['w']['value']
         h = n['h']['value']
         self.setRect(x - w/2, y - h/2, w, h)
+        self.setRect(x - w/2, y - h/2, w, h)
         rect = label.sceneBoundingRect()
-        # label.setPos(x + w/2 - rect.width()/2, y + h/2 - rect.height()/2)
-        label.setPos(x - rect.width()/2, y - rect.height()/2)
+        text_align = n['text-align']['value']
+        if text_align == 'top-left':
+            label.setPos(x - w/2, y - h/2 - rect.height())
+        elif text_align == 'center-left':
+            label.setPos(x - w/2, y - rect.height()/2)
+        elif text_align == 'bottom-left':
+            label.setPos(x - w/2, y + h/2)
+        elif text_align == 'top-center':
+            label.setPos(x - rect.width()/2, y - h/2 - rect.height())
+        elif text_align == 'center-center':
+            label.setPos(x - rect.width()/2, y - rect.height()/2)
+        elif text_align == 'bottom-center':
+            label.setPos(x - rect.width() / 2, y + h/2)
+        elif text_align == 'top-right':
+            label.setPos(x + w/2 - rect.width(), y - h/2 - rect.height())
+        elif text_align == 'center-right':
+            label.setPos(x + w/2 - rect.width(), y - rect.height()/2)
+        elif text_align == 'bottom-right':
+            label.setPos(x + w/2 - rect.width(), y + h/2)
+        else:
+            label.setPos(x - rect.width() / 2, y - rect.height() / 2)
         self.paint_bound_points()
 
     def mousePressEvent(self, event: 'QGraphicsSceneMouseEvent') -> None:
@@ -578,7 +645,9 @@ class GraphCoreEdgeItem(QGraphicsPolygonItem, GraphCoreEdgeItemInterface):
         u = self.context.nodes[self.u]
         v = self.context.nodes[self.v]
         self._label.setPlainText(e['label']['value'])
-        self._label.setPos((u['x']['value']+v['x']['value'])/2, (u['y']['value']+v['y']['value'])/2)
+        x, y = (u['x']['value']+v['x']['value'])/2, (u['y']['value']+v['y']['value'])/2
+        boundingRect = self._label.boundingRect()
+        self._label.setPos(x - boundingRect.width()/2, y) # y - boundingRect.height()/2)
         self.paint_bound_rects()
 
 
@@ -595,6 +664,106 @@ class GraphCoreEdgeItem(QGraphicsPolygonItem, GraphCoreEdgeItemInterface):
         #     self.handler.select_edge(self.u, self.v)
         super().mouseDoubleClickEvent(event)
 
+# grid pane
+class GCGridItem(QGraphicsItem):
+
+    def __init__(self, parent=None, tick=20, x=0, y=0, width=800, height=600):
+        super().__init__(parent=parent)
+        self.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsMovable, False)
+        self.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsSelectable, False)
+        self._tick = tick
+
+    def boundingRect(self) -> QtCore.QRectF:
+        scene = self.scene()
+        # return scene.sceneRect()
+        view = scene.views()[0]
+        left_top = view.mapToScene(0, 0)
+        right_bottom = view.mapToScene(view.width(), view.height())
+        return QRectF(left_top.x(), left_top.y(), right_bottom.x() - left_top.x(), right_bottom.y() - left_top.y())
+
+    def paint(self, painter: QtGui.QPainter, option: 'QStyleOptionGraphicsItem', widget: typing.Optional[QWidget] = ...) -> None:
+        pass
+        # painter.setPen(QPen(QColor("#888")))
+        # painter.pen().setStyle(Qt.PenStyle.DashDotDotLine)
+        # rect = self.boundingRect()
+        # # vertical grids
+        # num = int(rect.width() / self._tick)
+        # if divmod(rect.width(), self._tick) != 0:
+        #     num += 1
+        # for i in range(num):
+        #     x = rect.x() + self._tick / 2 + self._tick * i
+        #     painter.drawLine(QLineF(x, rect.y(), x, rect.y() + rect.height()))
+        # # horizontal grids
+        # num = int(rect.height() / self._tick)
+        # if divmod(rect.height(), self._tick) != 0:
+        #     num += 1
+        # for i in range(num):
+        #     y = rect.y() + self._tick / 2 + self._tick * i
+        #     painter.drawLine(QLineF(rect.x(), y, rect.x() + rect.width(), y))
+
+    def sceneEvent(self, event: QtCore.QEvent) -> bool:
+        if event.type() == QEvent.Type.GraphicsSceneResize:
+            print("sceneEvent resize", self.scene().sceneRect())
+            self.setRect(self.scene().sceneRect())
+        return  super().sceneEvent(event)
+
+
+# horizontal/vertical axis
+class GCAxisItem(QGraphicsItem):
+
+    def __init__(self, parent=None, orientation='bottom', tick=20, size=30,
+                 left_margin=20, top_margin=20, bottom_margin=40, right_margin=40):
+        super().__init__(parent)
+        self.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsMovable, False)
+        self.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsSelectable, False)
+        self._orientation = orientation
+        self._size = size
+        self._tick = tick
+        self._left_margin = left_margin
+        self._top_margin = top_margin
+        self._bottom_margin = bottom_margin
+        self._right_margin = right_margin
+
+    @property
+    def orientation(self):
+        return self._orientation
+
+    def boundingRect(self) -> QtCore.QRectF:
+        scene = self.scene()
+        view = scene.views()[0]
+        if self.orientation == 'bottom':
+            view_rect = QRectF(0, view.height()-self._size, view.width(), self._size)
+        elif self.orientation == 'top':
+            view_rect = QRectF(0, 0, view.width(), self._size)
+        elif self.orientation == 'left':
+            view_rect = QRectF(0, 0, self._size, view.height())
+        elif self.orientation == 'right':
+            view_rect = QRectF(view.width()-self._size, 0, self._size, view.height())
+        else:
+            raise Exception("bug!")
+        left_top = view.mapToScene(view_rect.x(), view_rect.y())
+        right_bottom = view.mapToScene(view_rect.x()+view_rect.width(), view_rect.y()+view_rect.height())
+        return QRectF(left_top.x(), left_top.y(), right_bottom.x()-left_top.x(), right_bottom.y()-left_top.y())
+
+    def paint(self, painter: QtGui.QPainter, option: 'QStyleOptionGraphicsItem', widget: typing.Optional[QWidget] = ...) -> None:
+        painter.setPen(QColor("#888"))
+        rect = self.boundingRect()
+        if self.orientation in ('bottom', 'top'):
+            painter.drawLine(QPointF(rect.x() + self._left_margin, rect.y() + self._size / 2),
+                             QPointF(rect.x() + rect.width() - self._right_margin, rect.y() + self._size / 2))
+            line_width = rect.width() - self._left_margin - self._right_margin
+            tick_count = int(line_width / self._tick)
+            for i in range(tick_count):
+                x = self._tick * i + rect.x() + self._left_margin
+                painter.drawLine(QLineF(x, rect.y(), x, rect.y() + rect.height()))
+        elif self.orientation in ('left', 'right'):
+            painter.drawLine(QPointF(rect.x() + self._size / 2, rect.y() + self._top_margin),
+                             QPointF(rect.x() + self._size / 2, rect.y() + rect.height() - self._bottom_margin))
+            line_height = rect.height() - self._top_margin - self._bottom_margin
+            tick_count = int(line_height / self._tick)
+            for i in range(tick_count):
+                y = self._tick * i + rect.y() + self._top_margin
+                painter.drawLine(QLineF(rect.x(), y, rect.x() + rect.width(), y))
 
 def gcore_create_node_item(n, context: GraphCoreContext, handler: GraphCoreContextHandler):
     attr = context.nodes[n]

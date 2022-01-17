@@ -12,6 +12,7 @@ from graphcore.drawutil import gcore_arrow_polygon
 class GraphCoreView(QGraphicsView):
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.setMouseTracking(True)
         self._main_window = None
         self._shell = None
         self._navigation_node = None
@@ -27,6 +28,11 @@ class GraphCoreView(QGraphicsView):
 
     def set_navigation_node(self, node):
         self._navigation_node = node
+
+    def resizeEvent(self, event: QtGui.QResizeEvent) -> None:
+        #from graphcore.graphicsscene import GraphCoreScene
+        #from graphcore.graphicsitem import GCGridItem
+        super().resizeEvent(event)
 
     def wheelEvent(self, event: QtGui.QWheelEvent) -> None:
         if event.modifiers() & Qt.ControlModifier:
@@ -65,6 +71,22 @@ class GraphCoreView(QGraphicsView):
         # super().mouseDoubleClickEvent(event)
 
     def mouseMoveEvent(self, event):
+        from graphcore.graphicsscene import GraphCoreScene
+        # render mouse coordinate
+        scenePos = self.mapToScene(event.pos())
+        coord = "({:.2f}, {:.2f})".format(scenePos.x(), scenePos.y())
+        # painter = QtGui.QPainter(self)
+        # painter.begin(self)
+        # painter.setFont(QtGui.QFont(u'メイリオ', 11))
+        # painter.setPen(QtGui.QColor("black"))
+        # painter.drawText(self.rect(), Qt.AlignTop | Qt.AlignHCenter, coord)
+        # painter.fillRect(self.rect(), QtGui.QColor("blue"))
+        scene = self.scene()
+        text_item: QGraphicsSimpleTextItem = scene.text_item
+        text_item.setText(coord)
+        text_item.setPos(self.mapToScene(5, 5))
+        text_item.setZValue(1)
+        # scene.set_coord(scenePos.x(), scenePos.y())
         #self._main_window.print("mouseMoveEvent button={}, pos={}".format(event.button(), event.pos()))
         if self._main_window.handler.extras['edge_creating']:
             (source, sx, sy, r, item, edge_type) = self._main_window.handler.extras['temp_coords']
