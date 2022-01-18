@@ -15,6 +15,7 @@ import numpy as np
 import time
 import yaml
 from graphcore.reporter import GraphCoreReporter
+from graphcore.gcsolver import SolverController
 from PyQt5.QtCore import QThread, QMutex, pyqtSignal
 import traceback
 
@@ -1064,6 +1065,19 @@ class GraphCoreContextHandler:
         x = self.context.user_defined_functions[fid] = str
         self.context.dirty = True
         self.do_reflection(GraphCoreContextHandler.UserDefinedFunctionRemoved, fid)
+
+    def new_solver(self):
+        solver = SolverController(self)
+        solver.set_G(self.context.G)
+        return solver
+
+    @staticmethod
+    def set_solver_dt(solver: SolverController, dt):
+        solver.set_dt(dt)
+
+    @staticmethod
+    def set_solver_steps(solver: SolverController, steps):
+        solver.set_steps(steps)
 
     def new_constraint(self):
         m: int = 0

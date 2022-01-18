@@ -193,3 +193,4 @@ class GraphCoreGenericSolver:
                 else:
                     cp["progress"] = next_progress
             cp["passed-time"] = self.t
+

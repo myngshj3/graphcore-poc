@@ -901,6 +901,27 @@ class GraphCoreScript(QObject):
         m = ExtensibleWrappedAccessor(self._toplevel, "simulation_data", None,
                                       lambda ao, c, eo, ca, ea: self.handler.context.post_data)
         self._toplevel.declare_method(m, globally=True)
+        m = ExtensibleWrappedAccessor(self._toplevel, "new_solver", None,
+                                      lambda ao, c, eo, ca, ea: self.handler.new_solver())
+        self._toplevel.declare_method(m, globally=True)
+        m = ExtensibleWrappedAccessor(self._toplevel, "solver_dt", None,
+                                      lambda ao, c, eo, ca, ea: ca[0].dt)
+        self._toplevel.declare_method(m, globally=True)
+        m = ExtensibleWrappedAccessor(self._toplevel, "set_solver_dt", None,
+                                      lambda ao, c, eo, ca, ea: ca[0].set_dt(ca[1]))
+        self._toplevel.declare_method(m, globally=True)
+        m = ExtensibleWrappedAccessor(self._toplevel, "solver_steps", None,
+                                      lambda ao, c, eo, ca, ea: ca[0].steps)
+        self._toplevel.declare_method(m, globally=True)
+        m = ExtensibleWrappedAccessor(self._toplevel, "set_solver_steps", None,
+                                      lambda ao, c, eo, ca, ea: ca[0].set_steps(ca[1]))
+        self._toplevel.declare_method(m, globally=True)
+        m = ExtensibleWrappedAccessor(self._toplevel, "solver_post_data", None,
+                                      lambda ao, c, eo, ca, ea: ca[0].post_data)
+        self._toplevel.declare_method(m, globally=True)
+        m = ExtensibleWrappedAccessor(self._toplevel, "start_solver", None,
+                                      lambda ao, c, eo, ca, ea: ca[0].start())
+        self._toplevel.declare_method(m, globally=True)
 
         # networkx
         m = ExtensibleWrappedAccessor(self._toplevel, "find_graph_nodes", None,

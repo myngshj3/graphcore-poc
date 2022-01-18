@@ -5,6 +5,7 @@ import numpy as np
 from numpy import pi, sin, cos, tan, arcsin, arccos, arctan, exp, log, log2, log10
 import networkx as nx
 import json
+import traceback
 
 
 
@@ -280,6 +281,108 @@ class GCGeneralSolver(GCSolver):
 
         self._G = H
         return H
+
+
+class SolverController:
+    def __init__(self, handler):
+        self._handler = handler
+        self._cancel = False
+        self._value_field = "value"
+        self._maxValue_field = "maxValue"
+        self._velocity_field = "velocity"
+        self._maxVelocity_field = "maxVelocity"
+        self._currentMaxVelocity_field = "currentMaxVelocity"
+        self._distance_field = "distance"
+        self._dt = 1
+        self._steps = 100
+        self._G = None
+        self._post_data = ()
+        self._print_progress = True
+
+    @property
+    def handler(self):
+        return self._handler
+
+    @property
+    def dt(self):
+        return self._dt
+
+    def set_dt(self, v):
+        self._dt = v
+
+    @property
+    def steps(self):
+        return self._steps
+
+    def set_steps(self, v):
+        self._steps = v
+
+    @property
+    def G(self):
+        return self._G
+
+    def set_G(self, model_graph):
+        G = nx.DiGraph()
+        for n in model_graph.nodes:
+            G.add_node(n)
+            for k in model_graph.nodes[n].keys():
+                G.nodes[n][k] = model_graph.nodes[n][k]['value']
+        for e in model_graph.edges:
+            G.add_edge(e[0], e[1])
+            for k in model_graph.edges[e[0], e[1]].keys():
+                G.edges[e[0], e[1]][k] = model_graph.edges[e[0], e[1]][k]['value']
+        self._G = G
+
+    @property
+    def post_data(self):
+        return self._post_data
+
+    @property
+    def print_progress(self):
+        return self._print_progress
+
+    def set_print_progress(self, f):
+        self._print_progress = f
+
+    def start(self):
+        try:
+            self._cancel = False
+            value_property = self._value_field
+            max_value_property = self._maxValue_field
+            velocity_property = self._velocity_field
+            max_velocity_property = self._maxVelocity_field
+            current_max_velocity_property = self._currentMaxVelocity_field
+            distance_property = self._distance_field
+            dt = self.dt
+            steps = self.steps
+            solver: GCSolver = GCGeneralSolver(self.G, dt)
+            G = solver.clone_graph(self.G)
+            solver.G = G
+            G_array = [nx.node_link_data(G)]
+            t = 0
+            for i in range(steps):
+                if self.print_progress:
+                    self.handler.reporter("{}-th iteration".format(i+1))
+                if self._cancel:
+                    break
+                G = solver.calc_one_step(value_property, max_value_property, velocity_property, max_velocity_property,
+                                         current_max_velocity_property, distance_property, t)
+                t += dt
+                data = nx.node_link_data(G)
+                G_array.append(data)
+                self._G = G
+            if self.print_progress:
+                self.handler.reporter("done")
+            if not self._cancel:
+                self._post_data = tuple(G_array)
+        except Exception as ex:
+            print('exception occured:', ex)
+            print(traceback.format_exc())
+        finally:
+            self._cancel = True
+
+    def cancel(self):
+        self._cancel = True
 
 
 def main(argv):
