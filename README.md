@@ -51,4 +51,6 @@ An application is opened as GraphCore application suite. Current supports are th
   
   o Script which manipulates graph, components and their attributes is implementd.
   
+  o Script is also enabled to operate solver and post data.
+  
   o Model constraints module is been implemented.
