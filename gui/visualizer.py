@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import networkx as nx
+from PyQt5 import Qt, QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QDialog, QTableWidgetItem, QTableWidget, QWidget, QGraphicsWidget, QGraphicsGridLayout
 from PyQt5.QtWidgets import QStyle
 from PyQt5.QtGui import QContextMenuEvent
@@ -8,11 +9,48 @@ from PyQt5.QtWidgets import QMenu
 from PyQt5.QtCore import Qt
 from PyQt5.QtCore import QPoint
 from PyQt5.QtCore import QItemSelection
+from PyQt5.QtWidgets import QGraphicsItem
 import pyqtgraph as pg
 from pyqtgraph import PlotItem, PlotWidget, AxisItem
 import numpy as np
 from gui.Ui_Visualizer import Ui_visualizerDialog
+import typing
 
+
+class CustomAxesItem(QGraphicsItem):
+
+    def __init__(self, parent=None, size=40, show_bottom=True, show_left=True):
+        super().__init__(parent)
+        self._size = size
+        self._bottom = show_bottom
+        self._left = show_left
+
+    def boundingRect(self):
+        view_rect = self.scene().views()[0].rect()
+        tl = self.scene().views()[0].mapToScene(view_rect.x(), view_rect.y())
+        br = self.scene().views()[0].mapToScene(view_rect.x() + view_rect.width(), view_rect.y() + view_rect.height())
+        return QtCore.QRectF(tl.x(), tl.y(), br.x() - tl.x(), br.y() - tl.y())
+
+    def paint(self, painter: QtGui.QPainter, option: QtWidgets.QStyleOptionGraphicsItem, widget: typing.Optional[QWidget] = ...) -> None:
+        painter.setBrush(QtGui.QColor("gray"))
+        painter.setPen(QtGui.QColor("white"))
+        painter.pen().setWidth(1)
+        view_rect = self.scene().views()[0].rect()
+        # bottom
+        rect = QtCore.QRect(0, view_rect.height() - self._size, view_rect.width(), self._size)
+        #painter.fillRect(rect, QtGui.QColor("black"))
+        tl = self.scene().views()[0].mapToScene(rect.x(), rect.y())
+        br = self.scene().views()[0].mapToScene(rect.x() + rect.width(), rect.y() + rect.height())
+        print("bottom pane", tl.x(), tl.y(), br.x()-tl.x(), br.y()-tl.y())
+        painter.drawLine(tl.x(), (tl.y() + br.y())/2, br.x(), (tl.y() +br.y())/2)
+        # left
+        rect = QtCore.QRect(0, 0, self._size, view_rect.height())
+        #painter.fillRect(rect, QtGui.QColor("black"))
+        tl = self.scene().views()[0].mapToScene(rect.x(), rect.y())
+        br = self.scene().views()[0].mapToScene(rect.x() + rect.width(), rect.y() + rect.height())
+        print("bottom pane", tl.x(), tl.y(), br.x()-tl.x(), br.y()-tl.y())
+        painter.drawLine((tl.x() + br.x())/2, tl.y(),
+                         (tl.x() + br.x())/2, br.y())
 
 class GCVisualizerDialog(QDialog):
 
@@ -31,6 +69,9 @@ class GCVisualizerDialog(QDialog):
         self.ui.closeButton.clicked.connect(self.close)
         self.ui.nodePlot.plotItem.getAxis('bottom').setLabel(text="time")
         self.ui.edgePlot.plotItem.getAxis('bottom').setLabel(text="time")
+        # self._axes = CustomAxesItem()
+        # scene = self.ui.nodePlot.scene()
+        # scene.addItem(self._axes)
         self.setWindowState(Qt.WindowMaximized)
 
 
@@ -159,6 +200,17 @@ class GCVisualizerDialog(QDialog):
     def plot(self):
         self.plotNodes()
         self.plotEdges()
+        # self.ui.nodePlot.plotItem.getAxis('bottom').setWidth(1263)
+        # bottom: pg.AxisItem = self.ui.edgePlot.plotItem.getAxis('bottom')
+        # print("bottomAxis boundingRect", bottom.boundingRect())
+        # print("bottomAxis viewRect    ", bottom.viewRect())
+        # print("bottomAxis viewPos     ", bottom.viewPos())
+        # print("bottomAxis viewWidget  ", bottom.getViewWidget())
+        # vb: pg.ViewBox = bottom.getViewBox()
+        #
+        # print("bottom     viewBox pos ", vb.pos())
+        # print("bottom     viewBox size", vb.width(), vb.height())
+        # print("leftAxis  ", self.ui.edgePlot.plotItem.getAxis('left').boundingRect())
 
     def plotNodes(self):
         x = [self.ui.dt.value()*i for i in range(self.ui.stepOffset.value(), self.ui.steps.value()+1)]
@@ -181,7 +233,6 @@ class GCVisualizerDialog(QDialog):
         plotItem.getViewBox().setXRange(x[0], x[len(x)-1])
         plotItem.getAxis('bottom').setRange(x[0], x[len(x)-1])
         plotItem.getAxis('left').setRange(ymin, ymax)
-        print("linkedView:", self.nodePlotYAxis.linkedView())
 
     def plotEdges(self):
         x = [self.ui.dt.value()*i for i in range(self.ui.stepOffset.value(), self.ui.steps.value()+1)]

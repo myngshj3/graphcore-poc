@@ -815,6 +815,10 @@ class GraphCoreScript(QObject):
                                       lambda ao, c, eo, ca, ea: eo.print(" ".join([str(_) for _ in ca])),
                                       globally=True)
         self._toplevel.declare_method(m, globally=True)
+        m = ExtensibleWrappedAccessor(self._toplevel, "list", None,
+                                      lambda ao, c, eo, ca, ea: list(ca),
+                                      globally=True)
+        self._toplevel.declare_method(m, globally=True)
         m = ExtensibleWrappedAccessor(self._toplevel, "append", None,
                                       lambda ao, c, eo, ca, ea: ca[0].append(ca[1]),
                                       globally=True)
@@ -831,8 +835,8 @@ class GraphCoreScript(QObject):
                                       lambda ao, c, eo, ca, ea: [_ for _ in self.handler.context.G.nodes],
                                       globally=True)
         self._toplevel.declare_method(m, globally=True)
-        m = ExtensibleWrappedAccessor(self._toplevel, "new_node", None,
-                                      lambda ao,c,eo,ca,ea: self.handler.new_node())
+        m = ExtensibleWrappedAccessor(self._toplevel, "add_new_node", None,
+                                      lambda ao,c,eo,ca,ea: self.handler.add_new_node(ca[0], *ca[1:]))
         self._toplevel.declare_method(m, globally=True)
         m = ExtensibleWrappedAccessor(self._toplevel, "remove_node", None,
                                       lambda ao,c,eo,ca,ea: self.handler.remove_node(ca[0]))
@@ -852,8 +856,8 @@ class GraphCoreScript(QObject):
                                       lambda ao, c, eo, ca, ea: [_ for _ in self.handler.context.G.edges],
                                       globally=True)
         self._toplevel.declare_method(m, globally=True)
-        m = ExtensibleWrappedAccessor(self._toplevel, "add_edge", None,
-                                      lambda ao,c,eo,ca,ea: self.handler.add_edge(ca[0], ca[1]))
+        m = ExtensibleWrappedAccessor(self._toplevel, "add_new_edge", None,
+                                      lambda ao,c,eo,ca,ea: self.handler.add_new_edge(ca[0], ca[1], ca[2], *ca[3:]))
         self._toplevel.declare_method(m, globally=True)
         m = ExtensibleWrappedAccessor(self._toplevel, "remove_edge", None,
                                       lambda ao,c,eo,ca,ea: self.handler.remove_edge(a[0], a[1]))
@@ -870,14 +874,59 @@ class GraphCoreScript(QObject):
         m = ExtensibleWrappedAccessor(self._toplevel, "set_edge_value", None,
                                       lambda ao, c, eo, ca, ea: self.handler.change_edge_attr(ca[0], ca[1], *ca[2:]))
         self._toplevel.declare_method(m, globally=True)
+        m = ExtensibleWrappedAccessor(self._toplevel, "find_nodes", None,
+                                      lambda ao, c, eo, ca, ea: self.handler.find_nodes(*ca))
+        self._toplevel.declare_method(m, globally=True)
+        m = ExtensibleWrappedAccessor(self._toplevel, "find_edges", None,
+                                      lambda ao, c, eo, ca, ea: self.handler.find_edges(*ca))
+        self._toplevel.declare_method(m, globally=True)
         m = ExtensibleWrappedAccessor(self._toplevel, "run_user_script", None,
                                       lambda ao, c, eo, ca, ea: self.handler.run_user_script(ca[0]))
         self._toplevel.declare_method(m, globally=True)
         m = ExtensibleWrappedAccessor(self._toplevel, "run_system_script", None,
                                       lambda ao, c, eo, ca, ea: self.handler.run_system_script(ca[0]))
         self._toplevel.declare_method(m, globally=True)
+        m = ExtensibleWrappedAccessor(self._toplevel, "graph_to_data", None,
+                                      lambda ao, c, eo, ca, ea: nx.node_link_data(ca[0]))
+        self._toplevel.declare_method(m, globally=True)
+        m = ExtensibleWrappedAccessor(self._toplevel, "data_to_graph", None,
+                                      lambda ao, c, eo, ca, ea: nx.node_link_graph(ca[0]))
+        self._toplevel.declare_method(m, globally=True)
+        m = ExtensibleWrappedAccessor(self._toplevel, "simulation_steps", None,
+                                      lambda ao, c, eo, ca, ea: self.handler.context.steps)
+        self._toplevel.declare_method(m, globally=True)
+        m = ExtensibleWrappedAccessor(self._toplevel, "simulation_dt", None,
+                                      lambda ao, c, eo, ca, ea: self.handler.context.dt)
+        self._toplevel.declare_method(m, globally=True)
+        m = ExtensibleWrappedAccessor(self._toplevel, "simulation_data", None,
+                                      lambda ao, c, eo, ca, ea: self.handler.context.post_data)
+        self._toplevel.declare_method(m, globally=True)
 
         # networkx
+        m = ExtensibleWrappedAccessor(self._toplevel, "find_graph_nodes", None,
+                                      lambda ao, c, eo, ca, ea: self.handler.graph_find_nodes(ca[0], *ca[1:]))
+        self._toplevel.declare_method(m, globally=True)
+        m = ExtensibleWrappedAccessor(self._toplevel, "find_graph_edges", None,
+                                      lambda ao, c, eo, ca, ea: self.handler.graph_find_edges(ca[0], *ca[1:]))
+        self._toplevel.declare_method(m, globally=True)
+        m = ExtensibleWrappedAccessor(self._toplevel, "graph_nodes", None,
+                                      lambda ao, c, eo, ca, ea: ca[0].nodes)
+        self._toplevel.declare_method(m, globally=True)
+        m = ExtensibleWrappedAccessor(self._toplevel, "graph_node", None,
+                                      lambda ao, c, eo, ca, ea: ca[0].nodes[ca[1]])
+        self._toplevel.declare_method(m, globally=True)
+        m = ExtensibleWrappedAccessor(self._toplevel, "graph_node_attrs", None,
+                                      lambda ao, c, eo, ca, ea: ca[0].nodes[ca[1]])
+        self._toplevel.declare_method(m, globally=True)
+        m = ExtensibleWrappedAccessor(self._toplevel, "graph_edges", None,
+                                      lambda ao, c, eo, ca, ea: ca[0].edges)
+        self._toplevel.declare_method(m, globally=True)
+        m = ExtensibleWrappedAccessor(self._toplevel, "graph_edge", None,
+                                      lambda ao, c, eo, ca, ea: ca[0].edges[ca[1], ca[2]])
+        self._toplevel.declare_method(m, globally=True)
+        m = ExtensibleWrappedAccessor(self._toplevel, "graph_edge_attrs", None,
+                                      lambda ao, c, eo, ca, ea: ca[0].edges[ca[1], ca[2]])
+        self._toplevel.declare_method(m, globally=True)
         successors = ExtensibleWrappedAccessor(self._toplevel, "successors", None,
                                                lambda ao, c, eo, ca, ea: [_ for _ in
                                                                           self.handler.context.G.successors(ca[0])],

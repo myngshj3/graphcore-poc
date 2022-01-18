@@ -509,7 +509,7 @@ class GraphCoreRectNodeItem(QGraphicsRectItem, GraphCoreNodeItemInterface):
         super().mousePressEvent(event)
 
     def mouseMoveEvent(self, event: QGraphicsSceneMouseEvent):
-        print("mouseMoveEvent", type(self), event)
+        #print("mouseMoveEvent", type(self), event)
         dx, dy = event.scenePos().x() - event.lastScenePos().x(), event.scenePos().y() - event.lastScenePos().y()
         # dx, dy = event.pos().x() - event.lastPos().x(), event.pos().y() - event.lastPos().y()
         if dx != 0 or dy != 0:
@@ -703,8 +703,9 @@ class GCGridItem(QGraphicsItem):
 
     def sceneEvent(self, event: QtCore.QEvent) -> bool:
         if event.type() == QEvent.Type.GraphicsSceneResize:
-            print("sceneEvent resize", self.scene().sceneRect())
-            self.setRect(self.scene().sceneRect())
+            #print("sceneEvent resize", self.scene().sceneRect())
+            #self.setRect(self.scene().sceneRect())
+            pass
         return  super().sceneEvent(event)
 
 

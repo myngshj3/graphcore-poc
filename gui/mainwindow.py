@@ -509,12 +509,14 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
     def command_console(self):
         # if self._script_worker is None:
         #     self.construct_script_handler()
-        # self.console.setModal(False)
-        self.console.setModal(True)
+        self.console.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.console.setModal(False)
+        # self.console.setModal(True)
         self.script_handler.handler = self.handler
         self.console.set_handler(self.script_handler)
         # self.console.exec_()
         self.console.show()
+        self.console.raise_()
 
     # node label change command
     def command_set_node_label(self, attr_name):
@@ -1762,12 +1764,12 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
         try:
             self.print("command_cut")
             self.copy_impl()
-            for n in self.handler.selected_nodes:
-                self.handler.remove_node(n)
-            for e in self.handler.selected_edges:
-                self.handler.remove_edge(e[0], e[1])
             for g in self.handler.selected_groups:
                 self.handler.remove_group(g)
+            for e in self.handler.selected_edges:
+                self.handler.remove_edge(e[0], e[1])
+            for n in self.handler.selected_nodes:
+                self.handler.remove_node(n)
 
         except Exception as ex:
             self.print(traceback.format_exc())
