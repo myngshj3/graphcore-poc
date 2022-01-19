@@ -1009,8 +1009,8 @@ class GraphCoreContextHandler:
         arg_len = int(len(args)/2)
         for i in range(arg_len):
             a = args[i*2]
-            v = args[i*2+1]
-            self.context.edges[u, v][a]['value'] = v
+            value = args[i*2+1]
+            self.context.edges[u, v][a]['value'] = value
             self.context.dirty = True
         self.do_reflection(GraphCoreContextHandler.EdgeUpdated, (u, v))
 

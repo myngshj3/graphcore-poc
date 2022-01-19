@@ -8,7 +8,7 @@ import json
 import traceback
 
 
-
+_tmp = pi+sin(0)+cos(0)+tan(0)+arcsin(0)+arccos(0)+arctan(0)+exp(0)+log(1)+log2(1)+log10(1)
 
 class GCSolver:
 
@@ -249,7 +249,7 @@ class GCGeneralSolver(GCSolver):
                 v = G.edges[s, i][v_sym]
                 if G.edges[s, i]['type'] == 'amplitude-flow':
                     amplitude = G.edges[s, i]['amplitude']
-                    amplitude.replace("{t}", str(t))
+                    amplitude = amplitude.replace("{t}", str(t))
                     amplitude = eval(amplitude)
                     v *= amplitude
                 sum_v_s += v
