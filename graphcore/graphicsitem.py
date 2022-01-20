@@ -299,6 +299,110 @@ class GraphCoreNodeItemInterface(GraphCoreItemInterface):
         self.show_bound_points(False)
         super().deselect()
 
+
+class GCCustomNodeItem(GraphCoreNodeItemInterface):
+
+    def __init__(self, node, context: GraphCoreContext, handler: GraphCoreContextHandler):
+        super().__init__(node, context, handler)
+        self.setFlag(QGraphicsItem.ItemIsSelectable, True)
+        self.setFlag(QGraphicsItem.ItemIsMovable, True)
+
+    def boundingRect(self) -> QtCore.QRectF:
+        x = self.handler.context.nodes[self.node]['x']['value']
+        y = self.handler.context.nodes[self.node]['y']['value']
+        w = self.handler.context.nodes[self.node]['w']['value']
+        h = self.handler.context.nodes[self.node]['h']['value']
+        return QRectF(x-w/2, y-h/2, w, h)
+
+    def redraw(self):
+        self.update(self.boundingRect())
+
+    def paint(self, painter: QtGui.QPainter, option: 'QStyleOptionGraphicsItem', widget: typing.Optional[QWidget] = ...) -> None:
+        n = self.handler.context.nodes[self.node]
+        x = n['x']['value']
+        y = n['y']['value']
+        w = n['w']['value']
+        h = n['h']['value']
+        shape = n['shape']['value']
+        text_align = n['text-align']['value']
+        font_height = n['font-height']['value']
+        show_label = n['show-label']['value']
+        line_width = n['line-width']['value']
+        fill_color = n['fill-color']['value']
+        filled = n['filled']['value']
+        image_path = n['image-path']['value']
+
+        # fill
+        if filled:
+            if shape in ('box', 'doublebox'):
+                painter.fillRect(QRectF(x - w / 2, y - h / 2, w, h), QColor(fill_color))
+            elif shape in ('circle', 'doublecircle'):
+                painter.setBrush(QColor(fill_color))
+                painter.drawEllipse(x - w / 2, y - h / 2, w, h)
+            else: # not supported, then force to box
+                painter.fillRect(QRectF(x - w / 2, y - h / 2, w, h), QColor(fill_color))
+
+        # image
+        if len(image_path) != 0:
+            extension = image_path.split(".")[1]
+            if extension in ('png', 'bmp', 'jpeg', 'jpg'):
+                pixmap = QPixmap(image_path)
+                painter.drawPixmap(QRectF(x-w/2, y-h/2, w, h), pixmap, QRectF(0, 0, pixmap.width(), pixmap.height()))
+            elif extension == 'svg':
+                svg = QSvgRenderer(image_path)
+                svg.render(painter, QRectF(x-w/2, y-h/2, w, h))
+
+        # draw outline
+        painter.pen().setWidth(line_width)
+        painter.setBrush(Qt.NoBrush)
+        if shape in ('box', 'doublebox'):
+            painter.drawRect(x-w/2, y-h/2, w, h)
+            if shape == 'doublebox':
+                painter.drawRect(x-w/2-5, y-h/2-5, w-10, h-10)
+        elif shape in ('circle', 'doublecircle'):
+            painter.drawEllipse(x-w/2, y-h/2, w, h)
+            if shape == 'doublecircle':
+                painter.drawEllipse(x-w/2-5, y-h/2-5, w-10, h-10)
+        else: # not supported, then force to box
+            self.handler.reporter("Unsupported shape '{}'. Forced to box.".format(shape))
+            painter.drawRect(x - w / 2, y - h / 2, w, h)
+
+        # label
+        if show_label:
+            self.label.show()
+        else:
+            self.label.hide()
+        rect = self.label.sceneBoundingRect()
+        if text_align == 'top-left':
+            self.label.setPos(x - w/2, y - h/2 - rect.height())
+        elif text_align == 'center-left':
+            self.label.setPos(x - w/2, y - rect.height()/2)
+        elif text_align == 'bottom-left':
+            self.label.setPos(x - w/2, y + h/2)
+        elif text_align == 'top-center':
+            self.label.setPos(x - rect.width()/2, y - h/2 - rect.height())
+        elif text_align == 'center-center':
+            self.label.setPos(x - rect.width()/2, y - rect.height()/2)
+        elif text_align == 'bottom-center':
+            self.label.setPos(x - rect.width() / 2, y + h/2)
+        elif text_align == 'top-right':
+            self.label.setPos(x + w/2 - rect.width(), y - h/2 - rect.height())
+        elif text_align == 'center-right':
+            self.label.setPos(x + w/2 - rect.width(), y - rect.height()/2)
+        elif text_align == 'bottom-right':
+            self.label.setPos(x + w/2 - rect.width(), y + h/2)
+        else:
+            self.label.setPos(x - rect.width() / 2, y - rect.height() / 2)
+
+    def mouseMoveEvent(self, event: QGraphicsSceneMouseEvent):
+        dx, dy = event.scenePos().x() - event.lastScenePos().x(), event.scenePos().y() - event.lastScenePos().y()
+        if dx != 0 or dy != 0:
+            # self.handler.context.nodes[self.node]['x']['value'] += dx
+            # self.handler.context.nodes[self.node]['y']['value'] += dy
+            # self.handler.context.dirty = True
+            self.handler.move_node_by(self.node, dx, dy)
+
+
 # GraphCore's circle shaped node graphics item class
 class GraphCoreCircleNodeItem(QGraphicsEllipseItem, GraphCoreNodeItemInterface):
     def __init__(self, node, context: GraphCoreContext, handler: GraphCoreContextHandler):

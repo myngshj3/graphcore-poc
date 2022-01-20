@@ -6,7 +6,7 @@ from graphcore.shell import GraphCoreThreadSignal
 from graphcore.shell import GraphCoreShell, GraphCoreContext, GraphCoreContextHandler, GraphCoreAsyncContextHandler
 from gui.Ui_MainWindow import Ui_MainWindow
 from graphcore.graphicsitem import GraphCoreCircleNodeItem, GraphCoreRectNodeItem, GraphCoreEdgeItem, \
-    GraphCoreNodeItemInterface, GraphCoreItemInterface
+    GraphCoreNodeItemInterface, GraphCoreItemInterface, GCCustomNodeItem
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import *
 from PyQt5.Qt import *
@@ -14,6 +14,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import QPixmap
 from graphcore.graphicsitem import GCItemGroup
 from graphcore.propertyeditor import TextEditor, IntEditor, FloatEditor, BoolEditor, ComboBoxEditor
+from graphcore.propertyeditor import SpinBoxEditor, FloatSpinBoxEditor, LongTextEditor
 # from GraphCore.graphcoreeditor import TextEditor, IntEditor, FloatEditor, ComboBoxEditor, CheckBoxEditor,\
 #     CheckBoxEditorEx, TextEditorEx
 from graphcore.constraint import GCConstraintParser
@@ -359,6 +360,7 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
         else:
             self.print("Unsupported shape:{}. force to circle".format(attr['shape']['value']))
             item = GraphCoreCircleNodeItem(n, self.handler.context, self.handler)
+        #item = GCCustomNodeItem(n, self.handler.context, self.handler)
         self.scene.addItem(item)
         self.element_to_item[n] = item
         self.update_node_list()
@@ -512,8 +514,8 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
         self.console.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.console.setModal(False)
         # self.console.setModal(True)
-        self.script_handler.handler = self.handler
-        self.console.set_handler(self.script_handler)
+        # self.script_handler.handler = self.handler
+        # self.console.set_handler(self.script_handler)
         # self.console.exec_()
         self.console.show()
         self.console.raise_()
@@ -553,6 +555,8 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
                 scene: GraphCoreScene = view.scene()
                 # self.shell.handler.deselect_all()
                 self.shell.set_current_handler(scene.handler)
+                self.script_handler.handler = self.handler
+                self.console.set_handler(self.script_handler)
         except Exception as ex:
             self.print(traceback.format_exc())
 
@@ -1313,10 +1317,14 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
                 editor.callback_enabled = True
             elif t == "str":
                 editor = TextEditor(attrs[k]['value'], k, apply=lambda x, y: self.handler.change_node_attr(node, x, y))
+            elif t == "longtext":
+                editor = LongTextEditor(attrs[k]['value'], k, apply=lambda x, y: self.handler.change_node_attr(node, x, y))
             elif t == "int":
-                editor = IntEditor(attrs[k]['value'], k, int, apply=lambda x, y: self.handler.change_node_attr(node, x, y))
+                #editor = IntEditor(attrs[k]['value'], k, int, apply=lambda x, y: self.handler.change_node_attr(node, x, y))
+                editor = SpinBoxEditor(attrs[k]['value'], k, int, apply=lambda x, y: self.handler.change_node_attr(node, x, y))
             elif t == "float":
-                editor = FloatEditor(attrs[k]['value'], k, float, apply=lambda x, y: self.handler.change_node_attr(node, x, y))
+                #editor = FloatEditor(attrs[k]['value'], k, float, apply=lambda x, y: self.handler.change_node_attr(node, x, y))
+                editor = FloatSpinBoxEditor(attrs[k]['value'], k, float, apply=lambda x, y: self.handler.change_node_attr(node, x, y))
             elif t == "bool":
                 editor = BoolEditor(attrs[k]['value'], k, apply=lambda x, y: self.handler.change_node_attr(node, x, y))
             else:
@@ -1353,12 +1361,19 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
             elif t == "str":
                 editor = TextEditor(attrs[k]['value'], k,
                                     apply=lambda x, y: self.handler.change_edge_attr(edge[0], edge[1], x, y))
+            elif t == "longtext":
+                editor = LongTextEditor(attrs[k]['value'], k,
+                                        apply=lambda x, y: self.handler.change_edge_attr(edge[0], edge[1], x, y))
             elif t == "int":
-                editor = IntEditor(attrs[k]['value'], k, int,
-                                   apply=lambda x, y: self.handler.change_edge_attr(edge[0], edge[1], x, y))
+                #editor = IntEditor(attrs[k]['value'], k, int,
+                #                   apply=lambda x, y: self.handler.change_edge_attr(edge[0], edge[1], x, y))
+                editor = SpinBoxEditor(attrs[k]['value'], k, int,
+                                       apply=lambda x, y: self.handler.change_edge_attr(edge[0], edge[1], x, y))
             elif t == "float":
-                editor = FloatEditor(attrs[k]['value'], k, float,
-                                     apply=lambda x, y: self.handler.change_edge_attr(edge[0], edge[1], x, y))
+                #editor = FloatEditor(attrs[k]['value'], k, float,
+                #                     apply=lambda x, y: self.handler.change_edge_attr(edge[0], edge[1], x, y))
+                editor = FloatSpinBoxEditor(attrs[k]['value'], k, float,
+                                            apply = lambda x, y: self.handler.change_edge_attr(edge[0], edge[1], x, y))
             elif t == "bool":
                 editor = BoolEditor(attrs[k]['value'], k,
                                     apply=lambda x, y: self.handler.change_edge_attr(edge[0], edge[1], x, y))
@@ -1569,6 +1584,69 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
         finally:
             self.set_command_enable()
 
+    # delete system script command
+    def command_delete_system_script(self):
+        try:
+            self.print("command_system_system_script")
+            ix = []
+            for i in self.ui.systemScriptTable.selectedIndexes():
+                if i.row() not in ix:
+                    ix.append(i.row())
+            scripts = self.settings.setting('system-scripts')
+            for i in ix:
+                item = self.ui.systemScriptTable.item(i, 1)
+                scripts.pop(item.text())
+                self.ui.systemScriptTable.removeRow(i)
+        except Exception as ex:
+            self.reporter.report(str(ex))
+        finally:
+            self.set_command_enable()
+
+    # add system script command
+    def command_add_system_script(self):
+        try:
+            self.print("command_add_system_script")
+            scripts = self.settings.setting('system-scripts')
+            ix = []
+            sid = 0
+            for i in range(1, len(scripts.keys())+1):
+                if str(i) not in scripts.keys():
+                    sid = i
+                    break
+            if sid == 0:
+                sid = len(scripts.keys()) + 1
+            sid = str(sid)
+            scripts[sid] = {'id': sid, 'enabled': True, 'script': ''}
+            self.system_script_add_to_widget(sid)
+        except Exception as ex:
+            self.reporter.report(str(ex))
+        finally:
+            self.set_command_enable()
+
+    def system_script_add_to_widget(self, sid):
+        scripts = self.settings.setting('system-scripts')
+        script = scripts[sid]
+        self.ui.systemScriptTable.setRowCount(self.ui.systemScriptTable.rowCount() + 1)
+
+        # current row
+        row = self.ui.systemScriptTable.rowCount() - 1
+        # set enabled
+        def set_enabled(i,k,v):
+            scripts[i][k] = v
+        item = BoolEditor(script['enabled'], "enabled", apply=lambda x, y: set_enabled(sid, x, y))
+        self.ui.systemScriptTable.setCellWidget(row, 0, item)
+
+        # set id
+        item = QTableWidgetItem(sid)
+        #item.setFlags(Qt.ItemIsEditable)
+        self.ui.systemScriptTable.setItem(row, 1, item)
+
+        # set script
+        def set_script(i,k,v):
+            scripts[i][k] = v
+        item = LongTextEditor(script['script'], "script", apply=lambda x, y: set_script(sid, x, y))
+        self.ui.systemScriptTable.setCellWidget(row, 2, item)
+
     # add user script command
     def command_add_user_script(self):
         try:
@@ -1602,7 +1680,9 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
                 if i.row() not in ix:
                     ix.append(i.row())
             for i in ix:
-                self.ui.userScriptTable.removeRow(i.row())
+                item = self.ui.userScriptTable.item(i, 1)
+                self.handler.context.scripts.pop(item.text())
+                self.ui.userScriptTable.removeRow(i)
         except Exception as ex:
             self.reporter.report(str(ex))
         finally:
@@ -1631,25 +1711,31 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
         script = scripts[sid]
         self.ui.userScriptTable.setRowCount(self.ui.userScriptTable.rowCount() + 1)
 
+        # current row
+        row = self.ui.userScriptTable.rowCount() - 1
         # set enabled
         item = BoolEditor(script['enabled'], "enabled",
                           apply=lambda x, y: self.handler.change_script(sid, x, y))
-        self.ui.userScriptTable.setCellWidget(self.ui.userScriptTable.rowCount() - 1, 0, item)
+        self.ui.userScriptTable.setCellWidget(row, 0, item)
 
         # set id
         item = QTableWidgetItem(sid)
-        item.setFlags(Qt.ItemIsEditable)
-        self.ui.userScriptTable.setItem(self.ui.userScriptTable.rowCount() - 1, 1, item)
+        # item.setFlags(Qt.ItemIsEditable)
+        self.ui.userScriptTable.setItem(row, 1, item)
 
         # set script
-        item = QTableWidgetItem(script['script'])
-        item.setFlags(Qt.ItemIsEditable)
-        self.ui.userScriptTable.setItem(self.ui.userScriptTable.rowCount() - 1, 2, item)
+        item = LongTextEditor(script['script'], "script",
+                              apply=lambda x, y: self.handler.change_script(sid, x, y))
+        self.ui.userScriptTable.setCellWidget(row, 2, item)
+        # item = QTableWidgetItem(script['script'])
+        # item.setFlags(Qt.ItemIsEditable)
+        # self.ui.userScriptTable.setItem(self.ui.userScriptTable.rowCount() - 1, 2, item)
 
         # set button
-        item = QPushButton("Edit")
-        self.ui.userScriptTable.setCellWidget(self.ui.userScriptTable.rowCount() - 1, 3, item)
-        item.clicked.connect(lambda: self.command_edit_on_script_editor(sid))
+        # item = QPushButton("Edit")
+        # self.ui.userScriptTable.setCellWidget(self.ui.userScriptTable.rowCount() - 1, 3, item)
+        # item.clicked.connect(lambda: self.command_edit_on_script_editor(sid))
+
 
     def command_edit_on_script_editor(self, sid):
         script = self.handler.context.scripts[sid]['script']
@@ -1669,7 +1755,7 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
         self.set_command_enable()
 
     def system_scripts_init(self):
-        header_labels = ('Enabled', 'Id', 'Script')
+        header_labels = ('enabled', 'id', 'script')
         scripts_widget = self.ui.systemScriptTable
         scripts_widget.setColumnCount(3)
         scripts_widget.setHorizontalHeaderLabels(header_labels)
@@ -1677,22 +1763,26 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
         scripts_widget.setColumnWidth(1, 20)
         scripts = self.settings.setting('system-scripts')
         scripts_widget.setRowCount(len(scripts.keys()))
+        def set_enabled(i,k,v):
+            self.settings.setting('system-scripts')[i][k] = v
+        def set_script(i,k,v):
+            self.settings.setting('system-scripts')[i][k] = v
         for i, k in enumerate(scripts.keys()):
             script = scripts[k]['script']
             enabled = scripts[k]['enabled']
-            item = QTableWidgetItem(enabled)
-            if enabled:
-                item.setCheckState(Qt.CheckState.Checked)
-            else:
-                item.setCheckState(Qt.CheckState.Unchecked)
-            item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEditable)
-            scripts_widget.setItem(i, 0, item)
+            # item = QTableWidgetItem(enabled)
+            # if enabled:
+            #     item.setCheckState(Qt.CheckState.Checked)
+            # else:
+            #     item.setCheckState(Qt.CheckState.Unchecked)
+            #item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEditable)
+            item = BoolEditor(enabled, "enabled", apply=lambda x,y: set_enabled(k,x,y))
+            scripts_widget.setCellWidget(i, 0, item)
             item = QTableWidgetItem(k)
-            item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEditable)
+            #item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEditable)
             scripts_widget.setItem(i, 1, item)
-            item = QTableWidgetItem(script)
-            item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEditable)
-            scripts_widget.setItem(i, 2, item)
+            item = LongTextEditor(script, "script", apply=lambda x,y: set_script(k,x,y))
+            scripts_widget.setCellWidget(i, 2, item)
 
     def copy_impl(self):
         nodes = {}
