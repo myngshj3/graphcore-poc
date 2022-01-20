@@ -1,6 +1,20 @@
 
 
+from PyQt5 import QtGui
 from PyQt5.QtWidgets import *
+from gui.Ui_LongTextEditorDialog import Ui_LongTextEditorDialog
+from gui.Ui_LongTextEditorWidget import Ui_LongTextEditorWidget
+
+class LongTextEditorWidget(QWidget):
+
+    def __init__(self):
+        super().__init__()
+        self._ui = Ui_LongTextEditorWidget()
+        self._ui.setupUi(self)
+
+    @property
+    def ui(self) -> Ui_LongTextEditorWidget:
+        return self._ui
 
 
 class TextEditor(QLineEdit):
@@ -53,6 +67,94 @@ class TextEditor(QLineEdit):
             self.value = self.text()
         if self.apply is not None:
             self.apply(self.name, self.value)
+
+
+
+
+class LongTextEditor(LongTextEditorWidget):
+
+    def __init__(self, value: str, name, value_converter=None, check_vaid=None, apply=None):
+        super().__init__()
+        self._initial_value = value
+        self._name = name
+        self._value_converter = value_converter
+        self._validator = check_vaid
+        self._applyer = apply
+        self.ui.pushButton.clicked.connect(self.show_editor)
+        self.ui.lineEdit.editingFinished.connect(self.focus_out)
+        self.ui.lineEdit.setText(self._initial_value)
+
+    def focus_out(self):
+        if self._validator is not None and not self._validator(self.text()):
+            print("value error: {}".format(self.ui.lineEdit.text()))
+            self.setValue(self._initial_value)
+            return
+        if self._value_converter is not None:
+            self.ui.lineEdit.setText(self._value_converter(self.ui.lineEdit.text()))
+        if self._applyer is not None:
+            self._applyer(self._name, self.ui.lineEdit.text())
+
+    def show_editor(self):
+        dialog: QDialog = QDialog()
+        ui = Ui_LongTextEditorDialog()
+        ui.setupUi(dialog)
+        ui.buttonBox.clicked.connect(lambda: self.dialog_button_clicked(ui.plainTextEdit.toPlainText()))
+        # ui.buttonBox.rejected.connect()
+        ui.plainTextEdit.setPlainText(self.ui.lineEdit.text())
+        dialog.exec_()
+
+    def dialog_button_clicked(self, text):
+        if self._value_converter is not None:
+            text = self._value_converter(text)
+        self.ui.lineEdit.setText(text)
+        if self._applyer is not None:
+            self._applyer(self._name, self.ui.lineEdit.text())
+
+
+class SpinBoxEditor(QSpinBox):
+
+    def __init__(self, value: int, name: str, value_converter=int, check_vaid=None, apply=None):
+        super().__init__()
+        self._initial_value = value
+        self.setValue(self._initial_value)
+        self._name = name
+        self._value_converter = value_converter
+        self._validator = check_vaid
+        self._applyer = apply
+        self.editingFinished.connect(self.focus_out)
+
+    def focus_out(self):
+        if self._validator is not None and not self._validator(self.text()):
+            print("value error: {}".format(self.text()))
+            self.setValue(self._initial_value)
+            return
+        if self._value_converter is not None:
+            self.setValue(self._value_converter(self.value()))
+        if self._applyer is not None:
+            self._applyer(self._name, self.value())
+
+
+class FloatSpinBoxEditor(QDoubleSpinBox):
+
+    def __init__(self, value: float, name: str, value_converter=int, check_vaid=None, apply=None):
+        super().__init__()
+        self._initial_value = value
+        self.setValue(self._initial_value)
+        self._name = name
+        self._value_converter = value_converter
+        self._validator = check_vaid
+        self._applyer = apply
+        self.editingFinished.connect(self.focus_out)
+
+    def focus_out(self):
+        if self._validator is not None and not self._validator(self.text()):
+            print("value error: {}".format(self.text()))
+            self.setValue(self._initial_value)
+            return
+        if self._value_converter is not None:
+            self.setValue(self._value_converter(self.value()))
+        if self._applyer is not None:
+            self._applyer(self._name, self.value())
 
 
 class IntEditor(TextEditor):
@@ -182,3 +284,4 @@ class ComboBoxEditor(QComboBox):
             self.value = self._entries[index][0]
             if self.apply is not None:
                 self.apply(self.name, self.value)
+
