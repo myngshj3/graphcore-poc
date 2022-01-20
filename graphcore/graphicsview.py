@@ -99,7 +99,7 @@ class GraphCoreView(QGraphicsView):
 
     def mousePressEvent(self, event):
         from graphcore.graphicsitem import GraphCoreNodeItemInterface
-        self._main_window.print("mousePressEvent button={}, pos={}".format(event.button(), event.pos()))
+        #self._main_window.print("mousePressEvent button={}, pos={}".format(event.button(), event.pos()))
         self._press_pos = event.pos()
         if event.button() == 1:  # Left
             self.setDragMode(QGraphicsView.RubberBandDrag)
@@ -151,7 +151,7 @@ class GraphCoreView(QGraphicsView):
         super().mousePressEvent(event)
 
     def mouseReleaseEvent(self, event: QMouseEvent):
-        self._main_window.print("mouseReleaseEvent button={}, pos={}".format(event.button(), event.pos()))
+        #self._main_window.print("mouseReleaseEvent button={}, pos={}".format(event.button(), event.pos()))
         from graphcore.graphicsitem import GraphCoreNodeItemInterface, GraphCoreEdgeItemInterface
         if event.button() == 1:  # left button
             if self.rubberBandRect() is None or (self.rubberBandRect().width() == 0 and self.rubberBandRect().height() == 0):

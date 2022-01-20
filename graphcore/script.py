@@ -842,15 +842,15 @@ class GraphCoreScript(QObject):
                                       lambda ao,c,eo,ca,ea: self.handler.remove_node(ca[0]))
         self._toplevel.declare_method(m, globally=True)
         m = ExtensibleWrappedAccessor(self._toplevel, "node_attr_keys", None,
-                                      lambda ao, c, eo, ca, ea: [_ for _ in self.handler.context.G.nodes[ca[0]].keys()],
+                                      lambda ao, c, eo, ca, ea: [_ for _ in self.handler.context.G.nodes[str(ca[0])].keys()],
                                       globally=True)
         self._toplevel.declare_method(m, globally=True)
         m = ExtensibleWrappedAccessor(self._toplevel, "get_node_value", None,
-                                      lambda ao, c, eo, ca, ea: self.handler.node_attr(ca[0], ca[1]),
+                                      lambda ao, c, eo, ca, ea: self.handler.node_attr(str(ca[0]), ca[1]),
                                       globally=True)
         self._toplevel.declare_method(m, globally=True)
         m = ExtensibleWrappedAccessor(self._toplevel, "set_node_value", None,
-                                      lambda ao, c, eo, ca, ea: self.handler.change_node_attr(ca[0], *ca[1:]))
+                                      lambda ao, c, eo, ca, ea: self.handler.change_node_attr(str(ca[0]), *ca[1:]))
         self._toplevel.declare_method(m, globally=True)
         m = ExtensibleWrappedAccessor(self._toplevel, "edges", None,
                                       lambda ao, c, eo, ca, ea: [_ for _ in self.handler.context.G.edges],
@@ -860,7 +860,7 @@ class GraphCoreScript(QObject):
                                       lambda ao,c,eo,ca,ea: self.handler.add_new_edge(ca[0], ca[1], ca[2], *ca[3:]))
         self._toplevel.declare_method(m, globally=True)
         m = ExtensibleWrappedAccessor(self._toplevel, "remove_edge", None,
-                                      lambda ao,c,eo,ca,ea: self.handler.remove_edge(a[0], a[1]))
+                                      lambda ao,c,eo,ca,ea: self.handler.remove_edge(ca[0], ca[1]))
         self._toplevel.declare_method(m, globally=True)
         m = ExtensibleWrappedAccessor(self._toplevel, "edge_attr_keys", None,
                                       lambda ao, c, eo, ca, ea: [_ for _ in
@@ -960,6 +960,7 @@ class GraphCoreScript(QObject):
         self._toplevel.declare_method(predecessors, globally=True)
 
         # numpy
+        self._toplevel.accessor.set(self._toplevel, "pi", np.pi)
         m = ExtensibleWrappedAccessor(self._toplevel, "sin", None,
                                       lambda ao, c, eo, ca, ea: np.sin(ca[0]))
         self._toplevel.declare_method(m, globally=True)

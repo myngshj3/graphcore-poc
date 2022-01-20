@@ -1901,3 +1901,46 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
             self.print(traceback.format_exc())
         finally:
             self.set_command_enable()
+
+    def construct_custom_menus(self):
+        try:
+            custom_menus = self.settings.setting('custom-menus')
+            for k in custom_menus.keys():
+                menu = custom_menus[k]
+                name = menu['name']
+                command = menu['command']
+                action = QAction(self)
+                #action.setObjectName(name)
+                self.ui.menuCustom.addAction(action)
+                action.setText(name)
+                action.triggered.connect(lambda: self.do_custom_menu(command))
+        except Exception as ex:
+            self.print(ex)
+        finally:
+            self.set_command_enable()
+
+    def do_custom_menu(self, menu_command):
+        try:
+            self.print("do_custom_menu", menu_command)
+            from graphcore.thread_signal import GraphCoreThreadSignal
+            from networkml.network import ExtensibleWrappedAccessor
+            def print(*args):
+                arg = " ".join([str(_) for _ in args])
+                sig = GraphCoreThreadSignal("update main_window.message", arg,
+                                            lambda x: self.print(x), None)
+                self.script_handler.main_thread_command.emit(sig)
+            self.handler.toplevel.set_print_func(print)
+            self.handler.toplevel.auto_flush = True
+            # def report_func(arg):
+            #     sig = GraphCoreThreadSignal("update console.textBrowser", arg,
+            #                                 lambda x: self.ui.textBrowser.append(x), None)
+            #     self.script_handler.main_thread_command.emit(sig)
+            self._script_handler.reporter.report_func = print
+            m = ExtensibleWrappedAccessor(self.handler.toplevel, "print", self,
+                                          lambda ao, c, eo, ca, ea: print(*ca))
+            self.script_handler.toplevel.declare_method(m, globally=True)
+            self.script_handler.run_script(menu_command)
+        except Exception as ex:
+            self.print(ex)
+        finally:
+            self.set_command_enable()

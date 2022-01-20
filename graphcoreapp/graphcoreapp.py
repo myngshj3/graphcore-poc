@@ -89,6 +89,7 @@ def main():
     main_window.ui.addSystemScriptButton.clicked.connect(main_window.command_add_system_script)
     main_window.ui.deleteSystemScriptButton.clicked.connect(main_window.command_delete_system_script)
     main_window.ui.systemScriptTable.setEnabled(True)
+    main_window.construct_custom_menus()
 
     # setup layout manager
     layout_manager = CoordFinderWidget(async_handler)
