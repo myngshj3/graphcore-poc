@@ -14,7 +14,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import QPixmap
 from graphcore.graphicsitem import GCItemGroup
 from graphcore.propertyeditor import TextEditor, IntEditor, FloatEditor, BoolEditor, ComboBoxEditor
-from graphcore.propertyeditor import SpinBoxEditor, FloatSpinBoxEditor, LongTextEditor
+from graphcore.propertyeditor import SpinBoxEditor, FloatSpinBoxEditor, LongTextEditor, EquationEditor
 # from GraphCore.graphcoreeditor import TextEditor, IntEditor, FloatEditor, ComboBoxEditor, CheckBoxEditor,\
 #     CheckBoxEditorEx, TextEditorEx
 from graphcore.constraint import GCConstraintParser
@@ -847,6 +847,7 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
         item: GraphCoreItemInterface = self.element_to_item[n]
         item.select()
         self.property_select_node(n)
+        self.ui.editorTabWidget.setCurrentIndex(0)
 
     def add_select_edge(self, e):
         item: GraphCoreItemInterface = self.element_to_item[e]
@@ -858,6 +859,7 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
         item: GraphCoreItemInterface = self.element_to_item[n]
         item.select()
         self.property_select_edge(n)
+        self.ui.editorTabWidget.setCurrentIndex(0)
 
     # selected node
     def command_select_node(self, n) -> None:
@@ -1327,6 +1329,8 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
                 editor = FloatSpinBoxEditor(attrs[k]['value'], k, float, apply=lambda x, y: self.handler.change_node_attr(node, x, y))
             elif t == "bool":
                 editor = BoolEditor(attrs[k]['value'], k, apply=lambda x, y: self.handler.change_node_attr(node, x, y))
+            elif t == "equation":
+                editor = EquationEditor(attrs[k]['value'], k, apply=lambda x,y:self.handler.change_node_attr(node,x,y))
             else:
                 self.print("unsupported type:{}".format(t))
             property_widget.setCellWidget(attr_count - 1, 2, editor)
@@ -1377,6 +1381,9 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
             elif t == "bool":
                 editor = BoolEditor(attrs[k]['value'], k,
                                     apply=lambda x, y: self.handler.change_edge_attr(edge[0], edge[1], x, y))
+            elif t == "equation":
+                editor = EquationEditor(attrs[k]['value'], k,
+                                        apply=lambda x, y: self.handler.change_edge_attr(edge[0], edge[1], x, y))
             else:
                 self.print("unsupported type:{}".format(t))
             property_widget.setCellWidget(attr_count - 1, 2, editor)

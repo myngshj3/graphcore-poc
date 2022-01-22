@@ -415,6 +415,7 @@ class GraphCoreCircleNodeItem(QGraphicsEllipseItem, GraphCoreNodeItemInterface):
         # super().paint(painter, option, widget)
         attrs = self.context.nodes[self.node]
 
+        painter.pen().setWidth(attrs['line-width']['value'])
         if self.handler.context.nodes[self.node]['filled']['value']:
             color = self.handler.context.nodes[self.node]['fill-color']['value']
             painter.setBrush(QColor(color))
@@ -460,12 +461,13 @@ class GraphCoreCircleNodeItem(QGraphicsEllipseItem, GraphCoreNodeItemInterface):
             return
         label: QGraphicsTextItem = self.label
         label.setPlainText(n['label']['value'])
-        if n['filled']['value']:
-            brush = QBrush(QColor(n['fill-color']['value']))
-            self.setBrush(brush)
-        else:
-            self.setBrush(QBrush())
-            self.brush().setStyle(Qt.NoBrush)
+        self.update(self.rect())
+        # if n['filled']['value']:
+        #     brush = QBrush(QColor(n['fill-color']['value']))
+        #     self.setBrush(brush)
+        # else:
+        #     self.setBrush(QBrush())
+        #     self.brush().setStyle(Qt.NoBrush)
         x = n['x']['value']
         y = n['y']['value']
         w = n['w']['value']
@@ -528,6 +530,7 @@ class GraphCoreRectNodeItem(QGraphicsRectItem, GraphCoreNodeItemInterface):
         # super().paint(painter, option, widget)
         attrs = self.context.nodes[self.node]
 
+        painter.pen().setWidth(attrs['line-width']['value'])
         if self.handler.context.nodes[self.node]['filled']['value']:
             color = self.handler.context.nodes[self.node]['fill-color']['value']
             painter.fillRect(self.rect(), QColor(color))
@@ -569,12 +572,13 @@ class GraphCoreRectNodeItem(QGraphicsRectItem, GraphCoreNodeItemInterface):
             return
         label: QGraphicsTextItem = self.label
         label.setPlainText(n['label']['value'])
-        if n['filled']['value']:
-            brush = QBrush(QColor(n['fill-color']['value']))
-            self.setBrush(brush)
-        else:
-            self.setBrush(QBrush())
-            self.brush().setStyle(Qt.NoBrush)
+        self.update(self.rect())
+        # if n['filled']['value']:
+        #     brush = QBrush(QColor(n['fill-color']['value']))
+        #     self.setBrush(brush)
+        # else:
+        #     self.setBrush(QBrush())
+        #     self.brush().setStyle(Qt.NoBrush)
         x = n['x']['value']
         y = n['y']['value']
         w = n['w']['value']

@@ -346,6 +346,8 @@ class SolverController:
 
     def start(self):
         try:
+            if self.print_progress:
+                self.handler.reporter("started")
             self._cancel = False
             value_property = self._value_field
             max_value_property = self._maxValue_field
@@ -361,10 +363,12 @@ class SolverController:
             G_array = [nx.node_link_data(G)]
             t = 0
             for i in range(steps):
+                if self._cancel:
+                    if self.print_progress:
+                        self.handler.reporter("canceled")
+                    break
                 if self.print_progress:
                     self.handler.reporter("{}-th iteration".format(i+1))
-                if self._cancel:
-                    break
                 G = solver.calc_one_step(value_property, max_value_property, velocity_property, max_velocity_property,
                                          current_max_velocity_property, distance_property, t)
                 t += dt

@@ -533,7 +533,7 @@ class Ui_MainWindow(object):
         self.menubar.addAction(self.menuVersion.menuAction())
 
         self.retranslateUi(MainWindow)
-        self.editorTabWidget.setCurrentIndex(4)
+        self.editorTabWidget.setCurrentIndex(0)
         self.tabWidget.setCurrentIndex(0)
         self.actionOpen.triggered.connect(MainWindow.command_open)
         self.actionQuit.triggered.connect(MainWindow.command_quit)
@@ -572,7 +572,7 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "GraphCore"))
         self.label.setText(_translate("MainWindow", "Elements"))
         self.editorTabWidget.setTabText(self.editorTabWidget.indexOf(self.tab_7), _translate("MainWindow", "Property"))
         self.editorTabWidget.setTabText(self.editorTabWidget.indexOf(self.tab), _translate("MainWindow", "Nodes"))

@@ -831,6 +831,15 @@ class GraphCoreScript(QObject):
                                       lambda ao, c, eo, ca, ea: ca[0].keys())
         self._toplevel.declare_method(m, globally=True)
         # graphcore
+        m = ExtensibleWrappedAccessor(self._toplevel, "load", None,
+                                      lambda ao, c, eo, ca, ea: self.handler.context.read_file(ca[0]))
+        self._toplevel.declare_method(m, globally=True)
+        m = ExtensibleWrappedAccessor(self._toplevel, "save", None,
+                                      lambda ao, c, eo, ca, ea: self.handler.context.save())
+        self._toplevel.declare_method(m, globally=True)
+        m = ExtensibleWrappedAccessor(self._toplevel, "save_as", None,
+                                      lambda ao, c, eo, ca, ea: self.handler.context.save_as(ca[0]))
+        self._toplevel.declare_method(m, globally=True)
         m = ExtensibleWrappedAccessor(self._toplevel, "nodes", None,
                                       lambda ao, c, eo, ca, ea: [_ for _ in self.handler.context.G.nodes],
                                       globally=True)
@@ -921,6 +930,12 @@ class GraphCoreScript(QObject):
         self._toplevel.declare_method(m, globally=True)
         m = ExtensibleWrappedAccessor(self._toplevel, "start_solver", None,
                                       lambda ao, c, eo, ca, ea: ca[0].start())
+        self._toplevel.declare_method(m, globally=True)
+        m = ExtensibleWrappedAccessor(self._toplevel, "stop_solver", None,
+                                      lambda ao, c, eo, ca, ea: ca[0].cancel())
+        self._toplevel.declare_method(m, globally=True)
+        m = ExtensibleWrappedAccessor(self._toplevel, "set_solver_print_progress", None,
+                                      lambda ao, c, eo, ca, ea: ca[0].set_print_progress(ca[1]))
         self._toplevel.declare_method(m, globally=True)
 
         # networkx
