@@ -212,7 +212,7 @@ class GraphCoreNodeItemInterface(GraphCoreItemInterface):
         self._node = node
         self.context = context
         self.handler = handler
-        self._label = QGraphicsTextItem(context.nodes[node]['label']['value'])
+        self._label = QGraphicsTextItem(context.nodes[node]['label'])
         self._label.setParentItem(self)
         self._left_top_bound = QGraphicsRectItem()
         self._left_center_bound = QGraphicsRectItem()
@@ -252,11 +252,11 @@ class GraphCoreNodeItemInterface(GraphCoreItemInterface):
 
     @property
     def show_label(self):
-        return self.context.nodes[self.node]['show-label']['value']
+        return self.context.nodes[self.node]['show-label']
 
     @show_label.setter
     def show_label(self, value: bool):
-        self.context.nodes[self.node]['show-label']['value'] = value
+        self.context.nodes[self.node]['show-label'] = value
         if value:
             self.label.show()
         else:
@@ -308,10 +308,10 @@ class GCCustomNodeItem(GraphCoreNodeItemInterface):
         self.setFlag(QGraphicsItem.ItemIsMovable, True)
 
     def boundingRect(self) -> QtCore.QRectF:
-        x = self.handler.context.nodes[self.node]['x']['value']
-        y = self.handler.context.nodes[self.node]['y']['value']
-        w = self.handler.context.nodes[self.node]['w']['value']
-        h = self.handler.context.nodes[self.node]['h']['value']
+        x = self.handler.context.nodes[self.node]['x']
+        y = self.handler.context.nodes[self.node]['y']
+        w = self.handler.context.nodes[self.node]['w']
+        h = self.handler.context.nodes[self.node]['h']
         return QRectF(x-w/2, y-h/2, w, h)
 
     def redraw(self):
@@ -319,18 +319,18 @@ class GCCustomNodeItem(GraphCoreNodeItemInterface):
 
     def paint(self, painter: QtGui.QPainter, option: 'QStyleOptionGraphicsItem', widget: typing.Optional[QWidget] = ...) -> None:
         n = self.handler.context.nodes[self.node]
-        x = n['x']['value']
-        y = n['y']['value']
-        w = n['w']['value']
-        h = n['h']['value']
-        shape = n['shape']['value']
-        text_align = n['text-align']['value']
-        font_height = n['font-height']['value']
-        show_label = n['show-label']['value']
-        line_width = n['line-width']['value']
-        fill_color = n['fill-color']['value']
-        filled = n['filled']['value']
-        image_path = n['image-path']['value']
+        x = n['x']
+        y = n['y']
+        w = n['w']
+        h = n['h']
+        shape = n['shape']
+        text_align = n['text-align']
+        font_height = n['font-height']
+        show_label = n['show-label']
+        line_width = n['line-width']
+        fill_color = n['fill-color']
+        filled = n['filled']
+        image_path = n['image-path']
 
         # fill
         if filled:
@@ -397,8 +397,8 @@ class GCCustomNodeItem(GraphCoreNodeItemInterface):
     def mouseMoveEvent(self, event: QGraphicsSceneMouseEvent):
         dx, dy = event.scenePos().x() - event.lastScenePos().x(), event.scenePos().y() - event.lastScenePos().y()
         if dx != 0 or dy != 0:
-            # self.handler.context.nodes[self.node]['x']['value'] += dx
-            # self.handler.context.nodes[self.node]['y']['value'] += dy
+            # self.handler.context.nodes[self.node]['x'] += dx
+            # self.handler.context.nodes[self.node]['y'] += dy
             # self.handler.context.dirty = True
             self.handler.move_node_by(self.node, dx, dy)
 
@@ -415,15 +415,15 @@ class GraphCoreCircleNodeItem(QGraphicsEllipseItem, GraphCoreNodeItemInterface):
         # super().paint(painter, option, widget)
         attrs = self.context.nodes[self.node]
 
-        painter.pen().setWidth(attrs['line-width']['value'])
-        if self.handler.context.nodes[self.node]['filled']['value']:
-            color = self.handler.context.nodes[self.node]['fill-color']['value']
+        painter.pen().setWidth(attrs['line-width'])
+        if self.handler.context.nodes[self.node]['filled']:
+            color = self.handler.context.nodes[self.node]['fill-color']
             painter.setBrush(QColor(color))
             painter.drawEllipse(self.rect())
         painter.brush().setStyle(Qt.NoBrush)
         painter.drawEllipse(self.rect())
         # draw double line
-        if self.handler.context.nodes[self.node]['shape']['value'] == "doublecircle":
+        if self.handler.context.nodes[self.node]['shape'] == "doublecircle":
             margin = 4
             rect = self.rect()
             x = rect.x() + margin
@@ -433,12 +433,12 @@ class GraphCoreCircleNodeItem(QGraphicsEllipseItem, GraphCoreNodeItemInterface):
             painter.drawEllipse(QRectF(x, y, w, h))
 
         # draw image
-        image_path = attrs['image-path']['value']
+        image_path = attrs['image-path']
         if len(image_path) != 0:
-            x = attrs['x']['value']
-            y = attrs['y']['value']
-            w = attrs['w']['value']
-            h = attrs['h']['value']
+            x = attrs['x']
+            y = attrs['y']
+            w = attrs['w']
+            h = attrs['h']
             extension = image_path.split(".")[1]
             if extension in ('png', 'bmp', 'jpeg', 'jpg'):
                 pixmap = QPixmap(image_path)
@@ -453,30 +453,30 @@ class GraphCoreCircleNodeItem(QGraphicsEllipseItem, GraphCoreNodeItemInterface):
 
     def redraw(self):
         n = self.context.nodes[self.node]
-        if n['shape']['value'] not in ('circle', 'doublecircle'):
+        if n['shape'] not in ('circle', 'doublecircle'):
             item = gcore_create_node_item(self.node, self.context, self.handler)
             self.handler.extras['scene'].removeItem(self)
             self.handler.extras['scene'].addItem(item)
             self.handler.extras['element_to_item'][self.node] = item
             return
         label: QGraphicsTextItem = self.label
-        label.setPlainText(n['label']['value'])
+        label.setPlainText(n['label'])
         self.update(self.rect())
-        # if n['filled']['value']:
-        #     brush = QBrush(QColor(n['fill-color']['value']))
+        # if n['filled']:
+        #     brush = QBrush(QColor(n['fill-color']))
         #     self.setBrush(brush)
         # else:
         #     self.setBrush(QBrush())
         #     self.brush().setStyle(Qt.NoBrush)
-        x = n['x']['value']
-        y = n['y']['value']
-        w = n['w']['value']
-        h = n['h']['value']
+        x = n['x']
+        y = n['y']
+        w = n['w']
+        h = n['h']
         # print("redraw rect ({}, {}, {}, {}) of {}".format(x, y, w, h, self))
         # print("  sceneRect ({}, {}, {}, {}) of {}".format(sceneRect.x() + sceneRect.width()/2, sceneRect.y() + sceneRect.height()/2, sceneRect.width(), sceneRect.height(), self))
         self.setRect(x - w/2, y - h/2, w, h)
         rect = label.sceneBoundingRect()
-        text_align = n['text-align']['value']
+        text_align = n['text-align']
         if text_align == 'top-left':
             label.setPos(x - w/2, y - h/2 - rect.height())
         elif text_align == 'center-left':
@@ -530,12 +530,12 @@ class GraphCoreRectNodeItem(QGraphicsRectItem, GraphCoreNodeItemInterface):
         # super().paint(painter, option, widget)
         attrs = self.context.nodes[self.node]
 
-        painter.pen().setWidth(attrs['line-width']['value'])
-        if self.handler.context.nodes[self.node]['filled']['value']:
-            color = self.handler.context.nodes[self.node]['fill-color']['value']
+        painter.pen().setWidth(attrs['line-width'])
+        if self.handler.context.nodes[self.node]['filled']:
+            color = self.handler.context.nodes[self.node]['fill-color']
             painter.fillRect(self.rect(), QColor(color))
         painter.drawRect(self.rect())
-        if self.handler.context.nodes[self.node]['shape']['value'] == "doublebox":
+        if self.handler.context.nodes[self.node]['shape'] == "doublebox":
             margin = 4
             rect = self.rect()
             x = rect.x() + margin
@@ -545,12 +545,12 @@ class GraphCoreRectNodeItem(QGraphicsRectItem, GraphCoreNodeItemInterface):
             painter.drawRect(QRectF(x, y, w, h))
 
         # draw image
-        image_path = attrs['image-path']['value']
+        image_path = attrs['image-path']
         if len(image_path) != 0:
-            x = attrs['x']['value']
-            y = attrs['y']['value']
-            w = attrs['w']['value']
-            h = attrs['h']['value']
+            x = attrs['x']
+            y = attrs['y']
+            w = attrs['w']
+            h = attrs['h']
             extension = image_path.split(".")[1]
             if extension in ('png', 'bmp', 'jpeg', 'jpg'):
                 pixmap = QPixmap(image_path)
@@ -564,29 +564,29 @@ class GraphCoreRectNodeItem(QGraphicsRectItem, GraphCoreNodeItemInterface):
 
     def redraw(self):
         n = self.context.nodes[self.node]
-        if n['shape']['value'] not in ('box', 'doublebox'):
+        if n['shape'] not in ('box', 'doublebox'):
             item = gcore_create_node_item(self.node, self.context, self.handler)
             self.handler.extras['scene'].removeItem(self)
             self.handler.extras['scene'].addItem(item)
             self.handler.extras['element_to_item'][self.node] = item
             return
         label: QGraphicsTextItem = self.label
-        label.setPlainText(n['label']['value'])
+        label.setPlainText(n['label'])
         self.update(self.rect())
-        # if n['filled']['value']:
-        #     brush = QBrush(QColor(n['fill-color']['value']))
+        # if n['filled']:
+        #     brush = QBrush(QColor(n['fill-color']))
         #     self.setBrush(brush)
         # else:
         #     self.setBrush(QBrush())
         #     self.brush().setStyle(Qt.NoBrush)
-        x = n['x']['value']
-        y = n['y']['value']
-        w = n['w']['value']
-        h = n['h']['value']
+        x = n['x']
+        y = n['y']
+        w = n['w']
+        h = n['h']
         self.setRect(x - w/2, y - h/2, w, h)
         self.setRect(x - w/2, y - h/2, w, h)
         rect = label.sceneBoundingRect()
-        text_align = n['text-align']['value']
+        text_align = n['text-align']
         if text_align == 'top-left':
             label.setPos(x - w/2, y - h/2 - rect.height())
         elif text_align == 'center-left':
@@ -634,7 +634,7 @@ class GraphCoreEdgeItemInterface(GraphCoreItemInterface):
         self._v = v
         self.context = context
         self.handler = handler
-        self.label = QGraphicsTextItem(context.edges[u, v]['label']['value'])
+        self.label = QGraphicsTextItem(context.edges[u, v]['label'])
         self.label.setParentItem(self)
         self._start_bound = QGraphicsRectItem(self)
         self._target_bound = QGraphicsRectItem(self)
@@ -654,17 +654,17 @@ class GraphCoreEdgeItemInterface(GraphCoreItemInterface):
     def paint_bound_rects(self):
         w,h = 4, 4
         u = self.context.nodes[self.u]
-        if u['w']['value'] < u['h']['value']:
-            r_u = u['h']['value']/2
+        if u['w'] < u['h']:
+            r_u = u['h']/2
         else:
-            r_u = u['w']['value']/2
+            r_u = u['w']/2
         v = self.context.nodes[self.v]
-        if v['w']['value'] < v['h']['value']:
-            r_v = v['h']['value']/2
+        if v['w'] < v['h']:
+            r_v = v['h']/2
         else:
-            r_v = v['w']['value']/2
-        x_u, y_u = u['x']['value'], u['y']['value']
-        x_v, y_v = v['x']['value'], v['y']['value']
+            r_v = v['w']/2
+        x_u, y_u = u['x'], u['y']
+        x_v, y_v = v['x'], v['y']
         vec = (x_v - x_u, y_v - y_u)
         len_vec = math.sqrt(vec[0] * vec[0] + vec[1] * vec[1])
         vec = (vec[0] / len_vec, vec[1] / len_vec)
@@ -725,18 +725,18 @@ class GraphCoreEdgeItem(QGraphicsPolygonItem, GraphCoreEdgeItemInterface):
 
     def create_polygon(self):
         u = self.context.nodes[self.u]
-        if u['w']['value'] < u['h']['value']:
-            r_u = u['h']['value']/2
+        if u['w'] < u['h']:
+            r_u = u['h']/2
         else:
-            r_u = u['w']['value']/2
+            r_u = u['w']/2
         v = self.context.nodes[self.v]
-        if v['w']['value'] < v['h']['value']:
-            r_v = v['h']['value']/2
+        if v['w'] < v['h']:
+            r_v = v['h']/2
         else:
-            r_v = v['w']['value']/2
+            r_v = v['w']/2
         e = self.context.edges[self.u, self.v]
-        polygon = self.calc_polygon(u['x']['value'], u['y']['value'], r_u, v['x']['value'], v['y']['value'],
-                                    r_v, e['arrow-length']['value'], e['arrow-angle']['value'])
+        polygon = self.calc_polygon(u['x'], u['y'], r_u, v['x'], v['y'],
+                                    r_v, e['arrow-length'], e['arrow-angle'])
         return polygon
 
     def draw(self):
@@ -744,16 +744,16 @@ class GraphCoreEdgeItem(QGraphicsPolygonItem, GraphCoreEdgeItemInterface):
 
     def redraw(self):
         e = self.context.edges[self.u, self.v]
-        if e['filled']['value']:
-            brush = QBrush(QColor(e['fill-color']['value']))
+        if e['filled']:
+            brush = QBrush(QColor(e['fill-color']))
             self.setBrush(brush)
         else:
             self.setBrush(QColor())
         self.setPolygon(self.create_polygon())
         u = self.context.nodes[self.u]
         v = self.context.nodes[self.v]
-        self._label.setPlainText(e['label']['value'])
-        x, y = (u['x']['value']+v['x']['value'])/2, (u['y']['value']+v['y']['value'])/2
+        self._label.setPlainText(e['label'])
+        x, y = (u['x']+v['x'])/2, (u['y']+v['y'])/2
         boundingRect = self._label.boundingRect()
         self._label.setPos(x - boundingRect.width()/2, y) # y - boundingRect.height()/2)
         self.paint_bound_rects()
@@ -876,11 +876,11 @@ class GCAxisItem(QGraphicsItem):
 
 def gcore_create_node_item(n, context: GraphCoreContext, handler: GraphCoreContextHandler):
     attr = context.nodes[n]
-    if attr['shape']['value'] in ('circle', 'doublecircle'):
+    if attr['shape'] in ('circle', 'doublecircle'):
         item = GraphCoreCircleNodeItem(n, context, handler)
-    elif attr['shape']['value'] in ('box', 'doublebox'):
+    elif attr['shape'] in ('box', 'doublebox'):
         item = GraphCoreRectNodeItem(n, context, handler)
     else:
-        handler.reporter.report("GraphCore Error!!! Unsupported shape:{}".format(attr['shape']['value']))
+        handler.reporter.report("GraphCore Error!!! Unsupported shape:{}".format(attr['shape']))
         return None
     return item

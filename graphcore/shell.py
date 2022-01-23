@@ -18,6 +18,7 @@ from graphcore.reporter import GraphCoreReporter
 from graphcore.gcsolver import SolverController
 from PyQt5.QtCore import QThread, QMutex, pyqtSignal
 import traceback
+import re
 
 
 # yaml's presettings for load/dump
@@ -148,6 +149,9 @@ class GraphCoreContext(object):
         if 'version' not in self.graph.keys():
             self.graph['version'] = "0.1.0"
             self.dirty = True
+        if 'micro-version' not in self.graph.keys():
+            self.graph['micro-version'] = "20220123.1457"
+            self.dirty = True
         attrs = self.settings.setting('default-scene-attrs')
         # types = sets.setting('scene-attr-types')
         for k in attrs.keys():
@@ -156,30 +160,21 @@ class GraphCoreContext(object):
                 self.dirty = True
         attrs = self.settings.setting('default-node-attrs')
         for n in self.nodes:
-            t = self.nodes[n]['type']['value']
+            t = self.nodes[n]['type']
             a = attrs[t]
             for k in a.keys():
                 if k not in self.nodes[n].keys():
-                    self.nodes[n][k] = {}
-                    self.nodes[n][k]['value'] = a[k]['value']
-                    self.nodes[n][k]['type'] = a[k]['type']
-                    self.nodes[n][k]['visible'] = a[k]['visible']
-                    if 'list' in a[k].keys():
-                        self.nodes[n][k]['list'] = a[k]['list']
+                    self.nodes[n][k] = a[k]['value']
                     self.dirty = True
 
         attrs = self.settings.setting('default-edge-attrs')
         for e in self.edges:
-            t = self.edges[e[0], e[1]]['type']['value']
+            t = self.edges[e[0], e[1]]['type']
             a = attrs[t]
             for k in a.keys():
                 if k not in self.edges[e[0], e[1]].keys():
                     self.edges[e[0], e[1]][k] = {}
-                    self.edges[e[0], e[1]][k]['value'] = a[k]['value']
-                    self.edges[e[0], e[1]][k]['type'] = a[k]['type']
-                    self.edges[e[0], e[1]][k]['visible'] = a[k]['visible']
-                    if 'list' in a[k].keys():
-                        self.edges[e[0], e[1]]['list'] = a[k]['list']
+                    self.edges[e[0], e[1]][k] = a[k]['value']
                 self.dirty = True
         if 'variables' not in self.graph.keys():
             self.graph['variables'] = {}
@@ -853,12 +848,70 @@ class GraphCoreContextHandler:
             for i in range(num):
                 a = args[i*2]
                 v = args[i*2+1]
-                if self.context.nodes[n][a]['value'] != v:
+                if self.context.nodes[n][a] != v:
                     matched = False
                     break
             if matched:
                 N.append(n)
         return N
+
+    def find_nodes_ex(self, *args):
+        N = []
+        for n in self.context.nodes:
+            if self.is_conditions_matched(self.context.nodes[n], *args):
+                N.append(n)
+        return tuple(N)
+
+    def find_edges_ex(self, *args):
+        E = []
+        for e in self.context.edges:
+            if self.is_conditions_matched(self.context.edges[e[0], e[1]], *args):
+                E.append(e)
+        return tuple(E)
+
+    @staticmethod
+    def is_conditions_matched(data, *args):
+        num = int(len(args)/3)
+        matched = True
+        for i in range(num):
+            a = args[i*3]
+            m = args[i*3+1]
+            v = args[i*3+2]
+            if m == "==": # equal
+                if data[a] != v:
+                    matched = False
+                    break
+            elif m == "!=": # inequal
+                if data[a] == v:
+                    matched = False
+                    break
+            elif m == "<": # less than
+                if data[a] >= v:
+                    matched = False
+                    break
+            elif m == "<=": # less or equal
+                if data[a] > v:
+                    matched = False
+                    break
+            elif m == ">": # greater than
+                if data[a] <= v:
+                    matched = False
+                    break
+            elif m == ">=": # greater or equal
+                if data[a] < v:
+                    matched = False
+                    break
+            elif m =="=~": # match
+                if not re.match(v, data[a]):
+                    matched = False
+                    break
+            elif m == "!=~": # unmatch
+                if re.match(v, data[a]):
+                    matched = False
+                    break
+            else: # unsupported
+                continue
+        return matched
 
     @staticmethod
     def graph_find_nodes(G, *args):
@@ -869,7 +922,7 @@ class GraphCoreContextHandler:
             for i in range(num):
                 a = args[i*2]
                 v = args[i*2+1]
-                if G.nodes[n][a]['value'] != v:
+                if G.nodes[n][a] != v:
                     matched = False
                     break
             if matched:
@@ -884,7 +937,7 @@ class GraphCoreContextHandler:
             for i in range(num):
                 a = args[i*2]
                 v = args[i*2+1]
-                if self.context.edges[e[0], e[1]][a]['value'] != v:
+                if self.context.edges[e[0], e[1]][a] != v:
                     matched = False
                     break
             if matched:
@@ -924,14 +977,12 @@ class GraphCoreContextHandler:
     def add_new_node(self, t, *args):
         n = self.next_node_id()
         self.context.add_node(n)
-        self.context.nodes[n]['type'] = {}
-        self.context.nodes[n]['type']['value'] = t
+        self.context.nodes[n]['type'] = t
         num = int(len(args)/2)
         for i in range(num):
             a = args[i*2]
             v = args[i*2+1]
-            self.context.nodes[n][a] = {}
-            self.context.nodes[n][a]['value'] = v
+            self.context.nodes[n][a] = v
         attrs = self.settings.setting('default-node-attrs')[t]
         for k in attrs.keys():
             if k not in self.context.nodes[n].keys():
@@ -965,14 +1016,12 @@ class GraphCoreContextHandler:
     def add_new_edge(self, u, v, t, *args):
         #print(u, v, t, args)
         self.context.add_edge(u, v)
-        self.context.edges[u, v]['type'] = {}
-        self.context.edges[u, v]['type']['value'] = t
+        self.context.edges[u, v]['type'] = t
         num = int(len(args)/2)
         for i in range(num):
             a = args[i*2]
             value = args[i*2+1]
-            self.context.edges[u, v][a] = {}
-            self.context.edges[u, v][a]['value'] = value
+            self.context.edges[u, v][a] = value
         attrs = self.settings.setting('default-edge-attrs')[t]
         for k in attrs.keys():
             if k not in self.context.edges[u, v].keys():
@@ -990,27 +1039,27 @@ class GraphCoreContextHandler:
         self.do_reflection(GraphCoreContextHandler.EdgeRemoved, (u, v))
 
     def node_attr(self, n, a):
-        return self.context.nodes[n][a]['value']
+        return self.context.nodes[n][a]
 
     def change_node_attr(self, n, *args):
         attrs_len = int(len(args)/2)
         for i in range(attrs_len):
             a = args[i*2]
             v = args[i*2+1]
-            self.context.nodes[n][a]['value'] = v
+            self.context.nodes[n][a] = v
         self.context.dirty = True
         # get_script_worker().main_window_command.emit(GraphCoreThreadSignal(GraphCoreContextHandler.NodeUpdated, n, None))
         self.do_reflection(GraphCoreContextHandler.NodeUpdated, n)
 
     def edge_attr(self, u, v, a):
-        return self.context.edges[u, v][a]['value']
+        return self.context.edges[u, v][a]
 
     def change_edge_attr(self, u, v, *args):
         arg_len = int(len(args)/2)
         for i in range(arg_len):
             a = args[i*2]
             value = args[i*2+1]
-            self.context.edges[u, v][a]['value'] = value
+            self.context.edges[u, v][a] = value
             self.context.dirty = True
         self.do_reflection(GraphCoreContextHandler.EdgeUpdated, (u, v))
 
@@ -1179,8 +1228,8 @@ class GraphCoreContextHandler:
         return function['call'](args)
 
     def move_node_by(self, n, dx, dy):
-        self.context.nodes[n]['x']['value'] += dx
-        self.context.nodes[n]['y']['value'] += dy
+        self.context.nodes[n]['x'] += dx
+        self.context.nodes[n]['y'] += dy
         self.context.dirty = True
         self.do_reflection(GraphCoreContextHandler.NodeUpdated, n)
 
@@ -1188,8 +1237,8 @@ class GraphCoreContextHandler:
         edges = []
         sg = self.context.groups[g]
         for n in sg.nodes:
-            self.context.nodes[n]['x']['value'] += dx
-            self.context.nodes[n]['y']['value'] += dy
+            self.context.nodes[n]['x'] += dx
+            self.context.nodes[n]['y'] += dy
             self.context.dirty = True
             for v in self.context.G.successors(n):
                 if (n, v) not in edges:

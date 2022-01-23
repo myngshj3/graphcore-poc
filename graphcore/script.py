@@ -889,6 +889,12 @@ class GraphCoreScript(QObject):
         m = ExtensibleWrappedAccessor(self._toplevel, "find_edges", None,
                                       lambda ao, c, eo, ca, ea: self.handler.find_edges(*ca))
         self._toplevel.declare_method(m, globally=True)
+        m = ExtensibleWrappedAccessor(self._toplevel, "find_nodes_ex", None,
+                                      lambda ao, c, eo, ca, ea: self.handler.find_nodes_ex(*ca))
+        self._toplevel.declare_method(m, globally=True)
+        m = ExtensibleWrappedAccessor(self._toplevel, "find_edges_ex", None,
+                                      lambda ao, c, eo, ca, ea: self.handler.find_edges_ex(*ca))
+        self._toplevel.declare_method(m, globally=True)
         m = ExtensibleWrappedAccessor(self._toplevel, "run_user_script", None,
                                       lambda ao, c, eo, ca, ea: self.handler.run_user_script(ca[0]))
         self._toplevel.declare_method(m, globally=True)

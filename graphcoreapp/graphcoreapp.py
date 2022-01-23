@@ -130,8 +130,7 @@ def main():
                                                                       script_editor.frameGeometry().height()))
 
     # setup solve controller
-    solver_controller_ui = Ui_SolverControllerForm()
-    solver_controller = SolverControllerDialog(main_window, solver_controller_ui)
+    solver_controller = SolverControllerDialog(main_window)
     solver_controller.move(settings.setting_value(['solver-controller', 'x']),
                            settings.setting_value(['solver-controller', 'y']))
     solver_controller.resize(settings.setting_value(['solver-controller', 'width']),

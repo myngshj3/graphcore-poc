@@ -1,0 +1,54 @@
+
+(1) Installation
+
+GraphCore requires NetworkML which cannot be installed from PyPI.
+You need to install from GitHub by:
+  pip install git+https://github.com/myngshj3/networkml
+or
+  git clone https://github.com/myngshj3/networkml
+  cd networkml
+  pip install -e .
+
+Then, install GraphCore.
+You need to install from GitHub by:
+  pip install git+https://github.com/myngshj3/graphcore
+or
+  git clone https://github.com/myngshj3/graphcore
+  cd graphcore
+  pip install -e .
+
+
+(2) Configuration
+
+GraphCore requires configuration file 'graphcore.cfg' in the directory
+GRAPHCORE_HOME environment variable indicates.
+You need to set GRAPHCORE_HOME environment variable adequate directory
+like below:
+  GRAPHCORE_HOME=`pwd`    (if bash or its family)
+  or
+  set GRAPHCORE_HOME variable on 'Environment Variable' dialog (if win)
+
+Configuration file `graphcore.cfg' is downloadable from GitHub repository
+like below:
+  git clone https://github.com/myngshj3/graphcore-examples
+
+This directory contains `basic-flow' directory and `basic-flow/graphcore.cfg`
+configuration file. You can set this directory to GRAPHCORE_HOME.
+
+(3) Start GraphCore application
+
+You can get started GraphCore easily by typing like below:
+  graphcore
+if configuration is adequate.
+
+
+(4) GraphCore model file conversion
+
+You might have latest version of GraphCore application if you cannot
+deal with your own model file, since latest version of GraphCore model
+file format is different from past versions.
+If then, you need to convert by `gcconvert' command like below:
+  gcconvert <old-version-model-file> <output-model-file>
+
+
+Good Luck !

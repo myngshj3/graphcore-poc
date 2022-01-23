@@ -6,22 +6,23 @@ from graphcore.shell import GraphCoreContextHandler
 from graphcore.gcsolver import GCSolver, GCGeneralSolver
 from gui.Ui_SolverController import Ui_SolverControllerForm
 from PyQt5.QtWidgets import QDialog, QMenu
-from PyQt5.QtCore import QPoint
+from graphcore.gcsolver import SolverController
+from graphcore.reporter import GraphCoreReporter
 import traceback
 
 
 class SolverControllerDialog(QDialog):
-    def __init__(self, parent, ui: Ui_SolverControllerForm):
+    def __init__(self, parent):
         super().__init__(parent)
-        self._ui = ui
-        ui.setupUi(self)
-        self._G = None
-        self._post_data = None
-        self._cancel = False
+        self._ui = Ui_SolverControllerForm()
+        self.ui.setupUi(self)
+        reporter = GraphCoreReporter(lambda x: self.ui.message.append(str(x)))
+        self._solver = SolverController(reporter,
+                                        lambda x: self.ui.progressBar.setValue(x))
 
     @property
     def post_data(self):
-        return self._post_data
+        return self.solver.post_data
 
     @property
     def G(self) -> nx.DiGraph:
@@ -29,68 +30,32 @@ class SolverControllerDialog(QDialog):
 
     @G.setter
     def G(self, value: nx.DiGraph):
+        self.solver.set_G(value)
         self._G = value
-
-    @property
-    def handler(self) -> GraphCoreContextHandler:
-        return self._handler
 
     @property
     def ui(self) -> Ui_SolverControllerForm:
         return self._ui
 
+    @property
+    def solver(self) -> SolverController:
+        return self._solver
+
     def start_clicked(self):
         try:
-            self._cancel = False
-            value_property = self.ui.valuePropertyNameComboBox.currentText()
-            max_value_property = self.ui.maxValuePropertyComboBox.currentText()
-            velocity_property = self.ui.velocityPropertyComboBox.currentText()
-            max_velocity_property = self.ui.maxVelocityPropertyComboBox.currentText()
-            current_max_velocity_property = self.ui.currentMaxVelocityPropertyComboBox.currentText()
-            distance_property = self.ui.distancePropertyComboBox.currentText()
             self.ui.startButton.setEnabled(False)
             self.ui.stopButton.setEnabled(True)
             self.ui.closeButton.setEnabled(False)
+            self.ui.progressBar.setValue(100)
             dt = self.ui.doubleSpinBox.value()
+            self.solver.set_dt(dt)
             steps = self.ui.spinBox.value()
-            solver: GCSolver = GCGeneralSolver(self.G, dt)
-            G = solver.clone_graph(self.G)
-            solver.G = G
-            G_array = [nx.node_link_data(G)]
-            t = 0
-            for i in range(steps):
-                if self._cancel:
-                    break
-                percentage = 100.0 * i / steps
-                self.ui.progressBar.setValue(percentage)
-                if 0 == i:
-                    self.ui.message.append(f'{i}')
-                    # for n in G.nodes:
-                    #     self.ui.message.append(f'  n={n}, value={G.nodes[n][value_property]}, maxValue={G.nodes[n][max_value_property]}')
-                    # for e in G.edges:
-                    #     self.ui.message.append(f'  e={e}, velocity={G.edges[e[0], e[1]][velocity_property]}, currentMaxVelocity={G.edges[e[0], e[1]][current_max_velocity_property]}, maxVelocity={G.edges[e[0], e[1]][max_velocity_property]}')
-                G = solver.calc_one_step(value_property, max_value_property, velocity_property, max_velocity_property,
-                                         current_max_velocity_property, distance_property, t)
-                t += dt
-                data = nx.node_link_data(G)
-                if True:  # 0 < i and divmod(i, 100)[1] == 0:
-                    self.ui.message.append(f'[{i}] Step done')
-                    # for n in G.nodes:
-                    #     if G.nodes[n]['type'] not in ('note', 'domain', 'folder'):
-                    #         self.ui.message.append(f'  n={n}, value={G.nodes[n][value_property]}, maxValue={G.nodes[n][max_value_property]}')
-                    # for e in G.edges:
-                    #     if G.edges[e[0], e[1]]['type'] not in ('amplitude-flow',):
-                    #         self.ui.message.append(f'  e={e}, velocity={G.edges[e[0], e[1]][velocity_property]}, maxVelocity={G.edges[e[0], e[1]][max_velocity_property]}')
-                G_array.append(data)
-                self._G = G
-            if not self._cancel:
-                self.ui.progressBar.setValue(100)
-                self._post_data = tuple(G_array)
+            self.solver.set_steps(steps)
+            self.solver.start()
         except Exception as ex:
             print('exception occured:', ex)
             print(traceback.format_exc())
         finally:
-            self._cancel = True
             self.ui.startButton.setEnabled(True)
             self.ui.stopButton.setEnabled(False)
             self.ui.closeButton.setEnabled(True)
@@ -99,7 +64,7 @@ class SolverControllerDialog(QDialog):
         self.ui.startButton.setEnabled(True)
         self.ui.stopButton.setEnabled(False)
         self.ui.closeButton.setEnabled(True)
-        # FIXME  self.solver.stop()
+        self.solver.cancel()
 
     def close_clicked(self):
         self.hide()

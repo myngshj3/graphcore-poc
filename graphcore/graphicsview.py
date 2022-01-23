@@ -121,12 +121,7 @@ class GraphCoreView(QGraphicsView):
                     default_settings = self._main_window.settings.setting('default-edge-attrs')[edge_type]
                     for k in default_settings.keys():
                         if k not in attrs.keys():
-                            attrs[k] = {}
-                            attrs[k]['value'] = default_settings[k]['value']
-                            attrs[k]['type'] = default_settings[k]['type']
-                            attrs[k]['visible'] = default_settings[k]['visible']
-                            if 'list' in default_settings[k].keys():
-                                attrs[k]['list'] = default_settings[k]['list']
+                            attrs[k] = default_settings[k]['value']
                     self._main_window.handler.add_edge(e[0], e[1], attrs=attrs)
                     self.scene().removeItem(arrow)
                     self._main_window.handler.extras['temp_coords'] = None

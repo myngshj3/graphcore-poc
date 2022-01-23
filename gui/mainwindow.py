@@ -353,12 +353,12 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
     # create node item
     def new_node_item(self, n):
         attr = self.handler.context.nodes[n]
-        if attr['shape']['value'] in ('circle', 'doublecircle'):
+        if attr['shape'] in ('circle', 'doublecircle'):
             item = GraphCoreCircleNodeItem(n, self.handler.context, self.handler)
-        elif attr['shape']['value'] in ('box', 'doublebox'):
+        elif attr['shape'] in ('box', 'doublebox'):
             item = GraphCoreRectNodeItem(n, self.handler.context, self.handler)
         else:
-            self.print("Unsupported shape:{}. force to circle".format(attr['shape']['value']))
+            self.print("Unsupported shape:{}. force to circle".format(attr['shape']))
             item = GraphCoreCircleNodeItem(n, self.handler.context, self.handler)
         #item = GCCustomNodeItem(n, self.handler.context, self.handler)
         self.scene.addItem(item)
@@ -663,9 +663,9 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
         self.ui.nodeTableWidget.setRowCount(len(self.handler.context.G.nodes))
         for i, n in enumerate(self.handler.context.G.nodes):
             id = n
-            label = self.handler.context.G.nodes[n]['label']['value']
-            caption = self.handler.context.G.nodes[n]['caption']['value']
-            description = self.handler.context.G.nodes[n]['description']['value']
+            label = self.handler.context.G.nodes[n]['label']
+            caption = self.handler.context.G.nodes[n]['caption']
+            description = self.handler.context.G.nodes[n]['description']
             self.ui.nodeTableWidget.setItem(i, 0, QTableWidgetItem(id))
             self.ui.nodeTableWidget.setItem(i, 1, QTableWidgetItem(label))
             self.ui.nodeTableWidget.setItem(i, 2, QTableWidgetItem(caption))
@@ -680,9 +680,9 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
         self.ui.edgeTableWidget.setRowCount(len(self.handler.context.G.edges))
         for i, e in enumerate(self.handler.context.G.edges):
             id = "({0}, {1})".format(e[0], e[1])
-            label = self.handler.context.G.edges[e[0], e[1]]['label']['value']
-            caption = self.handler.context.G.edges[e[0], e[1]]['caption']['value']
-            description = self.handler.context.G.edges[e[0], e[1]]['description']['value']
+            label = self.handler.context.G.edges[e[0], e[1]]['label']
+            caption = self.handler.context.G.edges[e[0], e[1]]['caption']
+            description = self.handler.context.G.edges[e[0], e[1]]['description']
             self.ui.edgeTableWidget.setItem(i, 0, QTableWidgetItem(id))
             self.ui.edgeTableWidget.setItem(i, 1, QTableWidgetItem(label))
             self.ui.edgeTableWidget.setItem(i, 2, QTableWidgetItem(caption))
@@ -701,16 +701,11 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
             attr = {}
             default_settings = self._settings.setting("default-node-attrs")[node_type]
             for k in default_settings.keys():
-                attr[k] = {}
-                attr[k]['value'] = default_settings[k]['value']
-                attr[k]['type'] = default_settings[k]['type']
-                attr[k]['visible'] = default_settings[k]['visible']
-                if 'list' in default_settings[k].keys():
-                    attr[k]['list'] = default_settings[k]['list']
-            attr['x']['value'] = x
-            attr['y']['value'] = y
+                attr[k] = default_settings[k]['value']
+            attr['x'] = x
+            attr['y'] = y
             if node_type is not None:
-                attr['type']['value'] = node_type
+                attr['type'] = node_type
             self.handler.new_node(attr)
         except Exception as ex:
             self.print(traceback.format_exc())
@@ -727,12 +722,7 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
         default_settings = self._settings.setting('default-edge-attrs')[edge_type]
         for k in default_settings.keys():
             if k not in attrs.keys():
-                attrs[k] = {}
-                attrs[k]['value'] = default_settings[k]['value']
-                attrs[k]['type'] = default_settings[k]['type']
-                attrs[k]['visible'] = default_settings[k]['visible']
-                if 'list' in default_settings[k].keys():
-                    attrs[k]['list'] = default_settings[k]['list']
+                attrs[k] = default_settings[k]['value']
         self.new_edge_item(e)
 
     # File / Import command
@@ -778,20 +768,20 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
             for n in self.handler.context.nodes:
                 attr = self.handler.context.nodes[n]
                 if xmin is None:
-                    xmin = attr['x']['value']
-                    xmax = attr['x']['value']
+                    xmin = attr['x']
+                    xmax = attr['x']
                 elif ymin is None:
-                    ymin = attr['y']['value']
-                    ymax = attr['y']['value']
+                    ymin = attr['y']
+                    ymax = attr['y']
                 else:
-                    if attr['x']['value'] < xmin:
-                        xmin = attr['x']['value']
-                    if xmax < attr['x']['value']:
-                        xmax = attr['x']['value']
-                    if attr['y']['value'] < ymin:
-                        ymin = attr['y']['value']
-                    if ymax < attr['y']['value']:
-                        ymax = attr['y']['value']
+                    if attr['x'] < xmin:
+                        xmin = attr['x']
+                    if xmax < attr['x']:
+                        xmax = attr['x']
+                    if attr['y'] < ymin:
+                        ymin = attr['y']
+                    if ymax < attr['y']:
+                        ymax = attr['y']
             if xmin is None:
                 # do nothing
                 return
@@ -969,7 +959,7 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
             for k in default_settings.keys():
                 attrs[k] = default_settings[k]
             if edge_type is not None:
-                attrs['type']['value'] = edge_type
+                attrs['type'] = edge_type
             self.handler.add_edge(u, v, attrs)
         except Exception as ex:
             self.print(traceback.format_exc())
@@ -1020,12 +1010,6 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
             clazz_sig = "{}[{}]".format("NetworkML", 1)
             data = nx.node_link_data(self.handler.context.G)
             G = nx.node_link_graph(data)
-            for n in G.nodes:
-                for k in G.nodes[n].keys():
-                    G.nodes[n][k] = G.nodes[n][k]['value']
-            for e in G.edges:
-                for k in G.edges[e[0], e[1]].keys():
-                    G.edges[e[0], e[1]][k] = G.edges[e[0], e[1]][k]['value']
             embedded = [("G", G)]
             args = ()
             meta.set_running(True)
@@ -1098,13 +1082,13 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
     def command_set_node_complexity_to_label(self):
         for n in self.handler.context.nodes:
             attr = self.handler.context.nodes[n]
-            self.handler.change_node_attr(n, 'label', str(attr['complexity']['value']))
+            self.handler.change_node_attr(n, 'label', str(attr['complexity']))
 
     # Labels/Node caption
     def command_set_node_caption_to_label(self):
         for n in self.handler.context.nodes:
             attr = self.handler.context.nodes[n]
-            self.handler.change_node_attr(n, 'label', str(attr['caption']['value']))
+            self.handler.change_node_attr(n, 'label', str(attr['caption']))
 
     # Labels/Edge Id
     def command_set_edge_id_to_label(self):
@@ -1115,13 +1099,13 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
     def command_set_edge_distance_to_label(self):
         for e in self.handler.context.edges:
             attr = self.handler.context.edges[e[0], e[1]]
-            self.handler.change_edge_attr(e[0], e[1], 'label', str(attr['distance']['value']))
+            self.handler.change_edge_attr(e[0], e[1], 'label', str(attr['distance']))
 
     # Labels/Edge caption
     def command_set_edge_caption_to_label(self):
         for e in self.handler.context.edges:
             attr = self.handler.context.edges[e[0], e[1]]
-            self.handler.change_edge_attr(e[0], e[1], 'label', attr['caption']['value'])
+            self.handler.change_edge_attr(e[0], e[1], 'label', attr['caption'])
 
     # Labels/Node Tooltips
     def command_change_node_tooltips(self):
@@ -1129,7 +1113,7 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
             attr = self.handler.context.nodes[n]
             item = self.element_to_item[n]
             if item.toolTip() is None or item.toolTip() == "":
-                item.setToolTip(attr['description']['value'])
+                item.setToolTip(attr['description'])
             else:
                 item.setToolTip("")
             item.redraw()
@@ -1141,7 +1125,7 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
             attr = self.handler.context.edges[e[0], e[1]]
             item: GraphCoreEdgeItem = self.graphElemToItem(e)
             if item.toolTip() is None or item.toolTip() == "":
-                item.setToolTip(attr['description']['value'])
+                item.setToolTip(attr['description'])
             else:
                 item.setToolTip("")
             item.redraw()
@@ -1214,7 +1198,7 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
         # self.print("popup_menu_do_begin_edge({})".format(source))
         s = self.handler.context.nodes[source]
         self.command_deselect_all()
-        sx, sy, w = s['x']['value'], s['y']['value'], s['w']['value']
+        sx, sy, w = s['x'], s['y'], s['w']
         # dx, dy = s['x'], s['y']
         arrow_line = QGraphicsPolygonItem()
         arrow_line.setFlag(QGraphicsItem.ItemIsSelectable, False)
@@ -1294,12 +1278,13 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
     def property_select_node(self, node):
         property_widget = self.ui.propertyWidget
         attrs = self.handler.context.nodes[node]
-        _type = attrs['type']['value']
+        default_node_attrs = self.settings.setting('default-node-attrs')
+        _type = attrs['type']
         node_properties = self.settings.setting('default-node-attrs')[_type].keys()
         property_widget.setRowCount(0)
         attr_count = 0
         for i, k in enumerate(node_properties):
-            if not self.settings.setting('default-node-attrs')[_type][k]['visible']:
+            if not default_node_attrs[_type][k]['visible']:
                 continue
             # if not attrs[k]['visible']:
             #     continue
@@ -1308,29 +1293,29 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
             property_widget.setItem(attr_count - 1, 0, QTableWidgetItem(k))
             property_widget.setItem(attr_count - 1, 1, QTableWidgetItem(self.settings.setting('default-node-attrs')[_type][k]['caption']))
             editor = None
-            t = attrs[k]['type']
-            if "list" in self.settings.setting('default-node-attrs')[_type][k].keys():
-                value_list = self.settings.setting('default-node-attrs')[_type][k]['list']
+            t = default_node_attrs[_type][k]['type']
+            if "list" in default_node_attrs[_type][k].keys():
+                value_list = default_node_attrs[_type][k]['list']
                 entries = []
                 for idx, n in enumerate(value_list):
                     entries.append((n, n))  # FIXME
-                editor = ComboBoxEditor(attrs[k]['value'], k, entries,
+                editor = ComboBoxEditor(attrs[k], k, entries,
                                         apply=lambda x, y: self.handler.change_node_attr(node, x, y))
                 editor.callback_enabled = True
             elif t == "str":
-                editor = TextEditor(attrs[k]['value'], k, apply=lambda x, y: self.handler.change_node_attr(node, x, y))
+                editor = TextEditor(attrs[k], k, apply=lambda x, y: self.handler.change_node_attr(node, x, y))
             elif t == "longtext":
-                editor = LongTextEditor(attrs[k]['value'], k, apply=lambda x, y: self.handler.change_node_attr(node, x, y))
+                editor = LongTextEditor(attrs[k], k, apply=lambda x, y: self.handler.change_node_attr(node, x, y))
             elif t == "int":
-                #editor = IntEditor(attrs[k]['value'], k, int, apply=lambda x, y: self.handler.change_node_attr(node, x, y))
-                editor = SpinBoxEditor(attrs[k]['value'], k, int, apply=lambda x, y: self.handler.change_node_attr(node, x, y))
+                #editor = IntEditor(attrs[k], k, int, apply=lambda x, y: self.handler.change_node_attr(node, x, y))
+                editor = SpinBoxEditor(attrs[k], k, int, apply=lambda x, y: self.handler.change_node_attr(node, x, y))
             elif t == "float":
-                #editor = FloatEditor(attrs[k]['value'], k, float, apply=lambda x, y: self.handler.change_node_attr(node, x, y))
-                editor = FloatSpinBoxEditor(attrs[k]['value'], k, float, apply=lambda x, y: self.handler.change_node_attr(node, x, y))
+                #editor = FloatEditor(attrs[k], k, float, apply=lambda x, y: self.handler.change_node_attr(node, x, y))
+                editor = FloatSpinBoxEditor(attrs[k], k, float, apply=lambda x, y: self.handler.change_node_attr(node, x, y))
             elif t == "bool":
-                editor = BoolEditor(attrs[k]['value'], k, apply=lambda x, y: self.handler.change_node_attr(node, x, y))
+                editor = BoolEditor(attrs[k], k, apply=lambda x, y: self.handler.change_node_attr(node, x, y))
             elif t == "equation":
-                editor = EquationEditor(attrs[k]['value'], k, apply=lambda x,y:self.handler.change_node_attr(node,x,y))
+                editor = EquationEditor(attrs[k], k, apply=lambda x,y:self.handler.change_node_attr(node,x,y))
             else:
                 self.print("unsupported type:{}".format(t))
             property_widget.setCellWidget(attr_count - 1, 2, editor)
@@ -1339,12 +1324,13 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
     def property_select_edge(self, edge):
         property_widget = self.ui.propertyWidget
         attrs = self.handler.context.edges[edge[0], edge[1]]
-        _type = attrs['type']['value']
-        edge_properties = self.settings.setting('default-edge-attrs')[_type].keys()
+        default_edge_attrs = self.settings.setting('default-edge-attrs')
+        _type = attrs['type']
+        edge_properties = default_edge_attrs[_type].keys()
         property_widget.setRowCount(0)
         attr_count = 0
         for i, k in enumerate(edge_properties):
-            if not self.settings.setting('default-edge-attrs')[_type][k]['visible']:
+            if not default_edge_attrs[_type][k]['visible']:
                 continue
             # if not attrs[k]['visible']:
             #     continue
@@ -1353,36 +1339,36 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
             property_widget.setItem(attr_count - 1, 0, QTableWidgetItem(k))
             property_widget.setItem(attr_count - 1, 1, QTableWidgetItem(self.settings.setting('default-edge-attrs')[_type][k]['caption']))
             editor = None
-            t = attrs[k]['type']
-            if "list" in self.settings.setting('default-edge-attrs')[_type][k].keys():
-                value_list = self.settings.setting('default-edge-attrs')[_type][k]['list']
+            t = default_edge_attrs[_type][k]['type']
+            if "list" in default_edge_attrs[_type][k].keys():
+                value_list = default_edge_attrs[_type][k]['list']
                 entries = []
                 for idx, n in enumerate(value_list):
                     entries.append((n, n))  # FIXME
-                editor = ComboBoxEditor(attrs[k]['value'], k, entries,
+                editor = ComboBoxEditor(attrs[k], k, entries,
                                         apply=lambda x, y: self.handler.change_edge_attr(edge[0], edge[1], x, y))
                 editor.callback_enabled = True
             elif t == "str":
-                editor = TextEditor(attrs[k]['value'], k,
+                editor = TextEditor(attrs[k], k,
                                     apply=lambda x, y: self.handler.change_edge_attr(edge[0], edge[1], x, y))
             elif t == "longtext":
-                editor = LongTextEditor(attrs[k]['value'], k,
+                editor = LongTextEditor(attrs[k], k,
                                         apply=lambda x, y: self.handler.change_edge_attr(edge[0], edge[1], x, y))
             elif t == "int":
-                #editor = IntEditor(attrs[k]['value'], k, int,
+                #editor = IntEditor(attrs[k], k, int,
                 #                   apply=lambda x, y: self.handler.change_edge_attr(edge[0], edge[1], x, y))
-                editor = SpinBoxEditor(attrs[k]['value'], k, int,
+                editor = SpinBoxEditor(attrs[k], k, int,
                                        apply=lambda x, y: self.handler.change_edge_attr(edge[0], edge[1], x, y))
             elif t == "float":
-                #editor = FloatEditor(attrs[k]['value'], k, float,
+                #editor = FloatEditor(attrs[k], k, float,
                 #                     apply=lambda x, y: self.handler.change_edge_attr(edge[0], edge[1], x, y))
-                editor = FloatSpinBoxEditor(attrs[k]['value'], k, float,
+                editor = FloatSpinBoxEditor(attrs[k], k, float,
                                             apply = lambda x, y: self.handler.change_edge_attr(edge[0], edge[1], x, y))
             elif t == "bool":
-                editor = BoolEditor(attrs[k]['value'], k,
+                editor = BoolEditor(attrs[k], k,
                                     apply=lambda x, y: self.handler.change_edge_attr(edge[0], edge[1], x, y))
             elif t == "equation":
-                editor = EquationEditor(attrs[k]['value'], k,
+                editor = EquationEditor(attrs[k], k,
                                         apply=lambda x, y: self.handler.change_edge_attr(edge[0], edge[1], x, y))
             else:
                 self.print("unsupported type:{}".format(t))
@@ -1440,12 +1426,6 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
         clazz_sig = "{}[{}]".format("NetworkML", 1)
         data = nx.node_link_data(self.handler.context.G)
         G = nx.node_link_graph(data)
-        for n in G.nodes:
-            for k in G.nodes[n].keys():
-                G.nodes[n][k] = G.nodes[n][k]['value']
-        for e in G.edges:
-            for k in G.edges[e[0], e[1]].keys():
-                G.edges[e[0], e[1]][k] = G.edges[e[0], e[1]][k]['value']
         embedded = [("G", G)]
         args = ()
         meta.set_running(True)
@@ -1518,16 +1498,8 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
     def command_start_solver(self):
         try:
             self.solver_controller.setModal(True)
-            G = nx.DiGraph()
-            for n in self.handler.context.G.nodes:
-                G.add_node(n)
-                for k in self.handler.context.G.nodes[n].keys():
-                    G.nodes[n][k] = self.handler.context.G.nodes[n][k]['value']
-            for e in self.handler.context.G.edges:
-                G.add_edge(e[0], e[1])
-                for k in self.handler.context.G.edges[e[0], e[1]].keys():
-                    G.edges[e[0], e[1]][k] = self.handler.context.G.edges[e[0], e[1]][k]['value']
-            self.solver_controller.G = G
+            self.solver_controller.G = self.handler.context.G
+
             # initialize value property combobox
             node_properties = self.settings.setting('default-node-attrs')['control-volume'].keys()
             combo_boxes = (

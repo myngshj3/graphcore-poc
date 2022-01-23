@@ -6,6 +6,7 @@ from numpy import pi, sin, cos, tan, arcsin, arccos, arctan, exp, log, log2, log
 import networkx as nx
 import json
 import traceback
+from graphcore.settings import gcore_settings
 
 
 _tmp = pi+sin(0)+cos(0)+tan(0)+arcsin(0)+arccos(0)+arctan(0)+exp(0)+log(1)+log2(1)+log10(1)
@@ -210,13 +211,43 @@ class GCGeneralSolver(GCSolver):
                 if G.edges[i, d][w_sym] == 0:
                     G.edges[i, d][v_sym] = G.edges[i, d][w_sym]
                 elif sum_w * dt <= G.nodes[i][x_sym]:
-                    G.edges[i, d][v_sym] = k * G.edges[i, d][w_sym]
+                    v = k * G.edges[i, d][w_sym]
+                    if 'amplitude' in G.edges[i, d].keys():
+                        amplitude = G.edges[i, d]['amplitude']
+                        amplitude = amplitude.replace('{t}', str(t))
+                        v_f = eval(amplitude)
+                        if v_f < v:
+                            G.edges[i, d][v_sym] = v_f
+                        else:
+                            G.edges[i, d][v_sym] = v
+                    else:
+                        G.edges[i, d][v_sym] = v
                 elif G.nodes[i][x_sym] < sum_w * dt and k*G.nodes[i][x_sym] / dt <= G.edges[i, d][w_sym]:
-                    G.edges[i, d][v_sym] = k * G.nodes[i][x_sym] / dt
-                    if G.edges[i, d][w_sym] < G.edges[i, d][v_sym]:
-                        G.edges[i, d][v_sym] = G.edges[i, d][w_sym]
+                    v = k * G.nodes[i][x_sym] / dt
+                    if G.edges[i, d][w_sym] < v:
+                        v = G.edges[i, d][w_sym]
+                    if 'amplitude' in G.edges[i, d].keys():
+                        amplitude = G.edges[i, d]['amplitude']
+                        amplitude = amplitude.replace('{t}', str(t))
+                        v_f = eval(amplitude)
+                        if v_f < v:
+                            G.edges[i, d][v_sym] = v_f
+                        else:
+                            G.edges[i, d][v_sym] = v
+                    else:
+                        G.edges[i, d][v_sym] = v
                 else:
-                    G.edges[i, d][v_sym] = G.edges[i, d][w_sym]
+                    v = G.edges[i, d][w_sym]
+                    if 'amplitude' in G.edges[i, d].keys():
+                        amplitude = G.edges[i, d]['amplitude']
+                        amplitude = amplitude.replace('{t}', str(t))
+                        v_f = eval(amplitude)
+                        if v_f < v:
+                            G.edges[i, d][v_sym] = v_f
+                        else:
+                            G.edges[i, d][v_sym] = v
+                    else:
+                        G.edges[i, d][v_sym] = v
 
             # ### amplitude-flow edge
             # D = []
@@ -247,11 +278,14 @@ class GCGeneralSolver(GCSolver):
             sum_v_s = 0
             for s in S:
                 v = G.edges[s, i][v_sym]
-                if G.edges[s, i]['type'] == 'amplitude-flow':
-                    amplitude = G.edges[s, i]['amplitude']
-                    amplitude = amplitude.replace("{t}", str(t))
-                    amplitude = eval(amplitude)
-                    v *= amplitude
+                if G.nodes[i]['type'] == 'multiplicable-node':
+                    ratio = G.nodes[i]['ratio']
+                    v *= ratio
+                # if G.edges[s, i]['type'] == 'amplitude-flow':
+                #     amplitude = G.edges[s, i]['amplitude']
+                #     amplitude = amplitude.replace("{t}", str(t))
+                #     amplitude = eval(amplitude)
+                #     v *= amplitude
                 sum_v_s += v
             sum_v_d = 0
             for d in D:
@@ -284,8 +318,9 @@ class GCGeneralSolver(GCSolver):
 
 
 class SolverController:
-    def __init__(self, handler):
-        self._handler = handler
+    def __init__(self, reporter, progress):
+        self._reporter = reporter
+        self._progress = progress
         self._cancel = False
         self._value_field = "value"
         self._maxValue_field = "maxValue"
@@ -300,8 +335,12 @@ class SolverController:
         self._print_progress = True
 
     @property
-    def handler(self):
-        return self._handler
+    def reporter(self):
+        return self._reporter
+
+    @property
+    def progress(self):
+        return self._progress
 
     @property
     def dt(self):
@@ -323,14 +362,26 @@ class SolverController:
 
     def set_G(self, model_graph):
         G = nx.DiGraph()
+        settings = gcore_settings()
+        # set type attribute, equation type attributes, float type attributes and generator-type attribute.
         for n in model_graph.nodes:
             G.add_node(n)
+            t = model_graph.nodes[n]['type']
+            defaults = settings.setting('default-node-attrs')[t]
             for k in model_graph.nodes[n].keys():
-                G.nodes[n][k] = model_graph.nodes[n][k]['value']
+                if k in ('label', 'caption', 'description', 'type', 'generator-type') or defaults[k]['type'] in ('float', 'equation'):
+                    G.nodes[n][k] = model_graph.nodes[n][k]
+                else:
+                    pass
         for e in model_graph.edges:
             G.add_edge(e[0], e[1])
+            t = model_graph.edges[e[0], e[1]]['type']
+            defaults = settings.setting('default-edge-attrs')[t]
             for k in model_graph.edges[e[0], e[1]].keys():
-                G.edges[e[0], e[1]][k] = model_graph.edges[e[0], e[1]][k]['value']
+                if k in ('label', 'caption', 'description', 'type', 'generator-type') or defaults[k]['type'] in ('float', 'equation'):
+                    G.edges[e[0], e[1]][k] = model_graph.edges[e[0], e[1]][k]
+                else:
+                    pass
         self._G = G
 
     @property
@@ -347,7 +398,7 @@ class SolverController:
     def start(self):
         try:
             if self.print_progress:
-                self.handler.reporter("started")
+                self.reporter("started")
             self._cancel = False
             value_property = self._value_field
             max_value_property = self._maxValue_field
@@ -362,22 +413,25 @@ class SolverController:
             solver.G = G
             G_array = [nx.node_link_data(G)]
             t = 0
+            self.progress(0)
             for i in range(steps):
                 if self._cancel:
                     if self.print_progress:
-                        self.handler.reporter("canceled")
+                        self.reporter("canceled")
                     break
                 if self.print_progress:
-                    self.handler.reporter("{}-th iteration".format(i+1))
+                    self.reporter("{}-th iteration".format(i+1))
                 G = solver.calc_one_step(value_property, max_value_property, velocity_property, max_velocity_property,
                                          current_max_velocity_property, distance_property, t)
                 t += dt
                 data = nx.node_link_data(G)
                 G_array.append(data)
                 self._G = G
+                self.progress(100*i/steps)
             if self.print_progress:
-                self.handler.reporter("done")
+                self.reporter("done")
             if not self._cancel:
+                self.progress(100)
                 self._post_data = tuple(G_array)
         except Exception as ex:
             print('exception occured:', ex)
