@@ -812,19 +812,12 @@ class GraphCoreEdgeItem(QGraphicsPathItem, GraphCoreEdgeItemInterface):
             x, y = (x_u + x_v)/2, (y_u + y_v)/2
         else:
             A = coords[0]
-            C = coords[1]
-            B = coords[2]
-            AB = np.sqrt((B[0]-A[0])**2 + (B[1]-A[1])**2)
-            AC = np.sqrt((C[0]-A[0])**2 + (C[1]-A[1])**2)
-            theta = np.arccos(AB/(2*AC))
-            X = AB/2*np.sin(theta/2)
-            Y = AB/2*np.sin(np.pi/2-theta)
-            R = X + Y
-            Z = R*np.sin(theta/2)
-            D = 2*Z
-            k = D/AB
-            S = stretch_and_rotate_line(A[0], A[1], B[0], B[1], k, theta/2)
-            x, y = S[0], S[1]
+            B = coords[1]
+            C = coords[2]
+            D = [(A[0] + B[0]) / 2, (A[1] + B[1]) / 2]
+            E = [(B[0] + C[0]) / 2, (B[1] + C[1]) / 2]
+            F = [(D[0] + E[0]) / 2, (D[1] + E[1]) / 2]
+            x, y = F[0], F[1]
         boundingRect = self._label.boundingRect()
         self._label.setPos(x - boundingRect.width()/2, y) # y - boundingRect.height()/2)
         self.paint_bound_rects()

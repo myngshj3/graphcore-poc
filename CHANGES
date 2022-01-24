@@ -1,0 +1,5 @@
+CHANGES
+
+2022/01/24:
+- Curved edge is available by setting `curve-angle' edge property.
+- Min/max of property value is available on property editor by setting `graphcore.cfg` config file.
