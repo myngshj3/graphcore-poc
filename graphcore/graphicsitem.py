@@ -685,13 +685,14 @@ class GraphCoreEdgeItemInterface(GraphCoreItemInterface):
 
 
 # GraphCore's edge item
-class GraphCoreEdgeItem(QGraphicsPolygonItem, GraphCoreEdgeItemInterface):
+class GraphCoreEdgeItem(QGraphicsPathItem, GraphCoreEdgeItemInterface):
     def __init__(self, u, v, context: GraphCoreContext, handler: GraphCoreContextHandler):
         super().__init__(u, v, context=context, handler=handler)
         # super().__init__()
         # self.setFlag(QGraphicsItem.ItemIsSelectable)
         self.setFlag(QGraphicsItem.ItemIsMovable, False)
-        self.setPen(QPen())
+        self.setPen(QPen(QColor("black")))
+        self._coords = None
         self.draw()
 
     @property
@@ -701,6 +702,10 @@ class GraphCoreEdgeItem(QGraphicsPolygonItem, GraphCoreEdgeItemInterface):
     @property
     def v(self):
         return self._v
+
+    def calc_path(self):
+        path = QPainterPath()
+        path_item = QGraphicsPathItem(path)
 
     def calc_polygon(self, x_u, y_u, r_u, x_v, y_v, r_v, head_len, head_angle):
         polygon = QPolygonF()
@@ -735,28 +740,109 @@ class GraphCoreEdgeItem(QGraphicsPolygonItem, GraphCoreEdgeItemInterface):
         else:
             r_v = v['w']/2
         e = self.context.edges[self.u, self.v]
+        # polygon = self.calc_polygon(u['x'], u['y'], r_u, v['x'], v['y'],
+        #                             r_v, e['arrow-length'], e['arrow-angle'])
+        angle = 2*np.arcsin(e['arrow-width']/(2*e['arrow-length']))
         polygon = self.calc_polygon(u['x'], u['y'], r_u, v['x'], v['y'],
-                                    r_v, e['arrow-length'], e['arrow-angle'])
+                                    r_v, e['arrow-length'], angle)
         return polygon
+
+    def paint(self, painter: QtGui.QPainter, option: 'QStyleOptionGraphicsItem', widget: typing.Optional[QWidget] = ...) -> None:
+        super().paint(painter, option, widget)
 
     def draw(self):
         self.redraw()
 
     def redraw(self):
         e = self.context.edges[self.u, self.v]
-        if e['filled']:
-            brush = QBrush(QColor(e['fill-color']))
-            self.setBrush(brush)
-        else:
-            self.setBrush(QColor())
-        self.setPolygon(self.create_polygon())
+        # FIXME filled property is unavailable now
+        # if e['filled']:
+        #     brush = QBrush(QColor(e['fill-color']))
+        #     self.setBrush(brush)
+        # else:
+        #     self.setBrush(QBrush(Qt.NoBrush))
+        self.setBrush(QBrush(Qt.NoBrush))
         u = self.context.nodes[self.u]
         v = self.context.nodes[self.v]
+        x_u, y_u, w_u, h_u = u['x'], u['y'], u['w'], u['h']
+        x_v, y_v, w_v, h_v = v['x'], v['y'], v['w'], v['h']
+        a = np.deg2rad(e['curve-angle'])
+        hl = e['arrow-length']
+        hw = e['arrow-width']
+        shape_u, shape_v = u['shape'], v['shape']
+        path = QPainterPath()
+        if a == 0:
+            if shape_u in ('box', 'doublebox') and shape_v in ('box', 'doublebox'):
+                coords = straight_edge_rect_to_rect(x_u, y_u, w_u, h_u, x_v, y_v, w_v, h_v, hl, hw)
+            elif shape_u in ('box', 'doublebox') and shape_v in ('circle', 'doublecircle'):
+                coords = straight_edge_rect_to_ellipse(x_u, y_u, w_u, h_u, x_v, y_v, w_v, h_v, hl, hw)
+            elif shape_u in ('circle', 'doublecircle') and shape_v in ('box', 'doublebox'):
+                coords = straight_edge_ellipse_to_rect(x_u, y_u, w_u, h_u, x_v, y_v, w_v, h_v, hl, hw)
+            elif shape_u in ('circle', 'doublecircle') and shape_v in ('circle', 'doublecircle'):
+                coords = straight_edge_ellipse_to_ellipse(x_u, y_u, w_u, h_u, x_v, y_v, w_v, h_v, hl, hw)
+            else:
+                coords = straight_edge_ellipse_to_ellipse(x_u, y_u, w_u, h_u, x_v, y_v, w_v, h_v, hl, hw)
+            path.moveTo(coords[0][0], coords[0][1])
+            path.lineTo(coords[1][0], coords[1][1])
+            path.moveTo(coords[2][0][0], coords[2][0][1])
+            for c in coords[2][1:]:
+                path.lineTo(c[0], c[1])
+            path.lineTo(coords[2][0][0], coords[2][0][1])
+        else:
+            if shape_u in ('box', 'doublebox') and shape_v in ('box', 'doublebox'):
+                coords = curved_edge_rect_to_rect(x_u, y_u, w_u, h_u, x_v, y_v, w_v, h_v, a, hl, hw)
+            elif shape_u in ('box', 'doublebox') and shape_v in ('circle', 'doublecircle'):
+                coords = curved_edge_rect_to_ellipse(x_u, y_u, w_u, h_u, x_v, y_v, w_v, h_v, a, hl, hw)
+            elif shape_u in ('circle', 'doublecircle') and shape_v in ('box', 'doublebox'):
+                coords = curved_edge_ellipse_to_rect(x_u, y_u, w_u, h_u, x_v, y_v, w_v, h_v, a, hl, hw)
+            elif shape_u in ('circle', 'doublecircle') and shape_v in ('circle', 'doublecircle'):
+                coords = curved_edge_ellipse_to_ellipse(x_u, y_u, w_u, h_u, x_v, y_v, w_v, h_v, a, hl, hw)
+            else:
+                coords = curved_edge_ellipse_to_ellipse(x_u, y_u, w_u, h_u, x_v, y_v, w_v, h_v, a, hl, hw)
+            path.moveTo(coords[0][0], coords[0][1])
+            path.cubicTo(coords[0][0], coords[0][1], coords[1][0], coords[1][1], coords[2][0], coords[2][1])
+            path.moveTo(coords[3][0][0], coords[3][0][1])
+            for c in coords[3][1:]:
+                path.lineTo(c[0], c[1])
+            path.lineTo(coords[3][0][0], coords[3][0][1])
+        self._coords = coords
+        self.setPath(path)
         self._label.setPlainText(e['label'])
-        x, y = (u['x']+v['x'])/2, (u['y']+v['y'])/2
+        if a == 0:
+            x, y = (x_u + x_v)/2, (y_u + y_v)/2
+        else:
+            A = coords[0]
+            C = coords[1]
+            B = coords[2]
+            AB = np.sqrt((B[0]-A[0])**2 + (B[1]-A[1])**2)
+            AC = np.sqrt((C[0]-A[0])**2 + (C[1]-A[1])**2)
+            theta = np.arccos(AB/(2*AC))
+            X = AB/2*np.sin(theta/2)
+            Y = AB/2*np.sin(np.pi/2-theta)
+            R = X + Y
+            Z = R*np.sin(theta/2)
+            D = 2*Z
+            k = D/AB
+            S = stretch_and_rotate_line(A[0], A[1], B[0], B[1], k, theta/2)
+            x, y = S[0], S[1]
         boundingRect = self._label.boundingRect()
         self._label.setPos(x - boundingRect.width()/2, y) # y - boundingRect.height()/2)
         self.paint_bound_rects()
+        self.update(self.boundingRect())
+        # e = self.context.edges[self.u, self.v]
+        # if e['filled']:
+        #     brush = QBrush(QColor(e['fill-color']))
+        #     self.setBrush(brush)
+        # else:
+        #     self.setBrush(QColor())
+        # self.setPolygon(self.create_polygon())
+        # u = self.context.nodes[self.u]
+        # v = self.context.nodes[self.v]
+        # self._label.setPlainText(e['label'])
+        # x, y = (u['x']+v['x'])/2, (u['y']+v['y'])/2
+        # boundingRect = self._label.boundingRect()
+        # self._label.setPos(x - boundingRect.width()/2, y) # y - boundingRect.height()/2)
+        # self.paint_bound_rects()
 
 
     def mousePressEvent(self, event: 'QGraphicsSceneMouseEvent') -> None:

@@ -1312,6 +1312,8 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
             elif t == "float":
                 #editor = FloatEditor(attrs[k], k, float, apply=lambda x, y: self.handler.change_node_attr(node, x, y))
                 editor = FloatSpinBoxEditor(attrs[k], k, float, apply=lambda x, y: self.handler.change_node_attr(node, x, y))
+                editor.setMinimum(default_node_attrs[_type][k]['min'])
+                editor.setMaximum(default_node_attrs[_type][k]['max'])
             elif t == "bool":
                 editor = BoolEditor(attrs[k], k, apply=lambda x, y: self.handler.change_node_attr(node, x, y))
             elif t == "equation":
@@ -1364,6 +1366,8 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
                 #                     apply=lambda x, y: self.handler.change_edge_attr(edge[0], edge[1], x, y))
                 editor = FloatSpinBoxEditor(attrs[k], k, float,
                                             apply = lambda x, y: self.handler.change_edge_attr(edge[0], edge[1], x, y))
+                editor.setMinimum(default_edge_attrs[_type][k]['min'])
+                editor.setMaximum(default_edge_attrs[_type][k]['max'])
             elif t == "bool":
                 editor = BoolEditor(attrs[k], k,
                                     apply=lambda x, y: self.handler.change_edge_attr(edge[0], edge[1], x, y))

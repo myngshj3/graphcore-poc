@@ -246,3 +246,185 @@ def straight_edge_ellipse_to_ellipse(src_x, src_y, src_w, src_h, dst_x, dst_y, d
     head = arrow_head(src_cross_pt[0], src_cross_pt[1], dst_cross_pt[0], dst_cross_pt[1], head_len, head_width)
     # return
     return (src_cross_pt, head[0], head)
+
+
+def stretch_and_rotate_vector(v_x, v_y, k, a):
+    v = np.array([v_x, v_y])
+    SMat = np.array([[k, 0],
+                     [0, k]])
+    RMat = np.array([[np.cos(a), -np.sin(a)],
+                     [np.sin(a),  np.cos(a)]])
+    v = np.dot(SMat, v.transpose())
+    v = np.dot(RMat, v)
+    v = v.transpose()
+    return v
+
+def stretch_and_rotate_line(u_x, u_y, v_x, v_y, k, a):
+    v = np.array([v_x - u_x, v_y - u_y])
+    v = stretch_and_rotate_vector(v[0], v[1], k, a)
+    v[0] += u_x
+    v[1] += u_y
+    return v
+
+def curved_edge_ellipse_to_ellipse(src_x, src_y, src_w, src_h, dst_x, dst_y, dst_w, dst_h, angle, head_len, head_width):
+    u1 = (src_x, src_y)
+    u2 = (dst_x, dst_y)
+    u2 = stretch_and_rotate_line(u1[0], u1[1], u2[0], u2[1], 1, angle)
+    # src side
+    p = (src_x, src_y)
+    w = src_w/2.0
+    h = src_h/2.0
+    src_cross_pt = cross_point_of_line_and_ellipse(u1, u2, p, w, h)
+
+    u1 = (src_x, src_y)
+    u2 = (dst_x, dst_y)
+    u1 = stretch_and_rotate_line(u2[0], u2[1], u1[0], u1[1], 1, -angle)
+    # dst side
+    p = (dst_x, dst_y)
+    w = dst_w/2.0
+    h = dst_h/2.0
+    dst_cross_pt = cross_point_of_line_and_ellipse(u2, u1, p, w, h)
+    # arrow head
+    if src_cross_pt is None or dst_cross_pt is None:
+        return (None, None, None, None)
+    ctrl = np.array([(src_cross_pt[0] + dst_cross_pt[0])/2, (src_cross_pt[1] + dst_cross_pt[1])/2])
+    ctrl = stretch_and_rotate_line(src_cross_pt[0], src_cross_pt[1], ctrl[0], ctrl[1], 1/np.cos(angle), angle)
+    head = arrow_head(src_cross_pt[0], src_cross_pt[1], dst_cross_pt[0], dst_cross_pt[1], head_len, head_width)
+    center = head[2]
+    rhead = []
+    for v in head:
+        v = stretch_and_rotate_line(center[0], center[1], v[0], v[1], 1, -angle)
+        rhead.append(v)
+    # return
+    return (src_cross_pt, ctrl, rhead[0], rhead)
+
+
+def curved_edge_ellipse_to_rect(src_x, src_y, src_w, src_h, dst_x, dst_y, dst_w, dst_h, angle, head_len, head_width):
+    u1 = (src_x, src_y)
+    u2 = (dst_x, dst_y)
+    u2 = stretch_and_rotate_line(u1[0], u1[1], u2[0], u2[1], 1, angle)
+    # src side
+    p = (src_x, src_y)
+    w = src_w/2.0
+    h = src_h/2.0
+    src_cross_pt = cross_point_of_line_and_ellipse(u1, u2, p, w, h)
+
+    u1 = (src_x, src_y)
+    u2 = (dst_x, dst_y)
+    u1 = stretch_and_rotate_line(u2[0], u2[1], u1[0], u1[1], 1, -angle)
+    # dst side
+    v1 = [dst_x+dst_w/2, dst_y+dst_h/2]
+    v2 = [dst_x+dst_w/2, dst_y-dst_h/2]
+    v3 = [dst_x-dst_w/2, dst_y-dst_h/2]
+    v4 = [dst_x-dst_w/2, dst_y+dst_h/2]
+    dst_cross_pt = cross_point(u2, u1, v1, v2)
+    if dst_cross_pt is None:
+        dst_cross_pt = cross_point(u2, u1, v2, v3)
+        if dst_cross_pt is None:
+            dst_cross_pt = cross_point(u2, u1, v3, v4)
+            if dst_cross_pt is None:
+                dst_cross_pt = cross_point(u2, u1, v4, v1)
+
+    # arrow head
+    if src_cross_pt is None or dst_cross_pt is None:
+        return (None, None, None, None)
+    ctrl = np.array([(src_cross_pt[0] + dst_cross_pt[0])/2, (src_cross_pt[1] + dst_cross_pt[1])/2])
+    ctrl = stretch_and_rotate_line(src_cross_pt[0], src_cross_pt[1], ctrl[0], ctrl[1], 1/np.cos(angle), angle)
+    head = arrow_head(src_cross_pt[0], src_cross_pt[1], dst_cross_pt[0], dst_cross_pt[1], head_len, head_width)
+    center = head[2]
+    rhead = []
+    for v in head:
+        v = stretch_and_rotate_line(center[0], center[1], v[0], v[1], 1, -angle)
+        rhead.append(v)
+    # return
+    return (src_cross_pt, ctrl, rhead[0], rhead)
+
+
+def curved_edge_rect_to_ellipse(src_x, src_y, src_w, src_h, dst_x, dst_y, dst_w, dst_h, angle, head_len, head_width):
+    # src side
+    u1 = (src_x, src_y)
+    u2 = (dst_x, dst_y)
+    u2 = stretch_and_rotate_line(u1[0], u1[1], u2[0], u2[1], 1, angle)
+    v1 = [src_x+src_w/2, src_y+src_h/2]
+    v2 = [src_x+src_w/2, src_y-src_h/2]
+    v3 = [src_x-src_w/2, src_y-src_h/2]
+    v4 = [src_x-src_w/2, src_y+src_h/2]
+    src_cross_pt = cross_point(u1, u2, v1, v2)
+    if src_cross_pt is None:
+        src_cross_pt = cross_point(u1, u2, v2, v3)
+        if src_cross_pt is None:
+            src_cross_pt = cross_point(u1, u2, v3, v4)
+            if src_cross_pt is None:
+                src_cross_pt = cross_point(u1, u2, v4, v1)
+
+    # dst side
+    u1 = (src_x, src_y)
+    u2 = (dst_x, dst_y)
+    u1 = stretch_and_rotate_line(u2[0], u2[1], u1[0], u1[1], 1, -angle)
+    p = (dst_x, dst_y)
+    w = dst_w/2.0
+    h = dst_h/2.0
+    dst_cross_pt = cross_point_of_line_and_ellipse(u2, u1, p, w, h)
+
+    # arrow head
+    if src_cross_pt is None or dst_cross_pt is None:
+        return (None, None, None, None)
+    ctrl = np.array([(src_cross_pt[0] + dst_cross_pt[0])/2, (src_cross_pt[1] + dst_cross_pt[1])/2])
+    ctrl = stretch_and_rotate_line(src_cross_pt[0], src_cross_pt[1], ctrl[0], ctrl[1], 1/np.cos(angle), angle)
+    head = arrow_head(src_cross_pt[0], src_cross_pt[1], dst_cross_pt[0], dst_cross_pt[1], head_len, head_width)
+    center = head[2]
+    rhead = []
+    for v in head:
+        v = stretch_and_rotate_line(center[0], center[1], v[0], v[1], 1, -angle)
+        rhead.append(v)
+    # return
+    return (src_cross_pt, ctrl, rhead[0], rhead)
+
+
+def curved_edge_rect_to_rect(src_x, src_y, src_w, src_h, dst_x, dst_y, dst_w, dst_h, angle, head_len, head_width):
+    # src side
+    u1 = (src_x, src_y)
+    u2 = (dst_x, dst_y)
+    u2 = stretch_and_rotate_line(u1[0], u1[1], u2[0], u2[1], 1, angle)
+    v1 = [src_x+src_w/2, src_y+src_h/2]
+    v2 = [src_x+src_w/2, src_y-src_h/2]
+    v3 = [src_x-src_w/2, src_y-src_h/2]
+    v4 = [src_x-src_w/2, src_y+src_h/2]
+    src_cross_pt = cross_point(u1, u2, v1, v2)
+    if src_cross_pt is None:
+        src_cross_pt = cross_point(u1, u2, v2, v3)
+        if src_cross_pt is None:
+            src_cross_pt = cross_point(u1, u2, v3, v4)
+            if src_cross_pt is None:
+                src_cross_pt = cross_point(u1, u2, v4, v1)
+
+    # dst side
+    u1 = (src_x, src_y)
+    u2 = (dst_x, dst_y)
+    u1 = stretch_and_rotate_line(u2[0], u2[1], u1[0], u1[1], 1, -angle)
+    v1 = [dst_x+dst_w/2, dst_y+dst_h/2]
+    v2 = [dst_x+dst_w/2, dst_y-dst_h/2]
+    v3 = [dst_x-dst_w/2, dst_y-dst_h/2]
+    v4 = [dst_x-dst_w/2, dst_y+dst_h/2]
+    dst_cross_pt = cross_point(u2, u1, v1, v2)
+    if dst_cross_pt is None:
+        dst_cross_pt = cross_point(u2, u1, v2, v3)
+        if dst_cross_pt is None:
+            dst_cross_pt = cross_point(u2, u1, v3, v4)
+            if dst_cross_pt is None:
+                dst_cross_pt = cross_point(u2, u1, v4, v1)
+
+    # arrow head
+    if src_cross_pt is None or dst_cross_pt is None:
+        return (None, None, None, None)
+    ctrl = np.array([(src_cross_pt[0] + dst_cross_pt[0])/2, (src_cross_pt[1] + dst_cross_pt[1])/2])
+    ctrl = stretch_and_rotate_line(src_cross_pt[0], src_cross_pt[1], ctrl[0], ctrl[1], 1/np.cos(angle), angle)
+    head = arrow_head(src_cross_pt[0], src_cross_pt[1], dst_cross_pt[0], dst_cross_pt[1], head_len, head_width)
+    center = head[2]
+    rhead = []
+    for v in head:
+        v = stretch_and_rotate_line(center[0], center[1], v[0], v[1], 1, -angle)
+        rhead.append(v)
+    # return
+    return (src_cross_pt, ctrl, rhead[0], rhead)
+
