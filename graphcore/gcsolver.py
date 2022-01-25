@@ -212,7 +212,7 @@ class GCGeneralSolver(GCSolver):
                     G.edges[i, d][v_sym] = G.edges[i, d][w_sym]
                 elif sum_w * dt <= G.nodes[i][x_sym]:
                     v = k * G.edges[i, d][w_sym]
-                    if 'amplitude' in G.edges[i, d].keys():
+                    if 'amplitude' in G.edges[i, d].keys() and G.edges[i, d]['amplitude'] != "":
                         amplitude = G.edges[i, d]['amplitude']
                         amplitude = amplitude.replace('{t}', str(t))
                         v_f = eval(amplitude)
@@ -226,7 +226,7 @@ class GCGeneralSolver(GCSolver):
                     v = k * G.nodes[i][x_sym] / dt
                     if G.edges[i, d][w_sym] < v:
                         v = G.edges[i, d][w_sym]
-                    if 'amplitude' in G.edges[i, d].keys():
+                    if 'amplitude' in G.edges[i, d].keys() and G.edges[i, d]['amplitude'] != "":
                         amplitude = G.edges[i, d]['amplitude']
                         amplitude = amplitude.replace('{t}', str(t))
                         v_f = eval(amplitude)
@@ -238,7 +238,7 @@ class GCGeneralSolver(GCSolver):
                         G.edges[i, d][v_sym] = v
                 else:
                     v = G.edges[i, d][w_sym]
-                    if 'amplitude' in G.edges[i, d].keys():
+                    if 'amplitude' in G.edges[i, d].keys() and G.edges[i, d]['amplitude'] != "":
                         amplitude = G.edges[i, d]['amplitude']
                         amplitude = amplitude.replace('{t}', str(t))
                         v_f = eval(amplitude)
