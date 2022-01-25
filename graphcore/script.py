@@ -952,7 +952,7 @@ class GraphCoreScript(QObject):
                                       lambda ao, c, eo, ca, ea: self.handler.graph_find_edges(ca[0], *ca[1:]))
         self._toplevel.declare_method(m, globally=True)
         m = ExtensibleWrappedAccessor(self._toplevel, "graph_nodes", None,
-                                      lambda ao, c, eo, ca, ea: ca[0].nodes)
+                                      lambda ao, c, eo, ca, ea: [_ for _ in ca[0].nodes])
         self._toplevel.declare_method(m, globally=True)
         m = ExtensibleWrappedAccessor(self._toplevel, "graph_node", None,
                                       lambda ao, c, eo, ca, ea: ca[0].nodes[ca[1]])
@@ -961,7 +961,7 @@ class GraphCoreScript(QObject):
                                       lambda ao, c, eo, ca, ea: ca[0].nodes[ca[1]])
         self._toplevel.declare_method(m, globally=True)
         m = ExtensibleWrappedAccessor(self._toplevel, "graph_edges", None,
-                                      lambda ao, c, eo, ca, ea: ca[0].edges)
+                                      lambda ao, c, eo, ca, ea: [_ for _ in ca[0].edges])
         self._toplevel.declare_method(m, globally=True)
         m = ExtensibleWrappedAccessor(self._toplevel, "graph_edge", None,
                                       lambda ao, c, eo, ca, ea: ca[0].edges[ca[1], ca[2]])
