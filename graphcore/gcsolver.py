@@ -378,6 +378,8 @@ class SolverController:
             t = model_graph.edges[e[0], e[1]]['type']
             defaults = settings.setting('default-edge-attrs')[t]
             for k in model_graph.edges[e[0], e[1]].keys():
+                if k not in defaults.keys():
+                    continue
                 if k in ('label', 'caption', 'description', 'type', 'generator-type') or defaults[k]['type'] in ('float', 'equation'):
                     G.edges[e[0], e[1]][k] = model_graph.edges[e[0], e[1]][k]
                 else:
