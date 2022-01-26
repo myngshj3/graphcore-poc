@@ -1147,12 +1147,18 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
 
     def command_show_context_menu(self, p):
         try:
-            view: QGraphicsView = self.ui.tabWidget.currentWidget()
+            view: GraphCoreView = self.ui.tabWidget.currentWidget()
             global_pos = view.mapToGlobal(p)
-            scene_pos = view.mapToScene(int(p.x()), int(p.y()))
+            scene_pos = view.mapToScene(p)
+            # scene_pos = view.mapToScene(int(p.x()), int(p.y()))
             # self.print("context menu at view pos:{}, scene pos:{}, global pos:{}".format(p, scene_pos, global_pos))
-            item = view.itemAt(p)
-            item = self.to_graph_element_item(item)
+            items = view.select_elements(p.x(), p.y(), 4, 4, Qt.IntersectsItemShape)
+            if len(items) == 0:
+                item = None
+            else:
+                item = self.element_to_item[items[0]]
+            #item = view.itemAt(p)
+            #item = self.to_graph_element_item(item)
             if item is not None:
                 menu = QMenu(view)
                 self.command_deselect_all()

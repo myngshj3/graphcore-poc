@@ -26,11 +26,14 @@ class EquationEditorDialog(QtWidgets.QDialog):
         num = int((end - start) / dt)
         times = []
         values = []
+        integral = 0
         for i in range(num):
             t = start + dt*i
             eq = equation.replace("{t}", str(t))
             v = eval(eq)
             times.append(t)
             values.append(v)
+            integral += v * dt
         self.ui.chart.plotItem.clear()
         self.ui.chart.plotItem.plot(times, values)
+        self.ui.integral.setText(str(integral))

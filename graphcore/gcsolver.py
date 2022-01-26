@@ -211,7 +211,8 @@ class GCGeneralSolver(GCSolver):
                 if G.edges[i, d][w_sym] == 0:
                     G.edges[i, d][v_sym] = G.edges[i, d][w_sym]
                 elif sum_w * dt <= G.nodes[i][x_sym]:
-                    v = k * G.edges[i, d][w_sym]
+                    #v = k * G.edges[i, d][w_sym]
+                    v = k * sum_w
                     if 'amplitude' in G.edges[i, d].keys() and G.edges[i, d]['amplitude'] != "":
                         amplitude = G.edges[i, d]['amplitude']
                         amplitude = amplitude.replace('{t}', str(t))
