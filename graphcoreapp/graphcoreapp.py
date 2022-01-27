@@ -43,40 +43,40 @@ def main():
     # setup main window
     main_ui = Ui_MainWindow()
     main_window = GraphCoreEditorMainWindow(main_ui, settings, shell, handler, async_handler)
-    main_window.move(settings.setting_value(['main-window', 'x']), settings.setting_value(['main-window', 'y']))
-    main_window.resize(settings.setting_value(['main-window', 'width']), settings.setting_value(['main-window', 'height']))
-    main_ui.left_pane.move(settings.setting_value(['main-window-left-pane', 'x']),
-                           settings.setting_value(['main-window-left-pane', 'y']))
-    main_ui.left_pane.resize(settings.setting_value(['main-window-left-pane', 'width']),
-                             settings.setting_value(['main-window-left-pane', 'height']))
-    main_ui.left_top_pane.move(settings.setting_value(['main-window-left-top-pane', 'x']),
-                               settings.setting_value(['main-window-left-top-pane', 'y']))
-    main_ui.left_top_pane.resize(settings.setting_value(['main-window-left-top-pane', 'height']),
-                                 settings.setting_value(['main-window-left-top-pane', 'width']))
-    main_ui.editorTabWidget.setCurrentIndex(settings.setting_value(['editor-tab-widget', 'tab-index']))
-    # main_ui.messageTab.setCurrentIndex(settings.setting_value(['message-tab-widget', 'tab-index']))
-    main_window.serializers.append(lambda: settings.set_setting_value(['main-window', 'x'], main_window.frameGeometry().x()))
-    main_window.serializers.append(lambda: settings.set_setting_value(['main-window', 'y'], main_window.frameGeometry().y()))
-    main_window.serializers.append(lambda: settings.set_setting_value(['main-window', 'width'], main_window.frameGeometry().width()))
-    main_window.serializers.append(lambda: settings.set_setting_value(['main-window', 'height'], main_window.frameGeometry().height()))
-    main_window.serializers.append(lambda: settings.set_setting_value(['main-window-left-pane', 'x'],
-                                                                      main_ui.left_pane.frameGeometry().x()))
-    main_window.serializers.append(lambda: settings.set_setting_value(['main-window-left-pane', 'y'],
-                                                                      main_ui.left_pane.frameGeometry().y()))
-    main_window.serializers.append(lambda: settings.set_setting_value(['main-window-left-pane', 'width'],
-                                                                      main_ui.left_pane.frameGeometry().width()))
-    main_window.serializers.append(lambda: settings.set_setting_value(['main-window-left-pane', 'height'],
-                                                                      main_ui.left_pane.frameGeometry().height()))
-    main_window.serializers.append(lambda: settings.set_setting_value(['main-window-left-top-pane', 'x'],
-                                                                      main_ui.left_top_pane.frameGeometry().x()))
-    main_window.serializers.append(lambda: settings.set_setting_value(['main-window-left-top-pane', 'y'],
-                                                                      main_ui.left_top_pane.frameGeometry().y()))
-    main_window.serializers.append(lambda: settings.set_setting_value(['main-window-left-top-pane', 'width'],
-                                                                      main_ui.left_top_pane.frameGeometry().width()))
-    main_window.serializers.append(lambda: settings.set_setting_value(['main-window-left-top-pane', 'height'],
-                                                                      main_ui.left_top_pane.frameGeometry().height()))
-    main_window.serializers.append(lambda: settings.set_setting_value(['editor-tab-widget', 'tab-index'],
-                                                                      main_ui.editorTabWidget.currentIndex()))
+    # main_window.move(settings.setting_value(['main-window', 'x']), settings.setting_value(['main-window', 'y']))
+    # main_window.resize(settings.setting_value(['main-window', 'width']), settings.setting_value(['main-window', 'height']))
+    # main_ui.left_pane.move(settings.setting_value(['main-window-left-pane', 'x']),
+    #                        settings.setting_value(['main-window-left-pane', 'y']))
+    # main_ui.left_pane.resize(settings.setting_value(['main-window-left-pane', 'width']),
+    #                          settings.setting_value(['main-window-left-pane', 'height']))
+    # main_ui.left_top_pane.move(settings.setting_value(['main-window-left-top-pane', 'x']),
+    #                            settings.setting_value(['main-window-left-top-pane', 'y']))
+    # main_ui.left_top_pane.resize(settings.setting_value(['main-window-left-top-pane', 'height']),
+    #                              settings.setting_value(['main-window-left-top-pane', 'width']))
+    # main_ui.editorTabWidget.setCurrentIndex(settings.setting_value(['editor-tab-widget', 'tab-index']))
+    # # main_ui.messageTab.setCurrentIndex(settings.setting_value(['message-tab-widget', 'tab-index']))
+    # main_window.serializers.append(lambda: settings.set_setting_value(['main-window', 'x'], main_window.frameGeometry().x()))
+    # main_window.serializers.append(lambda: settings.set_setting_value(['main-window', 'y'], main_window.frameGeometry().y()))
+    # main_window.serializers.append(lambda: settings.set_setting_value(['main-window', 'width'], main_window.frameGeometry().width()))
+    # main_window.serializers.append(lambda: settings.set_setting_value(['main-window', 'height'], main_window.frameGeometry().height()))
+    # main_window.serializers.append(lambda: settings.set_setting_value(['main-window-left-pane', 'x'],
+    #                                                                   main_ui.left_pane.frameGeometry().x()))
+    # main_window.serializers.append(lambda: settings.set_setting_value(['main-window-left-pane', 'y'],
+    #                                                                   main_ui.left_pane.frameGeometry().y()))
+    # main_window.serializers.append(lambda: settings.set_setting_value(['main-window-left-pane', 'width'],
+    #                                                                   main_ui.left_pane.frameGeometry().width()))
+    # main_window.serializers.append(lambda: settings.set_setting_value(['main-window-left-pane', 'height'],
+    #                                                                   main_ui.left_pane.frameGeometry().height()))
+    # main_window.serializers.append(lambda: settings.set_setting_value(['main-window-left-top-pane', 'x'],
+    #                                                                   main_ui.left_top_pane.frameGeometry().x()))
+    # main_window.serializers.append(lambda: settings.set_setting_value(['main-window-left-top-pane', 'y'],
+    #                                                                   main_ui.left_top_pane.frameGeometry().y()))
+    # main_window.serializers.append(lambda: settings.set_setting_value(['main-window-left-top-pane', 'width'],
+    #                                                                   main_ui.left_top_pane.frameGeometry().width()))
+    # main_window.serializers.append(lambda: settings.set_setting_value(['main-window-left-top-pane', 'height'],
+    #                                                                   main_ui.left_top_pane.frameGeometry().height()))
+    # main_window.serializers.append(lambda: settings.set_setting_value(['editor-tab-widget', 'tab-index'],
+    #                                                                   main_ui.editorTabWidget.currentIndex()))
     # main_window.serializers.append(lambda: settings.set_setting_value(['message-tab-widget', 'tab-index'],
     #                                                                   main_ui.messageTab.currentIndex()))
 
@@ -115,35 +115,35 @@ def main():
     # setup script editor
     script_editor_ui = Ui_ScriptEdior()
     script_editor = ScriptEditorDialog(main_window, script_editor_ui, handler=handler, async_handler=async_handler)
-    script_editor.move(settings.setting_value(['script-editor', 'x']),
-                       settings.setting_value(['script-editor', 'y']))
-    script_editor.resize(settings.setting_value(['script-editor', 'width']),
-                         settings.setting_value(['script-editor', 'height']))
+    # script_editor.move(settings.setting_value(['script-editor', 'x']),
+    #                    settings.setting_value(['script-editor', 'y']))
+    # script_editor.resize(settings.setting_value(['script-editor', 'width']),
+    #                      settings.setting_value(['script-editor', 'height']))
     main_window.script_editor = script_editor
-    main_window.serializers.append(lambda: settings.set_setting_value(['script-editor', 'x'],
-                                                                      script_editor.frameGeometry().x()))
-    main_window.serializers.append(lambda: settings.set_setting_value(['script-editor', 'y'],
-                                                                      script_editor.frameGeometry().y()))
-    main_window.serializers.append(lambda: settings.set_setting_value(['script-editor', 'width'],
-                                                                      script_editor.frameGeometry().width()))
-    main_window.serializers.append(lambda: settings.set_setting_value(['script-editor', 'height'],
-                                                                      script_editor.frameGeometry().height()))
+    # main_window.serializers.append(lambda: settings.set_setting_value(['script-editor', 'x'],
+    #                                                                   script_editor.frameGeometry().x()))
+    # main_window.serializers.append(lambda: settings.set_setting_value(['script-editor', 'y'],
+    #                                                                   script_editor.frameGeometry().y()))
+    # main_window.serializers.append(lambda: settings.set_setting_value(['script-editor', 'width'],
+    #                                                                   script_editor.frameGeometry().width()))
+    # main_window.serializers.append(lambda: settings.set_setting_value(['script-editor', 'height'],
+    #                                                                   script_editor.frameGeometry().height()))
 
     # setup solve controller
     solver_controller = SolverControllerDialog(main_window)
-    solver_controller.move(settings.setting_value(['solver-controller', 'x']),
-                           settings.setting_value(['solver-controller', 'y']))
-    solver_controller.resize(settings.setting_value(['solver-controller', 'width']),
-                             settings.setting_value(['solver-controller', 'height']))
+    # solver_controller.move(settings.setting_value(['solver-controller', 'x']),
+    #                        settings.setting_value(['solver-controller', 'y']))
+    # solver_controller.resize(settings.setting_value(['solver-controller', 'width']),
+    #                          settings.setting_value(['solver-controller', 'height']))
     main_window.solver_controller = solver_controller
-    main_window.serializers.append(
-        lambda: settings.set_setting_value(['solver-controller', 'x'], solver_controller.frameGeometry().x()))
-    main_window.serializers.append(
-        lambda: settings.set_setting_value(['solver-controller', 'y'], solver_controller.frameGeometry().y()))
-    main_window.serializers.append(
-        lambda: settings.set_setting_value(['solver-controller', 'width'], solver_controller.frameGeometry().width()))
-    main_window.serializers.append(
-        lambda: settings.set_setting_value(['solver-controller', 'height'], solver_controller.frameGeometry().height()))
+    # main_window.serializers.append(
+    #     lambda: settings.set_setting_value(['solver-controller', 'x'], solver_controller.frameGeometry().x()))
+    # main_window.serializers.append(
+    #     lambda: settings.set_setting_value(['solver-controller', 'y'], solver_controller.frameGeometry().y()))
+    # main_window.serializers.append(
+    #     lambda: settings.set_setting_value(['solver-controller', 'width'], solver_controller.frameGeometry().width()))
+    # main_window.serializers.append(
+    #     lambda: settings.set_setting_value(['solver-controller', 'height'], solver_controller.frameGeometry().height()))
 
     # setup visualizer
     visualizer_ui = Ui_visualizerDialog()
@@ -158,6 +158,7 @@ def main():
     # set_constraint_main_window(main_window)
     
     # show main window
+    main_window.deserialize()
     main_window.command_new_model()
     main_window.show()
     sys.exit(app.exec_())

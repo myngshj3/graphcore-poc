@@ -2,6 +2,7 @@
 import networkx as nx
 import traceback
 import re
+import json
 from graphcore.shell import GraphCoreThreadSignal
 from graphcore.shell import GraphCoreShell, GraphCoreContext, GraphCoreContextHandler, GraphCoreAsyncContextHandler
 from gui.Ui_MainWindow import Ui_MainWindow
@@ -748,9 +749,7 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
             #     self.shell.current_context = ctx
             #     if not self.command_close():
             #         return False
-            for s in self.serializers:
-                s()
-            self.settings.save()
+            self.serialize()
             self.close()
         except Exception as ex:
             print("GraphCore bug!")
@@ -1937,3 +1936,88 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
             self.print(ex)
         finally:
             self.set_command_enable()
+
+    def deserialize(self):
+        with open("graphcore-ui.cfg", "r") as f:
+            data = json.load(f)
+        # main_window
+        self.move(data['main-window']['x'], data['main-window']['y'])
+        self.resize(data['main-window']['width'], data['main-window']['height'])
+        if data['main-window']['maximized']:
+            self.setWindowState(Qt.WindowState.WindowMaximized)
+        self.ui.left_pane.resize(data['main-window-left-pane']['width'], data['main-window-left-pane']['height'])
+        self.ui.left_top_pane.resize(data['main-window-left-top-pane']['width'], data['main-window-left-top-pane']['height'])
+        self.ui.left_bottom_pane.resize(data['main-window-left-bottom-pane']['width'], data['main-window-left-bottom-pane']['height'])
+        self.ui.right_pane.resize(data['main-window-right-pane']['width'], data['main-window-right-pane']['height'])
+        self.ui.right_top_pane.resize(data['main-window-right-top-pane']['width'], data['main-window-right-top-pane']['height'])
+        self.ui.right_bottom_pane.resize(data['main-window-right-bottom-pane']['width'], data['main-window-right-bottom-pane']['height'])
+        # console
+        self.console.move(data['console']['x'], data['console']['y'])
+        self.console.resize(data['console']['width'], data['console']['height'])
+        # solver_controller
+        self.solver_controller.move(data['solver-controller']['x'], data['solver-controller']['y'])
+        self.solver_controller.resize(data['solver-controller']['width'], data['solver-controller']['height'])
+        # visualizer
+        self.visualizer.move(data['visualizer']['x'], data['visualizer']['y'])
+        self.visualizer.resize(data['visualizer']['width'], data['visualizer']['height'])
+
+    def serialize(self):
+        data = {}
+        # main_window
+        data['main-window'] = {
+            "maximized": self.isMaximized(),
+            "x": self.x(),
+            "y": self.y(),
+            "width": self.width(),
+            "height": self.height()
+        }
+        data['main-window-left-pane'] = {
+            "width": self.ui.left_pane.width(),
+            "height": self.ui.left_pane.height()
+        }
+        data['main-window-left-top-pane'] = {
+            "width": self.ui.left_top_pane.width(),
+            "height": self.ui.left_top_pane.height()
+        }
+        data['main-window-left-bottom-pane'] = {
+            "width": self.ui.left_bottom_pane.width(),
+            "height": self.ui.left_bottom_pane.height()
+        }
+        data['main-window-right-pane'] = {
+            "width": self.ui.right_pane.width(),
+            "height": self.ui.right_pane.height()
+        }
+        data['main-window-right-top-pane'] = {
+            "width": self.ui.right_top_pane.width(),
+            "height": self.ui.right_top_pane.height()
+        }
+        data['main-window-right-bottom-pane'] = {
+            "x": self.ui.right_bottom_pane.x(),
+            "y": self.ui.right_bottom_pane.y(),
+            "width": self.ui.right_bottom_pane.width(),
+            "height": self.ui.right_bottom_pane.height()
+        }
+        # console
+        data['console'] = {
+            "x": self.console.x(),
+            "y": self.console.y(),
+            "width": self.console.width(),
+            "height": self.console.height()
+        }
+        # solver_controller
+        data['solver-controller'] = {
+            "x": self.solver_controller.x(),
+            "y": self.solver_controller.y(),
+            "width": self.solver_controller.width(),
+            "height": self.solver_controller.height()
+        }
+        # visualizer
+        data['visualizer'] = {
+            "x": self.visualizer.x(),
+            "y": self.visualizer.y(),
+            "width": self.visualizer.width(),
+            "height": self.visualizer.height()
+        }
+        with open("graphcore-ui.cfg", "w") as f:
+            json.dump(data, f, indent=4)
+        self.settings.save()
