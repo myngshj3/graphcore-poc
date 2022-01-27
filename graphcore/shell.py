@@ -203,6 +203,9 @@ class GraphCoreContext(object):
             elif extension == "gcm":
                 loader = GCGraphLoader()
                 G = loader.load(filename)
+            elif extension == "gcmx":
+                loader = GCGraphLoader()
+                G = loader.load(filename, binary=True)
             else:
                 raise Exception("unknown extension '{}'".format(extension))
             # with open(filename, "r") as f:
@@ -239,6 +242,9 @@ class GraphCoreContext(object):
                 elif extension == "gcm":
                     loader = GCGraphLoader()
                     loader.dump(self.G, self.filename)
+                elif extension == "gcmx":
+                    loader = GCGraphLoader()
+                    loader.dump(self.G, self.filename, binary=True)
                 else:
                     raise Exception("unknown extension '{}'".format(extension))
                 # with open(filename,'w') as f:
@@ -255,6 +261,9 @@ class GraphCoreContext(object):
             elif extension == "gcm":
                 loader = GCGraphLoader()
                 loader.dump(self.G, filename)
+            elif extension == "gcmx":
+                loader = GCGraphLoader()
+                loader.dump(self.G, filename, binary=True)
             else:
                 raise Exception("unknown extension '{}'".format(extension))
             # nx.write_yaml(self.G, filename)

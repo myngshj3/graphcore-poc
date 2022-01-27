@@ -4,6 +4,8 @@ import networkx as nx
 import yaml
 import sys
 import json
+import zlib
+import base64
 import traceback
 
 
@@ -52,24 +54,43 @@ class GCGraphLoader:
         pass
 
     # read_file
-    def load(self, filename) -> nx.DiGraph:
+    def load(self, filename, binary=False) -> nx.DiGraph:
         try:
-            with open(filename, "r") as f:
-                data = json.load(f)
-                G = nx.node_link_graph(data)
-                return G
+            if binary:
+                with open(filename, "rb") as f:
+                    data = f.read()
+                    data = base64.b64decode(data)
+                    data = zlib.decompress(data)
+                    data = data.decode("utf-8")
+                    data = json.loads(data)
+                    G = nx.node_link_graph(data)
+                    return G
+            else:
+                with open(filename, "r") as f:
+                    data = json.load(f)
+                    G = nx.node_link_graph(data)
+                    return G
         except Exception as ex:
             sys.stderr.write("file open failed. no infection to current graph.")
             raise ex
 
-    def dump(self, G: nx.DiGraph, filename: str) -> None:
+    def dump(self, G: nx.DiGraph, filename: str, binary=False) -> None:
         try:
             if filename is None:
                 sys.stderr.write("filename not specified")
             else:
-                data = nx.node_link_data(G)
-                with open(filename,'w') as f:
-                    json.dump(data, f)
+                if binary:
+                    data = nx.node_link_data(G)
+                    data = json.dumps(data)
+                    data = data.encode(encoding="utf-8")
+                    data = zlib.compress(data)
+                    data = base64.b64encode(data)
+                    with open(filename, "wb") as f:
+                        f.write(data)
+                else:
+                    data = nx.node_link_data(G)
+                    with open(filename,'w') as f:
+                        json.dump(data, f)
         except Exception as ex:
             sys.stderr.write("dump failed")
             raise ex

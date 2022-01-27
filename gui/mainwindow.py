@@ -566,7 +566,7 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
             # self.handler.deselect_all()
             dialog_title = "Open Model File"
             directory = "."
-            file_masks = "GraphCore graph file (*.gcm *.yaml)"
+            file_masks = "GraphCore graph file (*.gcm *.gcmx *.yaml)"
             filename = QFileDialog.getOpenFileName(self, dialog_title, directory, file_masks)
             if filename[0] is not None and filename[0] != "":
                 if self.shell.opened(filename[0]):
@@ -590,7 +590,7 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
                 if self.handler.context.filename is None:
                     dialog_title = "Save Model File"
                     directory = "."
-                    file_masks = "GraphCore graph file (*.gcm *.yaml)"
+                    file_masks = "GraphCore graph file (*.gcm *.gcmx *.yaml)"
                     filename = QFileDialog.getSaveFileName(self, dialog_title, directory, file_masks)
                     if filename[0] is not None and len(filename[0]) != 0:
                         filename = filename[0]
@@ -617,7 +617,7 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
                 if self.handler.context.filename is None:
                     dialog_title = "Save Model File"
                     directory = "."
-                    file_masks = "GraphCore graph file (*.gcm *.yaml)"
+                    file_masks = "GraphCore graph file (*.gcm *.gcmx *.yaml)"
                     filename = QFileDialog.getSaveFileName(self, dialog_title, directory, file_masks)
                     if filename[0] is not None and len(filename[0]) != 0:
                         filename = filename[0]
@@ -638,7 +638,7 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
         try:
             dialog_title = "Save Model File"
             directory = "."
-            file_masks = "GraphCore graph file (*.gcm *.yaml)"
+            file_masks = "GraphCore graph file (*.gcm *.gcmx *.yaml)"
             filename = QFileDialog.getSaveFileName(self, dialog_title, directory, file_masks)
             if filename[0] is not None and len(filename[0]) != 0:
                 filename = filename[0]
