@@ -16,6 +16,7 @@ import time
 import yaml
 from graphcore.reporter import GraphCoreReporter
 from graphcore.gcsolver import SolverController
+from graphcore.gcconvert import GCYamlLoader, GCGraphLoader
 from PyQt5.QtCore import QThread, QMutex, pyqtSignal
 import traceback
 import re
@@ -192,14 +193,26 @@ class GraphCoreContext(object):
     # read_file
     def read_file(self, filename) -> None:
         try:
-            with open(filename, "r") as f:
-                G = yaml.load(f, Loader=yaml.Loader)
-                # A = nx.nx_pydot.read_dot(filename)
-                # G = nx.read_yaml(filename)
-                if 'constraints' not in G.graph.keys():
-                    G.graph['constraints'] = {}
-                self._G = G
-                self.aid_attributes()
+            s = filename.split(".")
+            if len(s) == 1:
+                raise Exception("no extension")
+            extension = s[len(s)-1]
+            if extension == "yaml":
+                loader = GCYamlLoader()
+                G = loader.load(filename)
+            elif extension == "gcm":
+                loader = GCGraphLoader()
+                G = loader.load(filename)
+            else:
+                raise Exception("unknown extension '{}'".format(extension))
+            # with open(filename, "r") as f:
+            #     G = yaml.load(f, Loader=yaml.Loader)
+            #     # A = nx.nx_pydot.read_dot(filename)
+            #     # G = nx.read_yaml(filename)
+            if 'constraints' not in G.graph.keys():
+                G.graph['constraints'] = {}
+            self._G = G
+            self.aid_attributes()
         except Exception as ex:
             self.reporter.report("file open failed. no infection to current graph.")
             raise ex
@@ -216,13 +229,37 @@ class GraphCoreContext(object):
                 self.reporter.report("filename not specified")
             else:
                 # nx.write_yaml(self.G, self.filename)
-                with open(filename,'w') as f:
-                    yaml.dump(self.G, f)
+                s = self.filename.split(".")
+                if len(s) == 1:
+                    raise Exception("no extension")
+                extension = s[len(s) - 1]
+                if extension == "yaml":
+                    loader = GCYamlLoader()
+                    loader.dump(self.G, self.filename)
+                elif extension == "gcm":
+                    loader = GCGraphLoader()
+                    loader.dump(self.G, self.filename)
+                else:
+                    raise Exception("unknown extension '{}'".format(extension))
+                # with open(filename,'w') as f:
+                #     yaml.dump(self.G, f)
                 self.dirty = False
         else:
+            s = filename.split(".")
+            if len(s) == 1:
+                raise Exception("no extension")
+            extension = s[len(s)-1]
+            if extension == "yaml":
+                loader = GCYamlLoader()
+                loader.dump(self.G, filename)
+            elif extension == "gcm":
+                loader = GCGraphLoader()
+                loader.dump(self.G, filename)
+            else:
+                raise Exception("unknown extension '{}'".format(extension))
             # nx.write_yaml(self.G, filename)
-            with open(filename,'w') as f:
-                yaml.dump(self.G, f)
+            # with open(filename,'w') as f:
+            #     yaml.dump(self.G, f)
             self.filename = filename
             self.dirty = False
 

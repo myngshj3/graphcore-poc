@@ -25,7 +25,7 @@ class GCYamlLoader:
         pass
 
     # read_file
-    def load(self, filename) -> None:
+    def load(self, filename) -> nx.DiGraph:
         try:
             with open(filename, "r") as f:
                 G = yaml.load(f, Loader=yaml.Loader)
@@ -52,7 +52,7 @@ class GCGraphLoader:
         pass
 
     # read_file
-    def load(self, filename) -> None:
+    def load(self, filename) -> nx.DiGraph:
         try:
             with open(filename, "r") as f:
                 data = json.load(f)
