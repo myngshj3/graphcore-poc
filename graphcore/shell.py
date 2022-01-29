@@ -1162,7 +1162,7 @@ class GraphCoreContextHandler:
         self.do_reflection(GraphCoreContextHandler.UserDefinedFunctionRemoved, fid)
 
     def new_solver(self):
-        solver = SolverController(self)
+        solver = SolverController(self.reporter, self.reporter)
         solver.set_G(self.context.G)
         return solver
 

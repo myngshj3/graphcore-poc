@@ -489,6 +489,8 @@ class Ui_MainWindow(object):
         self.actionUngroup = QtWidgets.QAction(MainWindow)
         self.actionUngroup.setEnabled(False)
         self.actionUngroup.setObjectName("actionUngroup")
+        self.actionPreferences = QtWidgets.QAction(MainWindow)
+        self.actionPreferences.setObjectName("actionPreferences")
         self.menuFile.addAction(self.actionNew)
         self.menuFile.addAction(self.actionOpen)
         self.menuFile.addAction(self.actionClose)
@@ -497,6 +499,7 @@ class Ui_MainWindow(object):
         self.menuFile.addSeparator()
         self.menuFile.addAction(self.actionImport)
         self.menuFile.addAction(self.actionExport)
+        self.menuFile.addAction(self.actionPreferences)
         self.menuFile.addSeparator()
         self.menuFile.addAction(self.actionQuit)
         self.menuVersion.addAction(self.actionHelp)
@@ -645,4 +648,5 @@ class Ui_MainWindow(object):
         self.actionVisualizer.setText(_translate("MainWindow", "Visualizer"))
         self.actionGroup.setText(_translate("MainWindow", "Group"))
         self.actionUngroup.setText(_translate("MainWindow", "Ungroup"))
+        self.actionPreferences.setText(_translate("MainWindow", "Preferences"))
 from gui.geomserializable import GeometrySerializableFrame

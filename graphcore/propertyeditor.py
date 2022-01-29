@@ -6,7 +6,20 @@ from gui.Ui_LongTextEditorDialog import Ui_LongTextEditorDialog
 from gui.Ui_LongTextEditorWidget import Ui_LongTextEditorWidget
 from gui.Ui_EquationEditorDialog import Ui_EquationEditorDialog
 from gui.Ui_EquationEditorWidget import Ui_EquationEditorWidget
+from gui.Ui_ColorEditorWidget import Ui_ColorEditorWidget
 from gui.equationeditordialog import EquationEditorDialog
+
+
+class ColorEditorWidget(QWidget):
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self._ui = Ui_ColorEditorWidget()
+        self._ui.setupUi(self)
+
+    @property
+    def ui(self) -> Ui_ColorEditorWidget:
+        return self._ui
 
 
 class LongTextEditorWidget(QWidget):
@@ -85,6 +98,58 @@ class TextEditor(QLineEdit):
             self.apply(self.name, self.value)
 
 
+class ColorEditor(ColorEditorWidget):
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self._initial_value = None
+        self._name = None
+        self._value_converter = None
+        self._validator = None
+        self._applyer = None
+        self.ui.pushButton.clicked.connect(self.show_editor)
+        self.ui.lineEdit.editingFinished.connect(self.focus_out)
+        self.ui.lineEdit.setText(self._initial_value)
+
+    def set_initial_value(self, value: str):
+        self._initial_value = value
+
+    def set_name(self, name):
+        self._name = name
+
+    def set_converter(self, value_converter):
+        self._value_converter = value_converter
+
+    def set_validator(self, vaidator):
+        self._validator = vaidator
+
+    def set_applyer(self, applyer):
+        self._applyer = applyer
+
+    def focus_out(self):
+        if self._validator is not None and not self._validator(self.text()):
+            print("value error: {}".format(self.ui.lineEdit.text()))
+            self.setValue(self._initial_value)
+            return
+        if self._value_converter is not None:
+            self.ui.lineEdit.setText(self._value_converter(self.ui.lineEdit.text()))
+        if self._applyer is not None:
+            self._applyer(self._name, self.ui.lineEdit.text())
+
+    def show_editor(self):
+        dialog: QColorDialog = QColorDialog(self)
+        dialog.setCurrentColor(QtGui.QColor(self.ui.lineEdit.text()))
+        dialog.colorSelected.connect(self.color_selected)
+        dialog.exec_()
+
+    def color_selected(self, color: QtGui.QColor):
+        if self._value_converter is not None:
+            text = self._value_converter(color.name())
+        else:
+            text = color.name()
+        self.ui.lineEdit.setText(text)
+        if self._applyer is not None:
+            self._applyer(self._name, self.ui.lineEdit.text())
 
 
 class LongTextEditor(LongTextEditorWidget):

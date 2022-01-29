@@ -27,6 +27,7 @@ from gui.scripteditor import ScriptEditorDialog
 from gui.coordfinderwidget import CoordFinderWidget
 from gui.solvercontroller import SolverControllerDialog
 from gui.visualizer import GCVisualizerDialog
+from gui.preferences import PreferencesDialog
 from gui.postscreen import PostScreenDialog
 from graphcore.settings import GraphCoreSettings
 from graphcore.graphicsscene import GraphCoreScene
@@ -57,6 +58,7 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
         self._script_editor = None
         self._solver_controller = None
         self._visualizer = None
+        self._preferences = None
         self._post_screen = None
         self._scene = None
         self._serializers = []
@@ -65,6 +67,7 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
         self._script_worker = None
         self._script_thread = None
         self.install_shell_actions()
+        self.ui.actionPreferences.triggered.connect(self.command_preferences)
 
     @property
     def script_handler(self) -> GCScriptWorker:
@@ -192,6 +195,14 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
     @visualizer.setter
     def visualizer(self, value: GCVisualizerDialog):
         self._visualizer = value
+
+    @property
+    def preferences(self) -> PreferencesDialog:
+        return self._preferences
+
+    @preferences.setter
+    def preferences(self, value: PreferencesDialog):
+        self._preferences = value
 
     @property
     def post_screen(self) -> PostScreenDialog:
@@ -735,6 +746,15 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
     def command_export(self) -> None:
         self.print('command_export')
         self.setCommandEnabilities()
+
+    # File / Preferences
+    def command_preferences(self):
+        try:
+            self.preferences.exec_()
+        except Exception as ex:
+            pass
+        finally:
+            self.set_command_enable()
 
     # File / Quit command
     def command_quit(self):
@@ -1960,6 +1980,16 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
         # visualizer
         self.visualizer.move(data['visualizer']['x'], data['visualizer']['y'])
         self.visualizer.resize(data['visualizer']['width'], data['visualizer']['height'])
+        # preferences
+        if 'preferences' not in data.keys():
+            data['preferences'] = {
+                "x": 0,
+                "y": 0,
+                "width": 640,
+                "height": 480
+            }
+        self.visualizer.move(data['preferences']['x'], data['preferences']['y'])
+        self.visualizer.resize(data['preferences']['width'], data['preferences']['height'])
 
     def serialize(self):
         data = {}
@@ -2017,6 +2047,13 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
             "y": self.visualizer.y(),
             "width": self.visualizer.width(),
             "height": self.visualizer.height()
+        }
+        # preferences
+        data['preferences'] = {
+            "x": self.preferences.x(),
+            "y": self.preferences.y(),
+            "width": self.preferences.width(),
+            "height": self.preferences.height()
         }
         with open("graphcore-ui.cfg", "w") as f:
             json.dump(data, f, indent=4)

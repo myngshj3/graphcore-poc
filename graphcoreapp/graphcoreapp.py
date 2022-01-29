@@ -24,6 +24,7 @@ def main():
     from gui.solvercontroller import SolverControllerDialog
     from gui.Ui_Visualizer import Ui_visualizerDialog
     from gui.visualizer import GCVisualizerDialog
+    from gui.preferences import PreferencesDialog
     from gui.ui_postscreen import Ui_PostScreenDialog
     from gui.postscreen import PostScreenDialog
     from graphcore.shell import GraphCoreShell
@@ -149,6 +150,18 @@ def main():
     visualizer_ui = Ui_visualizerDialog()
     visualizer = GCVisualizerDialog(main_window, visualizer_ui)
     main_window.visualizer = visualizer
+
+    # setup preferences
+    preferences = PreferencesDialog(main_window)
+    if 'preferences' not in settings.setting_keys():
+        settings.set_setting('preferences', {
+            'visualizer': {
+                'chart-line-width': 1,
+                'chart-background': 'black'
+            }
+        })
+    preferences.set_settings(settings)
+    main_window.preferences = preferences
 
     # setup post screen
     post_screen_ui = Ui_PostScreenDialog()
