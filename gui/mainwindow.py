@@ -1563,13 +1563,17 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
             self.solver_controller.ui.currentMaxVelocityPropertyComboBox.setCurrentText("currentMaxVelocity")
             self.solver_controller.ui.distancePropertyComboBox.setCurrentText("distance")
 
+            self.solver_controller.ui.doubleSpinBox.setValue(self.handler.context.dt)
+            self.solver_controller.ui.spinBox.setValue(self.handler.context.steps)
+            # save post data in graph of current context.
+            def ok_clicked():
+                self.handler.context.G.graph['dt'] = self.solver_controller.ui.doubleSpinBox.value()
+                self.handler.context.G.graph['steps'] = self.solver_controller.ui.spinBox.value()
+                self.handler.context.G.graph['post-data'] = self.solver_controller.post_data
+            # click event
+            self.solver_controller.ui.buttonBox.clicked.connect(ok_clicked)
             # open dialog
             self.solver_controller.exec_()
-
-            # save post data within graph of current context.
-            self.handler.context.G.graph['dt'] = self.solver_controller.ui.doubleSpinBox.value()
-            self.handler.context.G.graph['steps'] = self.solver_controller.ui.spinBox.value()
-            self.handler.context.G.graph['post-data'] = self.solver_controller.post_data
 
         except Exception as ex:
             self.print(traceback.format_exc())

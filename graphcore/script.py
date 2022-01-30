@@ -16,6 +16,8 @@ from networkml.interpreter import NetworkInterpreter
 from networkml.lexer import NetworkParser
 from networkml.specnetwork import SpecValidator
 from networkml.error import NetworkScriptInterruptionException
+from graphcore.mathutils import math_handler_class
+from graphcore.xlutils import xl_handler_class
 from PyQt5.QtCore import QObject
 
 
@@ -724,6 +726,18 @@ class GraphCoreScript(QObject):
         # methods
         self.install_builtin_methods()
 
+        # math handler class
+        meta.set_running(True)
+        math = math_handler_class(meta)
+        meta.set_running(False)
+        self.toplevel.declare_class(math, globally=True)
+
+        # xl handler class
+        meta.set_running(True)
+        xl = xl_handler_class(meta)
+        meta.set_running(False)
+        self.toplevel.declare_class(xl, globally=True)
+
     @property
     def toplevel(self) -> NetworkInstance:
         return self._toplevel
@@ -807,6 +821,10 @@ class GraphCoreScript(QObject):
 
     def install_builtin_methods(self):
         from networkml.network import ExtensibleWrappedAccessor
+        # debug purpose
+        m = ExtensibleWrappedAccessor(self._toplevel, "attributes", None,
+                                      lambda ao,c,eo,ca,ea:ao.dump_attributes(), globally=True)
+        self._toplevel.declare_method(m, globally=True)
         # system
         m = ExtensibleWrappedAccessor(self._toplevel, "sleep", None,
                                       lambda ao, c, eo, ca, ea: sleep(ca[0]), globally=True)

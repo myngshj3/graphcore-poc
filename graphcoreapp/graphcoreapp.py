@@ -18,9 +18,7 @@ def main():
     from gui.console import ConsoleDialog
     from gui.console import Console
     from gui.Ui_ScriptEditor import Ui_ScriptEdior
-    from gui.Ui_ConsoleWidget import Ui_ConsoleForm
     from gui.scripteditor import ScriptEditorDialog
-    from gui.Ui_SolverController import Ui_SolverControllerForm
     from gui.solvercontroller import SolverControllerDialog
     from gui.Ui_Visualizer import Ui_visualizerDialog
     from gui.visualizer import GCVisualizerDialog

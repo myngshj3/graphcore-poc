@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import traceback
+import re
 from PyQt5 import QtGui
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QDialog, QLineEdit
@@ -84,13 +85,15 @@ class Console(QDialog):
         self.handler.toplevel.set_running(False)
 
     def enter_pressed(self):
-        script = self.ui.lineEdit.text()
-        self.ui.textBrowser.append(script)
-        self.ui.lineEdit.clear()
+        from gui.mainwindow import GraphCoreEditorMainWindow
+        from graphcore.thread_signal import GraphCoreThreadSignal
         # execute script
         try:
-            from gui.mainwindow import GraphCoreEditorMainWindow
-            from graphcore.thread_signal import GraphCoreThreadSignal
+            script = self.ui.lineEdit.text()
+            self.ui.textBrowser.append(script)
+            self.ui.lineEdit.clear()
+            if re.match("^\s*$", script):
+                return
             def print(*args):
                 arg = " ".join([str(_) for _ in args])
                 sig = GraphCoreThreadSignal("update console.textBrowser", arg,
