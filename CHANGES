@@ -7,3 +7,6 @@ CHANGES
 2022/01/28:
 - New model file format, for which file extension is 'gcm' or 'gcmx', is available. This enables faster read/write.
 - UI attributes are serializable/deserializable in 'graphcore-ui.cfg' file.
+
+2022/01/30:
+- Script is enalbed to handle Excel books/sheets/cells.
