@@ -429,8 +429,8 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
         self.set_modified(True)
 
     def new_item_group(self, gid):
-        SG = self.handler.context.G.graph["groups"][gid]
-        g = GCItemGroup(self.handler.context, self.handler)
+        SG = self.handler.context.G.graph["groups"][gid]["subgraph"]
+        g = GCItemGroup(gid, self.handler.context, self.handler)
         for n in SG.nodes:
             node = self.element_to_item[n]
             node.setSelected(False)
@@ -441,6 +441,11 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
             g.addToGroup(edge)
         self.scene.addItem(g)
         self.element_to_item[gid] = g
+        rect = g.childrenBoundingRect()
+        self.handler.context.groups[gid]["x"] = rect.x() + rect.width()/2
+        self.handler.context.groups[gid]["y"] = rect.y() + rect.height()/2
+        self.handler.context.groups[gid]["w"] = rect.width()
+        self.handler.context.groups[gid]["h"] = rect.height()
         self.set_modified(True)
 
     def remove_item_group(self, gid):
@@ -1817,17 +1822,16 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
         # copy groups
         for g in self.handler.selected_groups:
             groups[g] = {"nodes": [], "edges": []}
-            for c in self.handler.context.graph["groups"][g]:
-                if isinstance(c, str):  # node
-                    nodes[c] = {}
-                    for k in self.handler.context.nodes[c].keys():
-                        nodes[c][k] = self.handler.context.nodes[c][k]
-                    groups[g]["nodes"].append(c)
-                else:  # edge
-                    edges[c] = {}
-                    for k in self.handler.context.edges[c[0], c[1]].keys():
-                        edges[c][k] = self.handler.context.edges[c[0], c[1]][k]
-                    groups[g]["edges"].append(c)
+            for n in self.handler.context.graph["groups"][g]["subgraph"].nodes:
+                nodes[n] = {}
+                for k in self.handler.context.nodes[n].keys():
+                    nodes[n][k] = self.handler.context.nodes[n][k]
+                groups[g]["nodes"].append(n)
+            for e in self.handler.context.graph["groups"][g]["subgraph"].edges:
+                edges[e] = {}
+                for k in self.handler.context.edges[e[0], e[1]].keys():
+                    edges[e][k] = self.handler.context.edges[e[0], e[1]][k]
+                groups[g]["edges"].append(e)
         self.clear_copy_buf()
         for k in nodes.keys():
             self.node_copy_buf[k] = nodes[k]

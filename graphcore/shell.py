@@ -457,8 +457,14 @@ class GraphCoreShell(object):
         context.open(filename)
         groups = context.groups
         for gid in groups.keys():
-            SG = context.G.subgraph(groups[gid])
-            groups[gid] = SG
+            entries = []
+            for a in groups[gid]["subgraph"]:
+                if isinstance(a, str):
+                    entries.append(a)
+                else:
+                    entries.append((a[0], a[1]))
+            SG = context.G.subgraph(entries)
+            groups[gid]["subgraph"] = SG
         handler = GraphCoreContextHandler(context, settings=self.settings, reporter=self.default_reporter)
         async_handler = GraphCoreAsyncContextHandler(context, settings=self.settings, reporter=self.default_reporter)
         self.handlers.append((handler, async_handler))
@@ -562,7 +568,7 @@ class GraphCoreContextHandler:
         groups = []
         for e in self.element_to_item.keys():
             i = self.element_to_item[e]
-            if isinstance(i, GCItemGroup):
+            if isinstance(i, GCItemGroup) and i.is_selected:
                 groups.append(e)
         return tuple(groups)
 
@@ -584,19 +590,27 @@ class GraphCoreContextHandler:
                 gid = i
                 break
         gid = "g{}".format(gid)
-        groups[gid] = SG
+        groups[gid] = {
+            "subgraph": SG,
+            "type": "group",
+            "label": "group {}".format(gid),
+            "caption": "group {}".format(gid),
+            "description": "no description",
+            "x": 0,
+            "y": 0,
+            "w": 100,
+            "h": 100
+        }
         self.context.dirty = True
         self.do_reflection(GraphCoreContextHandler.GroupCreated, gid)
 
     def remove_group(self, gid):
-        SG = self.context.G.graph['groups'][gid]
+        SG = self.context.G.graph['groups'][gid]["subgraph"]
         self.context.G.graph['groups'].pop(gid)
-        nodes = SG.nodes
-        edges = SG.edges
-        for n in nodes:
-            self.remove_node(n)
-        for e in edges:
+        for e in SG.edges:
             self.remove_edge(e[0], e[1])
+        for n in SG.nodes:
+            self.remove_node(n)
         self.do_reflection(GraphCoreContextHandler.GroupRemoved, gid)
 
     def purge_group(self, gid=None):
@@ -605,7 +619,7 @@ class GraphCoreContextHandler:
         else:
             gids = (gid,)
         for g in gids:
-            SG = self.context.groups[g]
+            #SG = self.context.groups[g]["subgraph"]
             self.context.groups.pop(g)
             self.context.dirty = True
             self.do_reflection(GraphCoreContextHandler.GroupPurged, g)
@@ -803,12 +817,22 @@ class GraphCoreContextHandler:
         groups = self.context.groups
         gr = {}
         for gid in groups.keys():
-            gr[gid] = groups[gid]
-            groups[gid] = []
-            for n in gr[gid].nodes:
-                groups[gid].append(n)
-            for e in gr[gid].edges:
-                groups[gid].append(e)
+            gr[gid] = groups[gid] # escape
+            groups[gid] = {
+                "subgraph": [],
+                "type": gr[gid]["type"],
+                "label": gr[gid]["label"],
+                "caption": gr[gid]["caption"],
+                "description": gr[gid]["description"],
+                "x": gr[gid]["x"],
+                "y": gr[gid]["y"],
+                "w": gr[gid]["w"],
+                "h": gr[gid]["h"]
+            }
+            for n in gr[gid]["subgraph"].nodes:
+                groups[gid]["subgraph"].append(n)
+            for e in gr[gid]["subgraph"].edges:
+                groups[gid]["subgraph"].append(e)
         self.context.save(filename)
         for gid in groups.keys():
             groups[gid] = gr[gid]

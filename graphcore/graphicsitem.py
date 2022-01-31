@@ -16,9 +16,10 @@ from graphcore.shell import GraphCoreContext, GraphCoreContextHandler
 
 class GCItemGroup(QGraphicsItemGroup):
 
-    def __init__(self, context, handler):
+    def __init__(self, gid, context, handler):
         super().__init__()
         self.setFlag(QGraphicsItem.ItemIsMovable, True)
+        self._gid = gid
         self._context = context
         self._handler = handler
         self._selected = False
@@ -56,6 +57,10 @@ class GCItemGroup(QGraphicsItemGroup):
             painter.drawRect(rect)
             rect = QRectF(boundingRect.x() + boundingRect.width() - w, boundingRect.y()+boundingRect.height()-h, w, h)
             painter.drawRect(rect)
+
+    @property
+    def gid(self):
+        return self._gid
 
     @property
     def is_selected(self):
