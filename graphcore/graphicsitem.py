@@ -41,10 +41,17 @@ class GCItemGroup(QGraphicsItemGroup):
         self._right_bottom_bound.setVisible(False)
 
     def boundingRect(self) -> QtCore.QRectF:
+        # x = self._handler.context.groups[self.gid]["x"]
+        # y = self._handler.context.groups[self.gid]["y"]
+        # w = self._handler.context.groups[self.gid]["w"]
+        # h = self._handler.context.groups[self.gid]["h"]
+        # ret = QRectF(x - w/2, y - h/2, w, h)
+        # print("***", ret, self.childrenBoundingRect())
+        # return ret
         return self.childrenBoundingRect()
 
     def paint(self, painter: QtGui.QPainter, option: 'QStyleOptionGraphicsItem', widget: typing.Optional[QWidget] = ...) -> None:
-        boundingRect = self.boundingRect()
+        boundingRect = self.childrenBoundingRect()
         painter.setPen(QtCore.Qt.PenStyle.DashLine)
         painter.drawRect(boundingRect)
         if self.is_selected:
@@ -136,20 +143,20 @@ class GCItemGroup(QGraphicsItemGroup):
         self.paint_bound_points(self.boundingRect())
 
     def mouseMoveEvent(self, event: 'QGraphicsSceneMouseEvent') -> None:
-        # print("mouseMoveEvent pos:{}, scenePos:{}".format(event.pos(), event.scenePos()))
-        super().mouseMoveEvent(event)
+        #print("mouseMoveEvent pos:{}, scenePos:{}".format(event.pos(), event.scenePos()))
         dx, dy = event.scenePos().x() - event.lastScenePos().x(), event.scenePos().y() - event.lastScenePos().y()
         #dx, dy = event.pos().x() - event.lastPos().x(), event.pos().y() - event.lastPos().y()
-        # for c in self.childItems():
-        #     pass  # c.moveBy(dx, dy)
         if dx != 0 or dy != 0:
             self._handler.context.groups[self.gid]["x"] += dx
             self._handler.context.groups[self.gid]["y"] += dy
             E = []
             SG = self._handler.context.groups[self.gid]["subgraph"]
+            for c in self.childItems():
+                if isinstance(c, GraphCoreNodeItemInterface):
+                    SG.nodes[c.node]["x"] += dx
+                    SG.nodes[c.node]["y"] += dy
+                    self._handler.update_node(c.node)
             for n in SG.nodes:
-                SG.nodes[n]["x"] += dx
-                SG.nodes[n]["y"] += dy
                 for s in self._handler.context.G.successors(n):
                     if (n, s) not in SG.edges:
                         E.append((n, s))
@@ -158,17 +165,7 @@ class GCItemGroup(QGraphicsItemGroup):
                         E.append((d, n))
             for e in E:
                 self._handler.update_edge(e[0], e[1])
-            # for g in self._handler.element_to_item.keys():
-            #     if self == self._handler.element_to_item[g]:
-            #         self._handler.move_group_by(g, dx, dy)
-            #         break
-                    # for e in self._handler.collect_edges(n):
-                    #     i: GraphCoreEdgeItemInterface = items[e]
-                    #     if i.parentItem() != self and e not in edges:
-                    #         edges.append(e)
-                    #self._handler.change_node_attr(n, 'x', x, 'y', y)
-            # for e in edges:
-            #     self._handler.update_edge(e[0], e[1])
+        #super().mouseMoveEvent(event)
 
     def mousePressEvent(self, event: 'QGraphicsSceneMouseEvent') -> None:
         #print("mousePressEvent pos:{}, scenePos:{}".format(event.pos(), event.scenePos()))
@@ -177,6 +174,9 @@ class GCItemGroup(QGraphicsItemGroup):
     def mouseReleaseEvent(self, event: 'QGraphicsSceneMouseEvent') -> None:
         #print("mouseReleseEvent pos:{}, scenePos:{}".format(event.pos(), event.scenePos()))
         super().mouseReleaseEvent(event)
+        # for c in self.childItems():
+        #     if isinstance(c, GraphCoreNodeItemInterface):
+        #         c.moveBy(dx, dy)
 
     def mouseDoubleClickEvent(self, event: 'QGraphicsSceneMouseEvent') -> None:
         super().mouseDoubleClickEvent(event)
