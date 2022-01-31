@@ -1345,6 +1345,8 @@ class GraphCoreContextHandler:
             for v in self.context.G.predecessors(n):
                 if (v, n) not in sg.edges:
                     edges.append((v, n))
+        self.context.groups[g]["x"] += dx
+        self.context.groups[g]["y"] += dy
         self.do_reflection(GraphCoreContextHandler.GroupUpdated, g)
         for e in edges:
             self.do_reflection(GraphCoreContextHandler.EdgeUpdated, e)
