@@ -139,10 +139,25 @@ class GCItemGroup(QGraphicsItemGroup):
         # print("mouseMoveEvent pos:{}, scenePos:{}".format(event.pos(), event.scenePos()))
         super().mouseMoveEvent(event)
         dx, dy = event.scenePos().x() - event.lastScenePos().x(), event.scenePos().y() - event.lastScenePos().y()
-        dx, dy = event.pos().x() - event.lastPos().x(), event.pos().y() - event.lastPos().y()
+        #dx, dy = event.pos().x() - event.lastPos().x(), event.pos().y() - event.lastPos().y()
+        # for c in self.childItems():
+        #     pass  # c.moveBy(dx, dy)
         if dx != 0 or dy != 0:
-            for c in self.childItems():
-                pass # c.moveBy(dx, dy)
+            self._handler.context.groups[self.gid]["x"] += dx
+            self._handler.context.groups[self.gid]["y"] += dy
+            E = []
+            SG = self._handler.context.groups[self.gid]["subgraph"]
+            for n in SG.nodes:
+                SG.nodes[n]["x"] += dx
+                SG.nodes[n]["y"] += dy
+                for s in self._handler.context.G.successors(n):
+                    if (n, s) not in SG.edges:
+                        E.append((n, s))
+                for d in self._handler.context.G.predecessors(n):
+                    if (d, n) not in SG.edges:
+                        E.append((d, n))
+            for e in E:
+                self._handler.update_edge(e[0], e[1])
             # for g in self._handler.element_to_item.keys():
             #     if self == self._handler.element_to_item[g]:
             #         self._handler.move_group_by(g, dx, dy)
