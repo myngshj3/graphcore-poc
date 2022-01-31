@@ -271,7 +271,7 @@ class GraphCoreView(QGraphicsView):
         from graphcore.graphicsitem import GCItemGroup
         for k in self._main_window.element_to_item.keys():
             c = self._main_window.element_to_item[k]
-            if isinstance(c, GCItemGroup):
+            if i == c and isinstance(c, GCItemGroup):
                 return c
         return None
 

@@ -501,6 +501,7 @@ class GraphCoreContextHandler:
     GroupSelected = 26
     GroupDeselected = 27
     ElementsAddSelect = 28
+    GroupUpdated = 29
 
     def __init__(self, ctx: GraphCoreContext, reporter: GraphCoreReporter, settings: GraphCoreSettings):
         self._context = ctx
@@ -591,27 +592,24 @@ class GraphCoreContextHandler:
                 break
         gid = "g{}".format(gid)
         groups[gid] = {
-            "subgraph": SG,
-            "type": "group",
-            "label": "group {}".format(gid),
-            "caption": "group {}".format(gid),
-            "description": "no description",
-            "x": 0,
-            "y": 0,
-            "w": 100,
-            "h": 100
+            "subgraph": SG
         }
+        group_defaults = self.settings.setting('default-node-attrs')['group']
+        for k in group_defaults.keys():
+            groups[gid][k] = group_defaults[k]["value"]
         self.context.dirty = True
         self.do_reflection(GraphCoreContextHandler.GroupCreated, gid)
 
     def remove_group(self, gid):
         SG = self.context.G.graph['groups'][gid]["subgraph"]
         self.context.G.graph['groups'].pop(gid)
-        for e in SG.edges:
-            self.remove_edge(e[0], e[1])
-        for n in SG.nodes:
-            self.remove_node(n)
-        self.do_reflection(GraphCoreContextHandler.GroupRemoved, gid)
+        self.do_reflection(GraphCoreContextHandler.GroupPurged, gid)
+        # E = [_ for _ in SG.edges]
+        # for e in E:
+        #     self.remove_edge(e[0], e[1])
+        V = [_ for _ in SG.nodes]
+        for v in V:
+            self.remove_node(v)
 
     def purge_group(self, gid=None):
         if gid is None:
@@ -1065,6 +1063,14 @@ class GraphCoreContextHandler:
         self.do_reflection(GraphCoreContextHandler.NodeUpdated, n)
 
     def remove_node(self, n):
+        E = []
+        for s in self.context.G.successors(n):
+            E.append((n, s))
+        for p in self.context.G.predecessors(n):
+            E.append((p, n))
+        for e in E:
+            self.context.remove_edge(e[0], e[1])
+            self.do_reflection(GraphCoreContextHandler.EdgeRemoved, e)
         self.context.remove_node(n)
         self.context.dirty = True
         self.do_reflection(GraphCoreContextHandler.NodeRemoved, n)
@@ -1132,6 +1138,28 @@ class GraphCoreContextHandler:
             self.context.edges[u, v][a] = value
             self.context.dirty = True
         self.do_reflection(GraphCoreContextHandler.EdgeUpdated, (u, v))
+
+    def change_group_attr(self, g, *args):
+        arg_len = int(len(args)/2)
+        for i in range(arg_len):
+            a = args[i*2]
+            value = args[i*2+1]
+            if a == "x":
+                dx = value - self.context.groups[g][a]
+                dy = 0
+                self.move_group_by(g, dx, dy)
+            if a == "y":
+                dx = 0
+                dy = value - self.context.groups[g][a]
+                self.move_group_by(g, dx, dy)
+            elif a == "w":
+                self.resize_group(g, value, self.context.groups[g]["h"])
+            elif a == "h":
+                self.resize_group(g, self.context.groups[g]["w"], value)
+            else:
+                self.context.groups[g][a] = value
+            self.context.dirty = True
+        self.do_reflection(GraphCoreContextHandler.GroupUpdated, g)
 
     def change_view(self, x, y, w, h):
         self.context.change_view(x, y, w, h)
@@ -1305,18 +1333,63 @@ class GraphCoreContextHandler:
 
     def move_group_by(self, g, dx, dy):
         edges = []
-        sg = self.context.groups[g]
+        sg = self.context.groups[g]["subgraph"]
         for n in sg.nodes:
             self.context.nodes[n]['x'] += dx
             self.context.nodes[n]['y'] += dy
             self.context.dirty = True
+            self.do_reflection(GraphCoreContextHandler.NodeUpdated, n)
             for v in self.context.G.successors(n):
-                if (n, v) not in edges:
+                if (n, v) not in sg.edges:
                     edges.append((n, v))
             for v in self.context.G.predecessors(n):
-                if (v, n) not in edges:
+                if (v, n) not in sg.edges:
                     edges.append((v, n))
-            # self.do_reflection(GraphCoreContextHandler.NodeUpdated, n)
+        self.do_reflection(GraphCoreContextHandler.GroupUpdated, g)
+        for e in edges:
+            self.do_reflection(GraphCoreContextHandler.EdgeUpdated, e)
+
+    def resize_group(self, g, width, height):
+        edges = []
+        sg = self.context.groups[g]["subgraph"]
+        cx = self.context.groups[g]["x"]
+        cy = self.context.groups[g]["y"]
+        hratio = width / self.context.groups[g]["w"]
+        vratio = height / self.context.groups[g]["h"]
+        for n in sg.nodes:
+            w, h = sg.nodes[n]["w"], sg.nodes[n]["h"]
+            x1, y1 = sg.nodes[n]["x"] - w/2, sg.nodes[n]["y"] - h/2
+            x2, y2 = x1 + w, y1 + h
+            # transform
+            x1 -= cx
+            x1 *= hratio
+            x1 += cx
+            y1 -= cy
+            y1 *= vratio
+            y1 += cy
+            x2 -= cx
+            x2 *= hratio
+            x2 += cx
+            y2 -= cy
+            y2 *= vratio
+            y2 += cy
+            x, y = (x1 + x2)/2, (y1 + y2)/2
+            w, h = x2 - x1, y2 - y1
+            self.context.nodes[n]['x'] = x
+            self.context.nodes[n]['y'] = y
+            self.context.nodes[n]['w'] = w
+            self.context.nodes[n]['h'] = h
+            self.context.dirty = True
+            self.do_reflection(GraphCoreContextHandler.NodeUpdated, n)
+            for s in self.context.G.successors(n):
+                if (n, s) not in sg.edges:
+                    edges.append((n, s))
+            for p in self.context.G.predecessors(n):
+                if (p, n) not in sg.edges:
+                    edges.append((p, n))
+        self.context.groups[g]["w"] = width
+        self.context.groups[g]["h"] = height
+        self.do_reflection(GraphCoreContextHandler.GroupUpdated, g)
         for e in edges:
             self.do_reflection(GraphCoreContextHandler.EdgeUpdated, e)
 
@@ -1345,7 +1418,7 @@ class GraphCoreContextHandler:
         self.do_reflection(GraphCoreContextHandler.EdgeDeselected, (u, v))
 
     def select_group(self, g):
-        self.do_reflection(GraphCoreContextHandler.ElementsSelected, (g))
+        self.do_reflection(GraphCoreContextHandler.GroupSelected, (g))
 
     def deselect_group(self, g):
         self.set_selected_elements(())

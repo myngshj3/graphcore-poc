@@ -259,6 +259,7 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
         self.handler.set_reflection(GraphCoreContextHandler.AllDeselected, lambda x: self.property_deselect_all())
         self.handler.set_reflection(GraphCoreContextHandler.NodeSelected, lambda x: self.select_node(x))
         self.handler.set_reflection(GraphCoreContextHandler.EdgeSelected, lambda x: self.select_edge(x))
+        self.handler.set_reflection(GraphCoreContextHandler.GroupSelected, lambda x: self.select_group(x))
         self.handler.set_reflection(GraphCoreContextHandler.ElementsSelected, lambda x: self.select_elements(x))
         self.handler.set_reflection(GraphCoreContextHandler.ElementsAddSelect, lambda x: self.add_select_elements(x))
         self.handler.set_reflection(GraphCoreContextHandler.ConstraintAdded, lambda x: self.constraint_add_to_widget(x))
@@ -272,6 +273,7 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
         self.handler.set_reflection(GraphCoreContextHandler.GroupCreated, lambda x: self.group_create(x))
         self.handler.set_reflection(GraphCoreContextHandler.GroupPurged, lambda x: self.group_purge(x))
         self.handler.set_reflection(GraphCoreContextHandler.GroupRemoved, lambda x: self.group_remove(x))
+        self.handler.set_reflection(GraphCoreContextHandler.GroupUpdated, lambda x: self.group_update(x))
 
         self.async_handler.set_reflection(GraphCoreContextHandler.NodeAdded, lambda x: self.new_node_item(x))
         self.async_handler.set_reflection(GraphCoreContextHandler.NodeUpdated, lambda x: self.redraw_node_item(x))
@@ -283,6 +285,7 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
         self.async_handler.set_reflection(GraphCoreContextHandler.AllDeselected, lambda x: self.property_deselect_all())
         self.async_handler.set_reflection(GraphCoreContextHandler.NodeSelected, lambda x: self.select_node(x))
         self.async_handler.set_reflection(GraphCoreContextHandler.EdgeSelected, lambda u, v: self.select_edge((u, v)))
+        self.async_handler.set_reflection(GraphCoreContextHandler.GroupSelected, lambda x: self.select_group(x))
         self.async_handler.set_reflection(GraphCoreContextHandler.ElementsSelected, lambda x: self.select_elements(x))
         self.async_handler.set_reflection(GraphCoreContextHandler.ElementsAddSelect, lambda x: self.add_select_elements(x))
         self.async_handler.set_reflection(GraphCoreContextHandler.ConstraintAdded, lambda x: self.constraint_add_to_widget(x))
@@ -296,6 +299,7 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
         self.async_handler.set_reflection(GraphCoreContextHandler.GroupCreated, lambda x: self.group_create(x))
         self.async_handler.set_reflection(GraphCoreContextHandler.GroupPurged, lambda x: self.group_purge(x))
         self.async_handler.set_reflection(GraphCoreContextHandler.GroupRemoved, lambda x: self.group_remove(x))
+        self.async_handler.set_reflection(GraphCoreContextHandler.GroupUpdated, lambda x: self.group_update(x))
 
     def item_to_element(self, i):
         for k in self.handler.extras["element_to_item"].keys():
@@ -454,8 +458,22 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
         self.element_to_item.pop(gid)
         for c in g.childItems():
             g.removeFromGroup(c)
+            self.scene.removeItem(c)
+        self.scene.destroyItemGroup(g)
+
+    def purge_item_group(self, gid):
+        self.print("purge_item_group: {}".format(gid))
+        g: QGraphicsItemGroup = self.element_to_item[gid]
+        self.element_to_item.pop(gid)
+        for c in g.childItems():
+            g.removeFromGroup(c)
             c.setSelected(False)
         self.scene.destroyItemGroup(g)
+
+    def update_item_group(self, gid):
+        self.print("update_item_group: {}".format(gid))
+        g: GCItemGroup = self.element_to_item[gid]
+        g.redraw()
 
     # change view
     def change_view(self, x, y, w, h):
@@ -875,6 +893,13 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
         self.property_select_edge(n)
         self.ui.editorTabWidget.setCurrentIndex(0)
 
+    def select_group(self, g):
+        self.command_deselect_all()
+        item: GCItemGroup = self.element_to_item[g]
+        item.select()
+        self.property_select_group(g)
+        self.ui.editorTabWidget.setCurrentIndex(0)
+
     # selected node
     def command_select_node(self, n) -> None:
         try:
@@ -1015,6 +1040,15 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
         try:
             # self.print('command_remove_edge')
             self.handler.remove_edge(e[0], e[1])
+        except Exception as ex:
+            self.print(traceback.format_exc())
+        finally:
+            self.setCommandEnabilities()
+
+    # remove group
+    def command_remove_group(self, g) -> None:
+        try:
+            self.handler.remove_group(g)
         except Exception as ex:
             self.print(traceback.format_exc())
         finally:
@@ -1191,6 +1225,9 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
                     menu.addAction("Property").triggered.connect(lambda: self.command_select_node(item.node))
                 elif isinstance(item, GraphCoreEdgeItem):
                     menu.addAction("Property").triggered.connect(lambda: self.command_select_edge((item.u, item.v)))
+                elif isinstance(item, GCItemGroup):
+                    menu.addAction("Property").triggered.connect(lambda: self.command_select_group(item.gid))
+                    pass
                 # New Edge menu
                 if isinstance(item, GraphCoreNodeItemInterface):
                     item.select()
@@ -1242,6 +1279,8 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
             self.command_remove_node(item.node)
         elif isinstance(item, GraphCoreEdgeItem):
             self.command_remove_edge((item.u, item.v))
+        elif isinstance(item, GCItemGroup):
+            self.command_remove_group(item.gid)
 
     def check_if_edge_creation_mode(self):
         return self._edge_creating
@@ -1408,6 +1447,59 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
             elif t == "equation":
                 editor = EquationEditor(attrs[k], k,
                                         apply=lambda x, y: self.handler.change_edge_attr(edge[0], edge[1], x, y))
+            else:
+                self.print("unsupported type:{}".format(t))
+            property_widget.setCellWidget(attr_count - 1, 2, editor)
+
+    def property_select_group(self, gid):
+        property_widget = self.ui.propertyWidget
+        attrs = self.handler.context.groups[gid]
+        group_properties = self.settings.setting('default-node-attrs')['group']
+        property_widget.setRowCount(0)
+        attr_count = 0
+        for i, k in enumerate(group_properties):
+            if not group_properties[k]['visible']:
+                continue
+            attr_count += 1
+            property_widget.setRowCount(attr_count)
+            property_widget.setItem(attr_count - 1, 0, QTableWidgetItem(k))
+            property_widget.setItem(attr_count - 1, 1, QTableWidgetItem(group_properties[k]['caption']))
+            editor = None
+            t = group_properties[k]['type']
+            if "list" in group_properties[k].keys():
+                value_list = group_properties[k]['list']
+                entries = []
+                for idx, n in enumerate(value_list):
+                    entries.append((n, n))  # FIXME
+                editor = ComboBoxEditor(attrs[k], k, entries,
+                                        apply=lambda x, y: self.handler.change_group_attr(gid, x, y))
+                editor.callback_enabled = True
+            elif t == "str":
+                editor = TextEditor(attrs[k], k,
+                                    apply=lambda x, y: self.handler.change_group_attr(gid, x, y))
+            elif t == "longtext":
+                editor = LongTextEditor(attrs[k], k,
+                                        apply=lambda x, y: self.handler.change_group_attr(gid, x, y))
+            elif t == "int":
+                #editor = IntEditor(attrs[k], k, int,
+                #                   apply=lambda x, y: self.handler.change_edge_attr(edge[0], edge[1], x, y))
+                editor = SpinBoxEditor(attrs[k], k, int,
+                                       apply=lambda x, y: self.handler.change_group_attr(gid, x, y))
+            elif t == "float":
+                #editor = FloatEditor(attrs[k], k, float,
+                #                     apply=lambda x, y: self.handler.change_edge_attr(edge[0], edge[1], x, y))
+                editor = FloatSpinBoxEditor(attrs[k], k, float,
+                                            apply = lambda x, y: self.handler.change_group_attr(gid, x, y))
+                editor.setMinimum(group_properties[k]['min'])
+                editor.setMaximum(group_properties[k]['max'])
+                editor.setValue(attrs[k])
+                #print(_type, k, attrs[k], t, default_edge_attrs[_type][k]['min'], default_edge_attrs[_type][k]['max'])
+            elif t == "bool":
+                editor = BoolEditor(attrs[k], k,
+                                    apply=lambda x, y: self.handler.change_group_attr(gid, x, y))
+            elif t == "equation":
+                editor = EquationEditor(attrs[k], k,
+                                        apply=lambda x, y: self.handler.change_group_attr(gid, x, y))
             else:
                 self.print("unsupported type:{}".format(t))
             property_widget.setCellWidget(attr_count - 1, 2, editor)
@@ -1899,10 +1991,19 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
         self.new_item_group(gid)
 
     def group_purge(self, gid):
-        self.remove_item_group(gid)
+        self.purge_item_group(gid)
 
     def group_remove(self, gid):
         self.remove_item_group(gid)
+
+    def group_update(self, gid):
+        try:
+            self.update_item_group(gid)
+        except Exception as ex:
+            self.print(traceback.format_exc())
+            self.print(ex)
+        finally:
+            self.set_command_enable()
 
     def command_group(self):
         try:
