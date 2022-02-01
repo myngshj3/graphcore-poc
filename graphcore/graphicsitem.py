@@ -18,7 +18,9 @@ class GCItemGroup(QGraphicsItemGroup):
 
     def __init__(self, gid, context, handler):
         super().__init__()
+        self.setFlag(QGraphicsItem.ItemIsSelectable, True)
         self.setFlag(QGraphicsItem.ItemIsMovable, True)
+        self.installSceneEventFilter(self)
         self._gid = gid
         self._context = context
         self._handler = handler
@@ -149,23 +151,20 @@ class GCItemGroup(QGraphicsItemGroup):
         if dx != 0 or dy != 0:
             self._handler.context.groups[self.gid]["x"] += dx
             self._handler.context.groups[self.gid]["y"] += dy
-            E = []
             SG = self._handler.context.groups[self.gid]["subgraph"]
             for c in self.childItems():
                 if isinstance(c, GraphCoreNodeItemInterface):
                     SG.nodes[c.node]["x"] += dx
                     SG.nodes[c.node]["y"] += dy
-                    self._handler.update_node(c.node)
+                    #self._handler.update_node(c.node)
             for n in SG.nodes:
                 for s in self._handler.context.G.successors(n):
                     if (n, s) not in SG.edges:
-                        E.append((n, s))
+                        self._handler.update_edge(n, s)
                 for d in self._handler.context.G.predecessors(n):
                     if (d, n) not in SG.edges:
-                        E.append((d, n))
-            for e in E:
-                self._handler.update_edge(e[0], e[1])
-        #super().mouseMoveEvent(event)
+                        self._handler.update_edge(d, n)
+        super().mouseMoveEvent(event)
 
     def mousePressEvent(self, event: 'QGraphicsSceneMouseEvent') -> None:
         #print("mousePressEvent pos:{}, scenePos:{}".format(event.pos(), event.scenePos()))
@@ -173,10 +172,15 @@ class GCItemGroup(QGraphicsItemGroup):
 
     def mouseReleaseEvent(self, event: 'QGraphicsSceneMouseEvent') -> None:
         #print("mouseReleseEvent pos:{}, scenePos:{}".format(event.pos(), event.scenePos()))
-        super().mouseReleaseEvent(event)
+        # for c in self.childItems():
+        #     if isinstance(c, GraphCoreNodeItemInterface):
+        #         self._handler.update_node(c.node)
+        # self._handler.update_group(self.gid)
         # for c in self.childItems():
         #     if isinstance(c, GraphCoreNodeItemInterface):
         #         c.moveBy(dx, dy)
+        #event.ignore()
+        super().mouseReleaseEvent(event)
 
     def mouseDoubleClickEvent(self, event: 'QGraphicsSceneMouseEvent') -> None:
         super().mouseDoubleClickEvent(event)
@@ -421,6 +425,7 @@ class GCCustomNodeItem(GraphCoreNodeItemInterface):
             # self.handler.context.nodes[self.node]['y'] += dy
             # self.handler.context.dirty = True
             self.handler.move_node_by(self.node, dx, dy)
+        super().mouseMoveEvent(event)
 
 
 # GraphCore's circle shaped node graphics item class
@@ -534,7 +539,19 @@ class GraphCoreCircleNodeItem(QGraphicsEllipseItem, GraphCoreNodeItemInterface):
         if dx != 0 or dy != 0:
             # print("mouseMoveEvent: dx={},dy={}".format(dx, dy))
             # self.moveBy(dx, dy)
-            self.handler.move_node_by(self.node, dx, dy)
+            #self.handler.move_node_by(self.node, dx, dy)
+            self.handler.context.nodes[self.node]["x"] += dx
+            self.handler.context.nodes[self.node]["y"] += dy
+            self.handler.update_node(self.node)
+            for _ in self.handler.context.G.successors(self.node):
+                self.handler.update_edge(self.node, _)
+            for _ in self.handler.context.G.predecessors(self.node):
+                self.handler.update_edge(_, self.node)
+        #super().mouseMoveEvent(event)
+
+    def mouseReleaseEvent(self, event: 'QGraphicsSceneMouseEvent') -> None:
+        self.handler.update_node(self.node)
+        super().mouseReleaseEvent(event)
 
 
 # GraphCore's rectangle shaped node graphics item class
@@ -643,7 +660,19 @@ class GraphCoreRectNodeItem(QGraphicsRectItem, GraphCoreNodeItemInterface):
         if dx != 0 or dy != 0:
             # print("mouseMoveEvent: dx={},dy={}".format(dx, dy))
             # self.moveBy(dx, dy)
-            self.handler.move_node_by(self.node, dx, dy)
+            #self.handler.move_node_by(self.node, dx, dy)
+            self.handler.context.nodes[self.node]["x"] += dx
+            self.handler.context.nodes[self.node]["y"] += dy
+            self.handler.update_node(self.node)
+            for _ in self.handler.context.G.successors(self.node):
+                self.handler.update_edge(self.node, _)
+            for _ in self.handler.context.G.predecessors(self.node):
+                self.handler.update_edge(_, self.node)
+        #super().mouseMoveEvent(event)
+
+    def mouseReleaseEvent(self, event: 'QGraphicsSceneMouseEvent') -> None:
+        self.handler.update_node(self.node)
+        super().mouseReleaseEvent(event)
 
 
 # GraphCore Edge Item interface

@@ -20,20 +20,20 @@ class GraphCoreScene(QGraphicsScene):
         self._handler = handler
         self._settings = None
         #self.setup_scene_rect()
-        self._text = QGraphicsSimpleTextItem()
-        self._text.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsSelectable, False)
-        self._text.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsMovable, False)
-        self.addItem(self._text)
-        self._grid = GCGridItem(x=self.sceneRect().x(), y=self.sceneRect().y(), width=self.sceneRect().width(), height=self.sceneRect().height())
-        self.addItem(self._grid)
+        # self._text = QGraphicsSimpleTextItem()
+        # self._text.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsSelectable, False)
+        # self._text.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsMovable, False)
+        # self.addItem(self._text)
+        # self._grid = GCGridItem(x=self.sceneRect().x(), y=self.sceneRect().y(), width=self.sceneRect().width(), height=self.sceneRect().height())
+        # self.addItem(self._grid)
 
-    @property
-    def text_item(self) -> QGraphicsSimpleTextItem:
-        return self._text
-
-    @property
-    def grid_item(self) -> GCGridItem:
-        return self._grid
+    # @property
+    # def text_item(self) -> QGraphicsSimpleTextItem:
+    #     return self._text
+    #
+    # @property
+    # def grid_item(self) -> GCGridItem:
+    #     return self._grid
 
     @property
     def handler(self) -> GraphCoreContextHandler:
@@ -55,16 +55,22 @@ class GraphCoreScene(QGraphicsScene):
     def setup_scene_rect(self):
         sets = gcore_settings()
         rect = sets.setting('default-scene-attrs')
-        self.setSceneRect(rect['x'], rect['y'], rect['w'], rect['h'])
+        #self.setSceneRect(rect['x'], rect['y'], rect['w'], rect['h'])
 
-    def set_coord(self, x, y):
-        text = "({:.2f}, {:.2f})".format(x, y)
-        self.text_item.setText(text)
-        self.text_item.setPos(self.grid_item.boundingRect().x() + 5, self.grid_item.boundingRect().y() + 5)
+    # def set_coord(self, x, y):
+    #     text = "({:.2f}, {:.2f})".format(x, y)
+    #     self.text_item.setText(text)
+    #     self.text_item.setPos(self.grid_item.boundingRect().x() + 5, self.grid_item.boundingRect().y() + 5)
+
+    def mousePressEvent(self, event: 'QGraphicsSceneMouseEvent') -> None:
+        super().mousePressEvent(event)
 
     # mouseMoveEvent
     def mouseMoveEvent(self, event: 'QGraphicsSceneMouseEvent') -> None:
         super().mouseMoveEvent(event)
+
+    def mouseReleaseEvent(self, event: 'QGraphicsSceneMouseEvent') -> None:
+        super().mouseReleaseEvent(event)
 
     def to_node(self, i):
         pass

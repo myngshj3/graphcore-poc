@@ -1161,6 +1161,10 @@ class GraphCoreContextHandler:
             self.context.dirty = True
         self.do_reflection(GraphCoreContextHandler.GroupUpdated, g)
 
+    def update_group(self, g):
+        self.context.dirty = True
+        self.do_reflection(GraphCoreContextHandler.GroupUpdated, g)
+
     def change_view(self, x, y, w, h):
         self.context.change_view(x, y, w, h)
         self.context.dirty = True

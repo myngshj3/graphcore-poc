@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from PyQt5.QtWidgets import *
-from PyQt5.Qt import QMouseEvent
-from PyQt5.QtCore import Qt
+from PyQt5.Qt import QMouseEvent, QEvent
+from PyQt5.QtCore import Qt, QObject
 from PyQt5 import QtGui
 import numpy as np
 import math
@@ -12,6 +12,7 @@ from graphcore.drawutil import gcore_arrow_polygon
 class GraphCoreView(QGraphicsView):
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.installEventFilter(self)
         self.setMouseTracking(True)
         self._main_window = None
         self._shell = None
@@ -19,6 +20,8 @@ class GraphCoreView(QGraphicsView):
         self._press_pos = None
         self._double_clicked = False
         self._zoom = 1
+        self._coord = QLabel(self)
+        self._coord.setMinimumWidth(100)
 
     def set_main_window(self, main_window):
         self._main_window = main_window
@@ -33,6 +36,9 @@ class GraphCoreView(QGraphicsView):
         #from graphcore.graphicsscene import GraphCoreScene
         #from graphcore.graphicsitem import GCGridItem
         super().resizeEvent(event)
+
+    def paintEvent(self, event: QtGui.QPaintEvent) -> None:
+        super().paintEvent(event)
 
     def wheelEvent(self, event: QtGui.QWheelEvent) -> None:
         if event.modifiers() & Qt.ControlModifier:
@@ -70,22 +76,15 @@ class GraphCoreView(QGraphicsView):
         #                 break
         # super().mouseDoubleClickEvent(event)
 
+    def dragMoveEvent(self, event: QtGui.QDragMoveEvent) -> None:
+        super().dragMoveEvent(event)
+
     def mouseMoveEvent(self, event):
         from graphcore.graphicsscene import GraphCoreScene
         # render mouse coordinate
         scenePos = self.mapToScene(event.pos())
-        coord = "({:.2f}, {:.2f})".format(scenePos.x(), scenePos.y())
-        # painter = QtGui.QPainter(self)
-        # painter.begin(self)
-        # painter.setFont(QtGui.QFont(u'メイリオ', 11))
-        # painter.setPen(QtGui.QColor("black"))
-        # painter.drawText(self.rect(), Qt.AlignTop | Qt.AlignHCenter, coord)
-        # painter.fillRect(self.rect(), QtGui.QColor("blue"))
-        scene = self.scene()
-        text_item: QGraphicsSimpleTextItem = scene.text_item
-        text_item.setText(coord)
-        text_item.setPos(self.mapToScene(5, 5))
-        text_item.setZValue(1)
+        self._coord.setText("({:.2f}, {:.2f})".format(scenePos.x(), scenePos.y()))
+
         # scene.set_coord(scenePos.x(), scenePos.y())
         #self._main_window.print("mouseMoveEvent button={}, pos={}".format(event.button(), event.pos()))
         if self._main_window.handler.extras['edge_creating']:
@@ -102,7 +101,6 @@ class GraphCoreView(QGraphicsView):
         #self._main_window.print("mousePressEvent button={}, pos={}".format(event.button(), event.pos()))
         self._press_pos = event.pos()
         if event.button() == 1:  # Left
-            self.setDragMode(QGraphicsView.RubberBandDrag)
             if self._main_window.handler.extras['edge_creating']: # if edge creating
                 item = self.find_top_node(event.pos())
                 if item is not None:
@@ -127,6 +125,11 @@ class GraphCoreView(QGraphicsView):
                     self._main_window.handler.extras['temp_coords'] = None
                     self._main_window.handler.extras['edge_creating'] = False
             else:
+                item = self.itemAt(event.pos())
+                if item is not None:
+                    self.setDragMode(QGraphicsView.DragMode.ScrollHandDrag)
+                else:
+                    self.setDragMode(QGraphicsView.DragMode.RubberBandDrag)
                 pass
                 # w, h = 6, 6
                 # x, y = event.pos().x() - w/2, event.pos().y()/h
@@ -148,7 +151,14 @@ class GraphCoreView(QGraphicsView):
     def mouseReleaseEvent(self, event: QMouseEvent):
         #self._main_window.print("mouseReleaseEvent button={}, pos={}".format(event.button(), event.pos()))
         from graphcore.graphicsitem import GraphCoreNodeItemInterface, GraphCoreEdgeItemInterface
+        if self.dragMode() == QGraphicsView.DragMode.ScrollHandDrag:
+            self.setDragMode(QGraphicsView.DragMode.NoDrag)
+            super().mouseReleaseEvent(event)
+            return
         if event.button() == 1:  # left button
+            if self.dragMode() == QGraphicsView.DragMode.NoDrag:
+                super().mouseReleaseEvent(event)
+                return
             if self.rubberBandRect() is None or (self.rubberBandRect().width() == 0 and self.rubberBandRect().height() == 0):
                 w, h = 4, 4
                 x, y = event.pos().x() - w/2, event.pos().y() - h/2
@@ -159,9 +169,9 @@ class GraphCoreView(QGraphicsView):
                     self._main_window.handler.add_select_elements([nodes_or_edges_or_groups[0]])
                 else:
                     self._main_window.handler.select_elements([nodes_or_edges_or_groups[0]])
-                self.setDragMode(QGraphicsView.NoDrag)
+                self.setDragMode(QGraphicsView.DragMode.NoDrag)
                 return
-            self.setDragMode(QGraphicsView.NoDrag)
+            self.setDragMode(QGraphicsView.DragMode.NoDrag)
             if event.pos().x() == self._press_pos.x() and event.pos().y() == self._press_pos.y(): # clicked:
                 w, h = 8, 8
                 x = event.pos().x() - w/2

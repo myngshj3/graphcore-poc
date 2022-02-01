@@ -318,7 +318,7 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
         self.ui.tabWidget.addTab(view, 'untitled')
         self.ui.tabWidget.setCurrentWidget(view)
         view.setBackgroundBrush(QBrush(QPixmap("images/grid-square.png")))
-        scene.setSceneRect(0, 0, view.width(), view.height())
+        #scene.setSceneRect(0, 0, view.width(), view.height())
         scene.shell = self.shell
         scene.settings = self.settings
         handler.extras['scene'] = scene
@@ -332,7 +332,8 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
         self.handler_changed(handler, async_handler)
         self.install_handler_actions()
         self.handler.loaded()
-        view.fitInView(scene.sceneRect(), Qt.AspectRatioMode.KeepAspectRatioByExpanding)
+        #view.fitInView(scene.itemsBoundingRect(), Qt.AspectRatioMode.KeepAspectRatioByExpanding)
+        view.fitInView(scene.itemsBoundingRect(), Qt.AspectRatioMode.IgnoreAspectRatio)
         index = self.ui.tabWidget.currentIndex()
         if self.handler.context.filename is None:
             self.ui.tabWidget.tabBar().setTabText(index, "untitled")
@@ -477,9 +478,9 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
 
     # change view
     def change_view(self, x, y, w, h):
-        self.scene.setSceneRect(x, y, w, h)
+        #self.scene.setSceneRect(x, y, w, h)
         view: QGraphicsView = self.ui.tabWidget.currentWidget()
-        view.setSceneRect(x, y, w, h)
+        #view.setSceneRect(x, y, w, h)
         self.ui.actionSave.setEnabled(True)
 
     # modified action
@@ -803,43 +804,48 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
     # fit graph to scene
     def command_fit_to_scene(self):
         try:
-            xmin = None
-            ymin = None
-            xmax = None
-            ymax = None
-            for n in self.handler.context.nodes:
-                attr = self.handler.context.nodes[n]
-                if xmin is None:
-                    xmin = attr['x']
-                    xmax = attr['x']
-                elif ymin is None:
-                    ymin = attr['y']
-                    ymax = attr['y']
-                else:
-                    if attr['x'] < xmin:
-                        xmin = attr['x']
-                    if xmax < attr['x']:
-                        xmax = attr['x']
-                    if attr['y'] < ymin:
-                        ymin = attr['y']
-                    if ymax < attr['y']:
-                        ymax = attr['y']
-            if xmin is None:
-                # do nothing
-                return
-            margin = 50
-            xmin -= margin
-            xmax += margin
-            ymin -= margin
-            ymax += margin
-            attrs = self.handler.context.graph
-            attrs['x'] = xmin
-            attrs['y'] = ymin
-            attrs['w'] = xmax - xmin
-            attrs['h'] = ymax - ymin
-            self.handler.change_view(xmin, ymin, xmax - xmin, ymax - ymin)
+            rect = self.scene.itemsBoundingRect()
+            self.handler.change_view(rect.x(), rect.y(), rect.width(), rect.height())
             view: QGraphicsView = self.ui.tabWidget.currentWidget()
             view.scale(1, 1)
+            view.setSceneRect(rect)
+            # xmin = None
+            # ymin = None
+            # xmax = None
+            # ymax = None
+            # for n in self.handler.context.nodes:
+            #     attr = self.handler.context.nodes[n]
+            #     if xmin is None:
+            #         xmin = attr['x']
+            #         xmax = attr['x']
+            #     elif ymin is None:
+            #         ymin = attr['y']
+            #         ymax = attr['y']
+            #     else:
+            #         if attr['x'] < xmin:
+            #             xmin = attr['x']
+            #         if xmax < attr['x']:
+            #             xmax = attr['x']
+            #         if attr['y'] < ymin:
+            #             ymin = attr['y']
+            #         if ymax < attr['y']:
+            #             ymax = attr['y']
+            # if xmin is None:
+            #     # do nothing
+            #     return
+            # margin = 50
+            # xmin -= margin
+            # xmax += margin
+            # ymin -= margin
+            # ymax += margin
+            # attrs = self.handler.context.graph
+            # attrs['x'] = xmin
+            # attrs['y'] = ymin
+            # attrs['w'] = xmax - xmin
+            # attrs['h'] = ymax - ymin
+            # self.handler.change_view(xmin, ymin, xmax - xmin, ymax - ymin)
+            # view: QGraphicsView = self.ui.tabWidget.currentWidget()
+            # view.scale(1, 1)
         except Exception as ex:
             self.print(traceback.format_exc())
         finally:
