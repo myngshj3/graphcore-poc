@@ -12,12 +12,11 @@
   </property>
   <property name="font">
    <font>
-    <family>メイリオ</family>
     <kerning>true</kerning>
    </font>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>GraphCore</string>
   </property>
   <property name="autoFillBackground">
    <bool>true</bool>
@@ -456,6 +455,9 @@
                           <property name="selectionBehavior">
                            <enum>QAbstractItemView::SelectRows</enum>
                           </property>
+                          <property name="gridStyle">
+                           <enum>Qt::SolidLine</enum>
+                          </property>
                           <attribute name="verticalHeaderVisible">
                            <bool>false</bool>
                           </attribute>
@@ -475,11 +477,6 @@
                           <column>
                            <property name="text">
                             <string>script</string>
-                           </property>
-                          </column>
-                          <column>
-                           <property name="text">
-                            <string/>
                            </property>
                           </column>
                          </widget>
@@ -556,11 +553,6 @@
                           <column>
                            <property name="text">
                             <string>script</string>
-                           </property>
-                          </column>
-                          <column>
-                           <property name="text">
-                            <string/>
                            </property>
                           </column>
                          </widget>
@@ -792,6 +784,7 @@
     <addaction name="separator"/>
     <addaction name="actionImport"/>
     <addaction name="actionExport"/>
+    <addaction name="actionPreferences"/>
     <addaction name="separator"/>
     <addaction name="actionQuit"/>
    </widget>
@@ -849,12 +842,18 @@
     <addaction name="actionStart_Solver"/>
     <addaction name="actionVisualizer"/>
    </widget>
+   <widget class="QMenu" name="menuCustom">
+    <property name="title">
+     <string>Custom</string>
+    </property>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
    <addaction name="menuView_Scene"/>
    <addaction name="menuModel"/>
    <addaction name="menuSolver_Simulation"/>
    <addaction name="menuLabel"/>
+   <addaction name="menuCustom"/>
    <addaction name="menuVersion"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
@@ -1081,6 +1080,11 @@
    </property>
    <property name="text">
     <string>Ungroup</string>
+   </property>
+  </action>
+  <action name="actionPreferences">
+   <property name="text">
+    <string>Preferences</string>
    </property>
   </action>
  </widget>

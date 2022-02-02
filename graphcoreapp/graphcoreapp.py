@@ -31,6 +31,7 @@ def main():
     # from graphcore.constraint import set_constraint_main_window
     import sys
     from PyQt5.QtWidgets import QApplication
+    from PyQt5.QtGui import QFont
 
     # load shell
     shell = GraphCoreShell(settings=settings)
@@ -154,8 +155,12 @@ def main():
     if 'preferences' not in settings.setting_keys():
         settings.set_setting('preferences', {
             'visualizer': {
-                'chart-line-width': 1,
+                'chart-line-width': 3,
                 'chart-background': 'black'
+            },
+            'font': {
+                'font-family': 'MSゴシック',
+                'font-size': 11
             }
         })
     preferences.set_settings(settings)
@@ -168,6 +173,13 @@ def main():
     # etc.
     # set_constraint_main_window(main_window)
     
+    font = QFont(settings.setting('preferences')['font']['font-family'],
+                 settings.setting('preferences')['font']['font-size'])
+    app.setFont(font)
+    main_window.setFont(font)
+    console.setFont(font)
+    solver_controller.setFont(font)
+    post_screen.setFont(font)
     # show main window
     main_window.deserialize()
     main_window.command_new_model()

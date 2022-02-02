@@ -332,8 +332,8 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
         self.handler_changed(handler, async_handler)
         self.install_handler_actions()
         self.handler.loaded()
-        #view.fitInView(scene.itemsBoundingRect(), Qt.AspectRatioMode.KeepAspectRatioByExpanding)
-        view.fitInView(scene.itemsBoundingRect(), Qt.AspectRatioMode.IgnoreAspectRatio)
+        view.fitInView(scene.itemsBoundingRect(), Qt.AspectRatioMode.KeepAspectRatioByExpanding)
+        #view.fitInView(scene.itemsBoundingRect(), Qt.AspectRatioMode.IgnoreAspectRatio)
         index = self.ui.tabWidget.currentIndex()
         if self.handler.context.filename is None:
             self.ui.tabWidget.tabBar().setTabText(index, "untitled")
@@ -478,9 +478,9 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
 
     # change view
     def change_view(self, x, y, w, h):
-        #self.scene.setSceneRect(x, y, w, h)
+        self.scene.setSceneRect(x, y, w, h)
         view: QGraphicsView = self.ui.tabWidget.currentWidget()
-        #view.setSceneRect(x, y, w, h)
+        view.fitInView(x, y, w, h, Qt.AspectRatioMode.KeepAspectRatio)
         self.ui.actionSave.setEnabled(True)
 
     # modified action
@@ -1336,6 +1336,7 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
         property_widget.setColumnCount(3)
         property_widget.setHorizontalHeaderLabels(('property', 'property', 'value'))
         property_widget.setColumnHidden(0, True)
+        #property_widget.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
 
     def property_clear(self):
         self.ui.propertyWidget.setRowCount(0)
@@ -1519,6 +1520,7 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
         constraint_widget.setColumnWidth(1, 20)
         constraints = self.settings.setting('system-constraints')
         constraint_widget.setRowCount(len(constraints.keys()))
+        #constraint_widget.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
         for i, k in enumerate(constraints.keys()):
             constraint = constraints[k]
             item = QTableWidgetItem(constraint['enabled'])
@@ -1811,6 +1813,8 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
         self.user_scripts_clear()
         self.ui.userScriptTable.setColumnWidth(0, 20)
         self.ui.userScriptTable.setColumnWidth(1, 20)
+        #self.ui.userScriptTable.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
+
 
     def user_scripts_clear(self):
         self.ui.userScriptTable.setRowCount(0)
@@ -1880,6 +1884,7 @@ class GraphCoreEditorMainWindow(QMainWindow, GeometrySerializer):
         scripts_widget.setHorizontalHeaderLabels(header_labels)
         scripts_widget.setColumnWidth(0, 20)
         scripts_widget.setColumnWidth(1, 20)
+        #scripts_widget.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
         scripts = self.settings.setting('system-scripts')
         scripts_widget.setRowCount(len(scripts.keys()))
         def set_enabled(i,k,v):

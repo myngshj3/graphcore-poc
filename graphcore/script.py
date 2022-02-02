@@ -823,7 +823,7 @@ class GraphCoreScript(QObject):
         from networkml.network import ExtensibleWrappedAccessor
         # debug purpose
         m = ExtensibleWrappedAccessor(self._toplevel, "attributes", None,
-                                      lambda ao,c,eo,ca,ea:ao.dump_attributes(), globally=True)
+                                      lambda ao,c,eo,ca,ea:ca[0].dump_attributes(), globally=True)
         self._toplevel.declare_method(m, globally=True)
         # system
         m = ExtensibleWrappedAccessor(self._toplevel, "sleep", None,

@@ -16,7 +16,6 @@ class Ui_MainWindow(object):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(1167, 804)
         font = QtGui.QFont()
-        font.setFamily("メイリオ")
         font.setKerning(True)
         MainWindow.setFont(font)
         MainWindow.setAutoFillBackground(True)
