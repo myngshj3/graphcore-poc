@@ -541,7 +541,7 @@ class GraphCoreContextHandler:
             i = self.element_to_item[e]
             if i.is_selected:
                 elems.append(e)
-        return tuple(elems)
+        return elems
 
     @property
     def selected_nodes(self):
@@ -551,7 +551,7 @@ class GraphCoreContextHandler:
             i = self.element_to_item[e]
             if isinstance(i, GraphCoreNodeItemInterface) and i.is_selected:
                 nodes.append(e)
-        return tuple(nodes)
+        return nodes
 
     @property
     def selected_edges(self):
@@ -561,7 +561,7 @@ class GraphCoreContextHandler:
             i = self.element_to_item[e]
             if isinstance(i, GraphCoreEdgeItemInterface) and i.is_selected:
                 edges.append(e)
-        return tuple(edges)
+        return edges
 
     @property
     def selected_groups(self):
@@ -571,7 +571,7 @@ class GraphCoreContextHandler:
             i = self.element_to_item[e]
             if isinstance(i, GCItemGroup) and i.is_selected:
                 groups.append(e)
-        return tuple(groups)
+        return groups
 
     @property
     def copy_buf(self) -> dict:
@@ -928,14 +928,14 @@ class GraphCoreContextHandler:
         for n in self.context.nodes:
             if self.is_conditions_matched(self.context.nodes[n], *args):
                 N.append(n)
-        return tuple(N)
+        return N
 
     def find_edges_ex(self, *args):
         E = []
         for e in self.context.edges:
             if self.is_conditions_matched(self.context.edges[e[0], e[1]], *args):
                 E.append(e)
-        return tuple(E)
+        return E
 
     @staticmethod
     def is_conditions_matched(data, *args):

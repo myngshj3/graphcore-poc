@@ -841,12 +841,21 @@ class GraphCoreScript(QObject):
                                       lambda ao, c, eo, ca, ea: ca[0].append(ca[1]),
                                       globally=True)
         self._toplevel.declare_method(m, globally=True)
+        m = ExtensibleWrappedAccessor(self._toplevel, "range", None,
+                                      lambda ao,c,eo,ca,ea:[_ for _ in range(*ca)])
+        self._toplevel.declare_method(m, globally=True)
+        m = ExtensibleWrappedAccessor(self._toplevel, "extend", None,
+                                      lambda ao,c,eo,ca,ea:ca[0].extend(ca[1]))
+        self._toplevel.declare_method(m, globally=True)
         m = ExtensibleWrappedAccessor(self._toplevel, "len", None,
                                       lambda ao, c, eo, ca, ea: len(ca[0]),
                                       globally=True)
         self._toplevel.declare_method(m, globally=True)
         m = ExtensibleWrappedAccessor(self._toplevel, "keys", None,
                                       lambda ao, c, eo, ca, ea: ca[0].keys())
+        self._toplevel.declare_method(m, globally=True)
+        m = ExtensibleWrappedAccessor(self._toplevel, "contains", None,
+                                      lambda ao, c, eo, ca, ea: ca[1] in ca[0])
         self._toplevel.declare_method(m, globally=True)
         # graphcore
         m = ExtensibleWrappedAccessor(self._toplevel, "load", None,
@@ -912,6 +921,13 @@ class GraphCoreScript(QObject):
         self._toplevel.declare_method(m, globally=True)
         m = ExtensibleWrappedAccessor(self._toplevel, "find_edges_ex", None,
                                       lambda ao, c, eo, ca, ea: self.handler.find_edges_ex(*ca))
+        self._toplevel.declare_method(m, globally=True)
+        m = ExtensibleWrappedAccessor(self._toplevel, "find_all_paths", None,
+                                      lambda ao,c,eo,ca,ea:[_ for _ in nx.all_simple_paths(self.handler.context.G,
+                                                                                           str(ca[0]), str(ca[1]))])
+        self._toplevel.declare_method(m, globally=True)
+        m = ExtensibleWrappedAccessor(self._toplevel, "path_to_edges", None,
+                                      lambda ao,c,eo,ca,ea:[(ca[0][_],ca[0][_+1]) for _ in range(0,len(ca[0])-1)])
         self._toplevel.declare_method(m, globally=True)
         m = ExtensibleWrappedAccessor(self._toplevel, "run_user_script", None,
                                       lambda ao, c, eo, ca, ea: self.handler.run_user_script(ca[0]))
